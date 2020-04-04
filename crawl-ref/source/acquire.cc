@@ -651,6 +651,17 @@ static int _acquirement_staff_subtype(bool /*divine*/, int & /*quantity*/,
 static int _acquirement_misc_subtype(bool /*divine*/, int & quantity,
                                      int /*agent*/)
 {
+    // Give a crystal ball based on both evocations and either spellcasting or
+    // invocations if we haven't seen one.
+    int skills = _skill_rdiv(SK_EVOCATIONS)
+        * max(_skill_rdiv(SK_SPELLCASTING), _skill_rdiv(SK_INVOCATIONS));
+    if (x_chance_in_y(skills, MAX_SKILL_LEVEL * MAX_SKILL_LEVEL)
+        && !you.seen_misc[MISC_CRYSTAL_BALL_OF_ENERGY])
+    {
+        return MISC_CRYSTAL_BALL_OF_ENERGY;
+    }
+
+
     const bool NO_LOVE = you.get_mutation_level(MUT_NO_LOVE);
 
     const vector<pair<int, int> > choices =
@@ -673,7 +684,8 @@ static int _acquirement_misc_subtype(bool /*divine*/, int & quantity,
     if (choice != nullptr && *choice == MISC_TIN_OF_TREMORSTONES)
         quantity = 2; // not quite worth it alone
 
-    return *choice;
+    // Could be nullptr if all the weights were 0.
+    return choice ? *choice : MISC_CRYSTAL_BALL_OF_ENERGY;
 }
 
 /**
