@@ -1723,6 +1723,7 @@ static void _generate_misc_item(item_def& item, int force_type)
         item.sub_type = random_choose(MISC_PHIAL_OF_FLOODS,
                                       MISC_LIGHTNING_ROD,
                                       MISC_BOX_OF_BEASTS,
+                                      MISC_CRYSTAL_BALL_OF_ENERGY,
                                       MISC_PHANTOM_MIRROR,
                                       MISC_TIN_OF_TREMORSTONES);
     }
