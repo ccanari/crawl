@@ -947,7 +947,6 @@ static bool _lamp_of_fire()
     return false;
 }
 
-
 struct dist_sorter
 {
     coord_def pos;
