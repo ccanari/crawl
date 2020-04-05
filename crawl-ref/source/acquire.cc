@@ -667,8 +667,9 @@ static int _acquirement_misc_subtype(bool /*divine*/, int & quantity,
     const vector<pair<int, int> > choices =
     {
         // These have charges, so give them a constant weight.
-        {MISC_BOX_OF_BEASTS,            (NO_LOVE ? 0 : 10)},
-        {MISC_PHANTOM_MIRROR,           (NO_LOVE ? 0 : 10)},
+        {MISC_BOX_OF_BEASTS,            (NO_LOVE ? 0 : 7)},
+        {MISC_SACK_OF_SPIDERS,          (NO_LOVE ? 0 : 7)},
+        {MISC_PHANTOM_MIRROR,           (NO_LOVE ? 0 : 7)},
         // Tremorstones are better for heavily armoured characters.
         {MISC_TIN_OF_TREMORSTONES, 3 + _skill_rdiv(SK_ARMOUR) / 3 },
         // The player never needs more than one.
