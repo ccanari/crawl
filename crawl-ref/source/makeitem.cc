@@ -1720,7 +1720,8 @@ static void _generate_misc_item(item_def& item, int force_type)
         item.sub_type = force_type;
     else
     {
-        item.sub_type = random_choose(MISC_LAMP_OF_FIRE,
+        item.sub_type = random_choose(MISC_FAN_OF_GALES,
+                                      MISC_LAMP_OF_FIRE,
                                       MISC_PHIAL_OF_FLOODS,
                                       MISC_LIGHTNING_ROD,
                                       MISC_SACK_OF_SPIDERS,
