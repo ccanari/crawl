@@ -3258,8 +3258,7 @@ static const struct spell_desc spelldata[] =
 {
     SPELL_GLACIATE, "Glaciate",
     spschool::conjuration | spschool::ice,
-    spflag::dir_or_target | spflag::area | spflag::not_self
-        | spflag:: monster,
+    spflag::dir_or_target | spflag::area | spflag::not_self,
     9,
     200,
     6, 6,
