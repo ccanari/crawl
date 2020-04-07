@@ -754,6 +754,19 @@ static bool _sack_of_spiders(item_def &sack)
     return success;
 }
 
+static int _num_evoker_elementals(int surge)
+{
+    int n = 1;
+    const int adjusted_power =
+        player_adjust_evoc_power(you.skill(SK_EVOCATIONS, 10), surge);
+    if (adjusted_power + random2(70) > 110)
+        ++n;
+    if (adjusted_power + random2(70) > 170)
+        ++n;
+    return n;
+}
+
+
 static bool _make_zig(item_def &zig)
 {
     if (feat_is_critical(grd(you.pos())))
