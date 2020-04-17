@@ -406,10 +406,11 @@ static const struct spell_desc spelldata[] =
 },
 
 // Used indirectly, by monsters abjuring via other summon spells.
+// And used directly by summoning miscast monsters (nameless horrors).
 {
     SPELL_ABJURATION, "Abjuration",
     spschool::summoning,
-    spflag::escape | spflag::needs_tracer | spflag::monster,
+    spflag::monster,
     3,
     200,
     LOS_RADIUS, LOS_RADIUS,
@@ -4101,7 +4102,7 @@ static const struct spell_desc spelldata[] =
     50,
     2, 2,
     3, 8,
-    TILEG_FREEZE,
+    TILEG_FROZEN_RAMPARTS,
 },
 
 {

@@ -62,7 +62,6 @@
 #include "shopping.h"
 #include "skills.h"
 #include "spl-book.h"
-#include "spl-miscast.h"
 #include "sprint.h"
 #include "state.h"
 #include "stringutil.h"
@@ -374,7 +373,7 @@ const vector<god_power> god_powers[NUM_GODS] =
     // Wu Jian
     { { 0, "perform damaging attacks by moving towards foes",
            "perform lunging strikes" },
-      { 1, "lightly attack and pin monsters in place by moving around them",
+      { 1, "lightly attack monsters by moving around them",
            "perform spinning attacks" },
       { 2, ABIL_WU_JIAN_WALLJUMP,
            "perform airborne attacks" },
@@ -2981,7 +2980,8 @@ void excommunication(bool voluntary, god_type new_god)
 
     case GOD_WU_JIAN:
         you.attribute[ATTR_SERPENTS_LASH] = 0;
-        you.attribute[ATTR_HEAVENLY_STORM] = 0;
+        if (you.props.exists(WU_JIAN_HEAVENLY_STORM_KEY))
+            wu_jian_end_heavenly_storm();
         break;
 
     default:
