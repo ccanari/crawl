@@ -116,7 +116,7 @@ void trap_def::prepare_ammo(int charges)
 
 void trap_def::reveal()
 {
-    grd(pos) = category();
+    grd(pos) = feature();
 }
 
 string trap_def::name(description_level_type desc) const
@@ -154,7 +154,7 @@ bool trap_def::is_safe(actor* act) const
 
     // TODO: For now, just assume they're safe; they don't damage outright,
     // and the messages get old very quickly
-    if (category() == DNGN_TRAP_WEB) // && act->is_web_immune()
+    if (type == TRAP_WEB) // && act->is_web_immune()
         return true;
 
 #if TAG_MAJOR_VERSION == 34
@@ -515,7 +515,7 @@ void trap_def::trigger(actor& triggerer)
 
     // Tentacles aren't real monsters, and shouldn't invoke magic traps.
     if (m && mons_is_tentacle_or_tentacle_segment(m->type)
-        && category() != DNGN_TRAP_MECHANICAL)
+        && !is_mechanical())
     {
         return;
     }
@@ -1167,8 +1167,8 @@ void trap_def::shoot_ammo(actor& act, bool was_known)
     int trap_hit = 20 + (to_hit_bonus()*2);
     trap_hit *= random2(200);
     trap_hit /= 100;
-    if (int defl = act.missile_deflection())
-        trap_hit = random2(trap_hit / defl);
+    if (act.missile_repulsion())
+        trap_hit = random2(trap_hit);
 
     const int con_block = random2(20 + act.shield_block_penalty());
     const int pro_block = act.shield_bonus();
@@ -1239,13 +1239,33 @@ void trap_def::shoot_ammo(actor& act, bool was_known)
     ammo_qty--;
 }
 
-// returns appropriate trap symbol
-dungeon_feature_type trap_def::category() const
+bool trap_def::is_mechanical() const
 {
-    return trap_category(type);
+    switch (type)
+    {
+    case TRAP_ARROW:
+    case TRAP_SPEAR:
+    case TRAP_BLADE:
+    case TRAP_DART:
+    case TRAP_BOLT:
+    case TRAP_NET:
+    case TRAP_PLATE:
+#if TAG_MAJOR_VERSION == 34
+    case TRAP_NEEDLE:
+    case TRAP_GAS:
+#endif
+        return true;
+    default:
+        return false;
+    }
 }
 
-dungeon_feature_type trap_category(trap_type type)
+dungeon_feature_type trap_def::feature() const
+{
+    return trap_feature(type);
+}
+
+dungeon_feature_type trap_feature(trap_type type)
 {
     switch (type)
     {
@@ -1256,8 +1276,9 @@ dungeon_feature_type trap_category(trap_type type)
     case TRAP_DISPERSAL:
         return DNGN_TRAP_DISPERSAL;
     case TRAP_TELEPORT:
-    case TRAP_TELEPORT_PERMANENT:
         return DNGN_TRAP_TELEPORT;
+    case TRAP_TELEPORT_PERMANENT:
+        return DNGN_TRAP_TELEPORT_PERMANENT;
     case TRAP_ALARM:
         return DNGN_TRAP_ALARM;
     case TRAP_ZOT:
@@ -1272,17 +1293,25 @@ dungeon_feature_type trap_category(trap_type type)
 #endif
 
     case TRAP_ARROW:
+        return DNGN_TRAP_ARROW;
     case TRAP_SPEAR:
+        return DNGN_TRAP_SPEAR;
     case TRAP_BLADE:
+        return DNGN_TRAP_BLADE;
     case TRAP_DART:
+        return DNGN_TRAP_DART;
     case TRAP_BOLT:
+        return DNGN_TRAP_BOLT;
     case TRAP_NET:
+        return DNGN_TRAP_NET;
+    case TRAP_PLATE:
+        return DNGN_TRAP_PLATE;
+
 #if TAG_MAJOR_VERSION == 34
     case TRAP_NEEDLE:
     case TRAP_GAS:
-#endif
-    case TRAP_PLATE:
         return DNGN_TRAP_MECHANICAL;
+#endif
 
     default:
         die("placeholder trap type %d used", type);

@@ -1818,10 +1818,6 @@ static spret _do_cast(spell_type spell, int powc, const dist& spd,
     case SPELL_NECROMUTATION:
         return cast_transform(powc, transformation::lich, fail);
 
-    // General enhancement.
-    case SPELL_DEFLECT_MISSILES:
-        return deflection(powc, fail);
-
     case SPELL_SWIFTNESS:
         return cast_swiftness(powc, fail);
 
@@ -2008,25 +2004,6 @@ static double _chance_of_fail_level(int raw_fail, int fail)
     return _get_true_fail_rate(target + 1) - _get_true_fail_rate(target);
 }
 
-
-/**
- * Compute the maximum severity of a miscast to report tier
- * @param spell     The spell to be checked.
- * @param tier      The miscast tier
- *
- * Tiers are defined by the relation between the expected miscast damage
- * (given a miscast occurs):
- *
- * - safe, Edam <= 5% mhp
- * - slightly dangerous, Edam <= 15% mhp
- * - quite dangerous, Edam <= 25% mhp
- * - extremely dangerous, larger Edam
- *
- * The miscast code uses
- *     dam = div_rand_round(roll_dice(level, level * fail), 10)
- * Here we compute the expected value of dam * 10 and compare to 10 * max hp
- */
-
 const double fail_hp_fraction[] =
 {
     .05,
@@ -2035,14 +2012,14 @@ const double fail_hp_fraction[] =
     .5,
 };
 
-int fail_severity(spell_type spell)
+double expected_miscast_damage(spell_type spell)
 {
     int raw_fail = raw_spell_fail(spell);
     int level = spell_difficulty(spell);
 
     // Impossible to get a damaging miscast
-    if (level * level * raw_fail <= 100)
-        return 0;
+    if (level * level * raw_fail <= MISCAST_THRESHOLD)
+        return 0.0;
 
     double total_miscast_chance = 0.0;
     double total_weighted_scaled_damage = 0.0;
@@ -2052,24 +2029,54 @@ int fail_severity(spell_type spell)
         double chance = _chance_of_fail_level(raw_fail, f);
         total_miscast_chance += chance;
         // Account for small effect cutoff
-        if (level * level * f > 100)
+        if (level * level * f > MISCAST_THRESHOLD)
             total_weighted_scaled_damage += chance * (level * level * f) / 2.0;
     }
 
-    double expected_damage =
-        total_weighted_scaled_damage / total_miscast_chance;
+    return total_weighted_scaled_damage / total_miscast_chance;
+}
+
+
+/**
+ * Compute the tier of expected severity of a miscast
+ * @param spell     The spell to be checked.
+ *
+ * Tiers are defined by the relation between the expected miscast damage
+ * (given a miscast occurs):
+ *
+ * - safe, no chance of dangerous effect
+ * - slightly dangerous, Edam <= 5% mhp
+ * - dangerous, Edam <= 15% mhp
+ * - quite dangerous, Edam <= 25% mhp
+ * - extremely dangerous, larger Edam
+ *
+ * The miscast code uses
+ *     dam = div_rand_round(roll_dice(level, level * fail), 30)
+ * Here we compute the expected value of dam * 30 and compare to 30 * max hp
+ */
+int fail_severity(spell_type spell)
+{
+    int raw_fail = raw_spell_fail(spell);
+    int level = spell_difficulty(spell);
+
+    // Impossible to get a damaging miscast
+    if (level * level * raw_fail <= 150)
+        return 0;
+
+    double expected_damage = expected_miscast_damage(spell);
 
     for (int i = 0; i < 4; ++i)
-        if (expected_damage / (10 * get_real_hp(true)) <= fail_hp_fraction[i])
-            return i;
+        if (expected_damage / (MISCAST_DIVISOR * get_real_hp(true)) <= fail_hp_fraction[i])
+            return i + 1;
 
-    return 4;
+    return 5;
 }
 
 const char *fail_severity_adjs[] =
 {
     "safe",
-    "slightly dangerous",
+    "mildly dangerous",
+    "dangerous",
     "quite dangerous",
     "extremely dangerous",
     "potentially lethal",
@@ -2082,9 +2089,10 @@ int failure_rate_colour(spell_type spell)
 {
     const int severity = fail_severity(spell);
     return severity == 0 ? LIGHTGREY :
-           severity == 1 ? YELLOW :
-           severity == 2 ? LIGHTRED :
-           severity == 3 ? RED
+           severity == 1 ? WHITE :
+           severity == 2 ? YELLOW :
+           severity == 3 ? LIGHTRED :
+           severity == 4 ? RED
                          : MAGENTA;
 }
 
@@ -2303,39 +2311,79 @@ void spell_skills(spell_type spell, set<skill_type> &skills)
             skills.insert(spell_type2skill(bit));
 }
 
+/* How to regenerate this:
+   comm -2 -3 \
+    <(clang -P -E -nostdinc -nobuiltininc spell-type.h -DTAG_MAJOR_VERSION=34 | sort) \
+    <(clang -P -E -nostdinc -nobuiltininc spell-type.h -DTAG_MAJOR_VERSION=35 | sort) \
+    | grep SPELL
+*/
 const set<spell_type> removed_spells =
 {
 #if TAG_MAJOR_VERSION == 34
-    SPELL_ABJURATION,
+    SPELL_BOLT_OF_INACCURACY,
+    SPELL_CHANT_FIRE_STORM,
     SPELL_CIGOTUVIS_DEGENERATION,
+    SPELL_CIGOTUVIS_EMBRACE,
     SPELL_CONDENSATION_SHIELD,
     SPELL_CONTROL_TELEPORT,
+    SPELL_CONTROL_UNDEAD,
+    SPELL_CONTROL_WINDS,
+    SPELL_CORRUPT_BODY,
+    SPELL_CURE_POISON,
+    SPELL_DEFLECT_MISSILES,
+    SPELL_DELAYED_FIREBALL,
     SPELL_DEMONIC_HORDE,
+    SPELL_DRACONIAN_BREATH,
+    SPELL_EPHEMERAL_INFUSION,
     SPELL_EVAPORATE,
+    SPELL_EXPLOSIVE_BOLT,
+    SPELL_FAKE_RAKSHASA_SUMMON,
     SPELL_FIRE_BRAND,
+    SPELL_FIRE_CLOUD,
+    SPELL_FLY,
     SPELL_FORCEFUL_DISMISSAL,
     SPELL_FREEZING_AURA,
+    SPELL_FRENZY,
     SPELL_FULSOME_DISTILLATION,
+    SPELL_GRAND_AVATAR,
+    SPELL_HASTE_PLANTS,
+    SPELL_HOLY_LIGHT,
+    SPELL_HOLY_WORD,
+    SPELL_HOMUNCULUS,
+    SPELL_HUNTING_CRY,
+    SPELL_IGNITE_POISON_SINGLE,
     SPELL_INSULATION,
+    SPELL_IRON_ELEMENTALS,
     SPELL_LETHAL_INFUSION,
+    SPELL_MELEE,
+    SPELL_MIASMA_CLOUD,
+    SPELL_MISLEAD,
+    SPELL_PHASE_SHIFT,
+    SPELL_POISON_CLOUD,
     SPELL_POISON_WEAPON,
+    SPELL_REARRANGE_PIECES,
+    SPELL_REGENERATION,
+    SPELL_RESURRECT,
+    SPELL_SACRIFICE,
     SPELL_SEE_INVISIBLE,
+    SPELL_SERPENT_OF_HELL_BREATH_REMOVED,
+    SPELL_SHAFT_SELF,
+    SPELL_SILVER_BLAST,
     SPELL_SINGULARITY,
     SPELL_SONG_OF_SHIELDING,
-    SPELL_SUMMON_SCORPIONS,
-    SPELL_SUMMON_ELEMENTAL,
-    SPELL_TWISTED_RESURRECTION,
-    SPELL_SURE_BLADE,
-    SPELL_FLY,
+    SPELL_STEAM_CLOUD,
     SPELL_STONESKIN,
-    SPELL_SUMMON_SWARM,
-    SPELL_PHASE_SHIFT,
-    SPELL_MASS_CONFUSION,
-    SPELL_CURE_POISON,
-    SPELL_CONTROL_UNDEAD,
-    SPELL_CIGOTUVIS_EMBRACE,
-    SPELL_DELAYED_FIREBALL,
-    SPELL_REGENERATION,
+    SPELL_STRIKING,
+    SPELL_SUMMON_ELEMENTAL,
+    SPELL_SUMMON_RAKSHASA,
+    SPELL_SUMMON_SCORPIONS,
+    SPELL_SUMMON_TWISTER,
+    SPELL_SUNRAY,
+    SPELL_SURE_BLADE,
+    SPELL_THROW,
+    SPELL_VAMPIRE_SUMMON,
+    SPELL_WARP_BRAND,
+    SPELL_WEAVE_SHADOWS,
 #endif
 };
 
