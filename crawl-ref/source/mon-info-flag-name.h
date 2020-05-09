@@ -73,9 +73,7 @@ static const vector<monster_info_flag_name> monster_info_flag_names = {
     { MB_INFESTATION, "infested", "infested", "infested"},
     // Debuffs
     { MB_DUMB, "stupefied", "stupefied", "stupefied"},
-#if TAG_MAJOR_VERSION == 34
     { MB_PINNED, "pinned", "pinned", "pinned"},
-#endif
     { MB_PETRIFYING, "petrifying", "petrifying slowly", "petrifying"},
     { MB_MAD, "mad", "lost in madness", "mad"},
     { MB_FLEEING, "fleeing", "fleeing", "fleeing"},
