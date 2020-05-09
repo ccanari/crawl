@@ -3967,7 +3967,6 @@ colour_t item_def::miscellany_colour() const
             return LIGHTCYAN;
         case MISC_HORN_OF_GERYON:
             return LIGHTRED;
-#if TAG_MAJOR_VERSION == 34
         case MISC_LAMP_OF_FIRE:
             return YELLOW;
         case MISC_SACK_OF_SPIDERS:

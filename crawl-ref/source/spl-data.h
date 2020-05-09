@@ -2599,7 +2599,7 @@ static const struct spell_desc spelldata[] =
 {
     SPELL_SUMMON_LIGHTNING_SPIRE, "Summon Lightning Spire",
     spschool::summoning | spschool::air,
-    spflag::none,
+    spflag::target | spflag::not_self | spflag::neutral,
     4,
     100,
     2, 2,
