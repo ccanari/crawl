@@ -828,9 +828,7 @@ string get_prefs_filename()
 void write_ghost_version(writer &outf)
 {
     // this may be distinct from the current save version
-    auto bones_version = save_version::current_bones();
-    marshallUByte(outf, bones_version.major);
-    marshallUByte(outf, bones_version.minor);
+    write_save_version(outf, save_version::current_bones());
 
     // extended_version just pads the version out to four 32-bit words.
     // This makes the bones file compatible with Hearse with no extra
@@ -853,10 +851,7 @@ static void _write_tagged_chunk(const string &chunkname, tag_type tag)
 {
     writer outf(you.save, chunkname);
 
-    // write version
-    marshallUByte(outf, TAG_MAJOR_VERSION);
-    marshallUByte(outf, TAG_MINOR_VERSION);
-
+    write_save_version(outf, save_version::current());
     tag_write(tag, outf);
 }
 
@@ -2880,18 +2875,32 @@ level_excursion::~level_excursion()
 
 save_version get_save_version(reader &file)
 {
-    // Read first two bytes.
-    uint8_t buf[2];
+    int major, minor;
     try
     {
-        file.read(buf, 2);
+        major = unmarshallUByte(file);
+        minor = unmarshallUByte(file);
+        if (minor == UINT8_MAX)
+            minor = unmarshallInt(file);
     }
     catch (short_read_exception& E)
     {
         // Empty file?
         return save_version(-1, -1);
     }
-    return save_version(buf[0], buf[1]);
+    return save_version(major, minor);
+}
+
+void write_save_version(writer &outf, save_version version)
+{
+    marshallUByte(outf, version.major);
+    if (version.minor < UINT8_MAX)
+        marshallUByte(outf, version.minor);
+    else
+    {
+        marshallUByte(outf, UINT8_MAX);
+        marshallInt(outf, version.minor);
+    }
 }
 
 static bool _convert_obsolete_species()
@@ -2950,9 +2959,9 @@ static bool _read_char_chunk(package *save)
 
     try
     {
-        uint8_t format, major, minor;
-        inf.read(&major, 1);
-        inf.read(&minor, 1);
+        const auto version = get_save_version(inf);
+        const auto major = version.major, minor = version.minor;
+        uint8_t format;
 
         unsigned int len = unmarshallInt(inf);
         if (len > 1024) // something is fishy
@@ -3006,28 +3015,32 @@ static bool _tagged_chunk_version_compatible(reader &inf, string* reason)
 
     if (!version.is_compatible())
     {
-        const save_version current = save_version::current();
         if (version.is_ancient())
         {
-            if (Version::ReleaseType)
-            {
-                *reason = (CRAWL " " + string(Version::Short) + " is not compatible with "
-                           "save files from older versions. You can continue your "
-                           "game with the appropriate older version, or you can "
-                           "delete it and start a new game.");
-            }
-            else
-            {
-                *reason = make_stringf("Major version mismatch: %d (want %d).",
-                                       version.major, current.major);
-            }
+            const auto min_supported = save_version::minimum_supported();
+            *reason = make_stringf("This save is from an older version.\n"
+                    "\n"
+                    CRAWL " %s is not compatible with save files this old. You can:\n"
+                    " • continue your game with an older version of " CRAWL "\n"
+                    " • delete it and start a new game\n"
+                    "\n"
+                    "This save's version: (%d.%d) (must be >= %d.%d)",
+                    Version::Short,
+                    version.major, version.minor,
+                    min_supported.major, min_supported.minor);
         }
         else if (version.is_future())
         {
-            *reason = make_stringf("Version mismatch: %d.%d (want <= %d.%d). "
-                               "The save is from a newer version.",
-                               version.major, version.minor,
-                               current.major, current.minor);
+            const auto current = save_version::current();
+            *reason = make_stringf("This save is from a newer version.\n"
+                    "\n"
+                    CRAWL " cannot load saves from newer versions. You can:\n"
+                    " • continue your game with a newer version of " CRAWL "\n"
+                    " • delete it and start a new game\n"
+                    "\n"
+                    "This save's version: (%d.%d) (must be <= %d.%d)",
+                    version.major, version.minor,
+                    current.major, current.minor);
         }
         return false;
     }

@@ -1825,11 +1825,13 @@ int player_movement_speed()
         mv = 6;
 
     // Wading through water is very slow.
-    if (you.in_water() && !you.can_swim()
-        || you.liquefied_ground() && !you.duration[DUR_LIQUEFYING])
-    {
+    if (you.in_water() && !you.can_swim())
         mv += 6;
-    }
+
+    // moving on liquefied ground, or while maintaining the
+    // effect takes longer
+    if (you.liquefied_ground() || you.duration[DUR_LIQUEFYING])
+        mv += 3;
 
     // armour
     if (you.run())

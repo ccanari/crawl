@@ -411,18 +411,6 @@ monster_type pick_random_monster(level_id place,
         return pick_monster(place);
 }
 
-bool can_place_on_trap(monster_type mon_type)
-{
-    if (mons_is_tentacle_segment(mon_type))
-        return true;
-
-    // Things summoned by the player to a specific spot shouldn't protest.
-    if (mon_type == MONS_FULMINANT_PRISM || mon_type == MONS_LIGHTNING_SPIRE)
-        return true;
-
-    return false;
-}
-
 bool drac_colour_incompatible(int drac, int colour)
 {
     return drac == MONS_DRACONIAN_SCORCHER && colour == MONS_WHITE_DRACONIAN;
@@ -619,12 +607,6 @@ static bool _valid_monster_generation_location(const mgen_data &mg,
                 return false;
             }
     }
-
-    // Don't generate monsters on top of teleport traps.
-    // (How did they get there?)
-    const trap_def* ptrap = trap_at(mg_pos);
-    if (ptrap && !can_place_on_trap(mg.cls))
-        return false;
 
     return true;
 }
@@ -1210,8 +1192,6 @@ static monster* _place_monster_aux(const mgen_data &mg, const monster *leader,
         // simultaneous die-offs of mushroom rings.
         mon->add_ench(ENCH_SLOWLY_DYING);
     }
-    else if (mg.cls == MONS_HYPERACTIVE_BALLISTOMYCETE)
-        mon->add_ench(ENCH_EXPLODING);
     else if (mons_is_demonspawn(mon->type)
              && draco_or_demonspawn_subspecies(*mon) == MONS_GELID_DEMONSPAWN)
     {
@@ -1451,10 +1431,6 @@ static monster* _place_monster_aux(const mgen_data &mg, const monster *leader,
         mon->set_ghost(ghost);
         mon->uglything_init();
     }
-#if TAG_MAJOR_VERSION == 34
-    else if (mon->type == MONS_LABORATORY_RAT)
-        mon->type = MONS_RAT;
-#endif
     else if (mons_class_is_animated_weapon(mon->type))
     {
         ghost_demon ghost;

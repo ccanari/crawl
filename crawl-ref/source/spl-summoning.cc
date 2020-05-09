@@ -902,8 +902,8 @@ spret cast_conjure_ball_lightning(int pow, god_type god, bool fail)
 
     const int how_many = min(5, 2 + pow / 100 + random2(pow / 50 + 1));
 
-    mgen_data cbl(MONS_BALL_LIGHTNING, BEH_FRIENDLY, you.pos());
-    cbl.set_summoned(&you, 0, SPELL_CONJURE_BALL_LIGHTNING, god);
+    mgen_data cbl =_pal_data(MONS_BALL_LIGHTNING, 0, god,
+                             SPELL_CONJURE_BALL_LIGHTNING);
     cbl.hd = 5 + div_rand_round(pow, 20);
 
     for (int i = 0; i < how_many; ++i)
@@ -914,7 +914,8 @@ spret cast_conjure_ball_lightning(int pow, god_type god, bool fail)
             ball->add_ench(ENCH_SHORT_LIVED);
 
             // Avoid ball lightnings without targets always moving towards (0,0)
-            set_random_target(ball);
+            if (!(ball->get_foe() && ball->get_foe()->is_monster()))
+                set_random_target(ball);
         }
     }
 
@@ -926,57 +927,22 @@ spret cast_conjure_ball_lightning(int pow, god_type god, bool fail)
     return spret::success;
 }
 
-spret cast_summon_lightning_spire(int pow, const coord_def& where, god_type god, bool fail)
+spret cast_summon_lightning_spire(int pow, god_type god, bool fail)
 {
-    const int dur = 2;
-
-    if (grid_distance(where, you.pos()) > spell_range(SPELL_SUMMON_LIGHTNING_SPIRE,
-                                                      pow)
-        || !in_bounds(where))
-    {
-        mpr("That's too far away.");
-        return spret::abort;
-    }
-
-    if (!monster_habitable_grid(MONS_HUMAN, grd(where)))
-    {
-        mpr("You can't construct there.");
-        return spret::abort;
-    }
-
-    monster* mons = monster_at(where);
-    if (mons)
-    {
-        if (you.can_see(*mons))
-        {
-            mpr("That space is already occupied.");
-            return spret::abort;
-        }
-
-        fail_check();
-
-        // invisible monster
-        mpr("Something you can't see is blocking your construction!");
-        return spret::success;
-    }
-
     fail_check();
 
-    mgen_data spire(MONS_LIGHTNING_SPIRE, BEH_FRIENDLY, where, MHITYOU,
-                    MG_FORCE_BEH | MG_FORCE_PLACE | MG_AUTOFOE);
-    spire.set_summoned(&you, dur, SPELL_SUMMON_LIGHTNING_SPIRE,  god);
+    mgen_data spire = _pal_data(MONS_LIGHTNING_SPIRE, 2, god,
+                                SPELL_SUMMON_LIGHTNING_SPIRE);
     spire.hd = max(1, div_rand_round(pow, 10));
 
-    if (create_monster(spire))
-    {
-        if (!silenced(where))
-            mpr("An electric hum fills the air.");
-    }
+    monster* mons = create_monster(spire);
+
+    if (mons && !silenced(mons->pos()))
+        mpr("An electric hum fills the air.");
     else
         canned_msg(MSG_NOTHING_HAPPENS);
 
     return spret::success;
-
 }
 
 spret cast_summon_guardian_golem(int pow, god_type god, bool fail)
@@ -1309,7 +1275,7 @@ coord_def find_gateway_location(actor* caster)
 void create_malign_gateway(coord_def point, beh_type beh, string cause,
                            int pow, god_type god, bool is_player)
 {
-    const int malign_gateway_duration = BASELINE_DELAY * (random2(3) + 2);
+    const int malign_gateway_duration = BASELINE_DELAY * (random2(2) + 1);
     env.markers.add(new map_malign_gateway_marker(point,
                             malign_gateway_duration,
                             is_player,
@@ -1732,9 +1698,6 @@ static bool _raise_remains(const coord_def &pos, int corps, beh_type beha,
         *motions_r |= DEAD_ARE_HOPPING;
     }
     else if (mons_genus(zombie_type)    == MONS_WORKER_ANT
-#if TAG_MAJOR_VERSION == 34
-             || mons_genus(zombie_type) == MONS_BEETLE
-#endif
              || mons_base_char(zombie_type) == 's') // many genera
     {
         *motions_r |= DEAD_ARE_CRAWLING;
@@ -3713,7 +3676,7 @@ spret cast_foxfire(int pow, god_type god, bool fail)
     for (fair_adjacent_iterator ai(you.pos()); ai; ++ai)
     {
         mgen_data fox(MONS_FOXFIRE, BEH_FRIENDLY,
-                      *ai, MHITNOT, MG_FORCE_PLACE);
+                      *ai, MHITNOT, MG_FORCE_PLACE | MG_AUTOFOE);
         fox.set_summoned(&you, 0, SPELL_FOXFIRE, god);
         fox.hd = pow;
         monster *foxfire;
@@ -3725,7 +3688,9 @@ spret cast_foxfire(int pow, god_type god, bool fail)
             foxfire->add_ench(ENCH_SHORT_LIVED);
             foxfire->steps_remaining = you.current_vision + 2;
 
-            set_random_target(foxfire);
+            // Avoid foxfire without targets always moving towards (0,0)
+            if (!(foxfire->get_foe() && foxfire->get_foe()->is_monster()))
+                set_random_target(foxfire);
         }
 
         if (created == 2)

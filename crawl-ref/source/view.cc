@@ -78,8 +78,6 @@
 #include "viewmap.h"
 #include "xom.h"
 
-//#define DEBUG_PANE_BOUNDS
-
 static layers_type _layers = LAYERS_ALL;
 static layers_type _layers_saved = LAYERS_NONE;
 
@@ -999,39 +997,6 @@ void flash_view_delay(use_animation_type a, colour_t colour, int flash_delay,
     }
 }
 
-static void _debug_pane_bounds()
-{
-#ifdef DEBUG_PANE_BOUNDS
-    // Doesn't work for HUD because print_stats() overwrites it.
-
-    if (crawl_view.mlistsz.y > 0)
-    {
-        textcolour(WHITE);
-        cgotoxy(1,1, GOTO_MLIST);
-        cprintf("+   L");
-        cgotoxy(crawl_view.mlistsz.x-4, crawl_view.mlistsz.y, GOTO_MLIST);
-        cprintf("L   +");
-    }
-
-    cgotoxy(1,1, GOTO_STAT);
-    cprintf("+  H");
-    cgotoxy(crawl_view.hudsz.x-3, crawl_view.hudsz.y, GOTO_STAT);
-    cprintf("H  +");
-
-    cgotoxy(1,1, GOTO_MSG);
-    cprintf("+ M");
-    cgotoxy(crawl_view.msgsz.x-2, crawl_view.msgsz.y, GOTO_MSG);
-    cprintf("M +");
-
-    cgotoxy(crawl_view.viewp.x, crawl_view.viewp.y);
-    cprintf("+V");
-    cgotoxy(crawl_view.viewp.x+crawl_view.viewsz.x-2,
-            crawl_view.viewp.y+crawl_view.viewsz.y-1);
-    cprintf("V+");
-    textcolour(LIGHTGREY);
-#endif
-}
-
 enum class update_flag
 {
     affect_excludes = (1 << 0),
@@ -1154,7 +1119,7 @@ static void _draw_outside_los(screen_cell_t *cell, const coord_def &gc,
 
 #ifdef USE_TILE
     // this is just for out-of-los rays, but I don't see a more efficient way..
-    if (in_bounds(ep))
+    if (in_bounds(gc))
         cell->tile.bg = env.tile_bg(ep);
 
     tileidx_out_of_los(&cell->tile.fg, &cell->tile.bg, &cell->tile.cloud, gc);
@@ -1537,8 +1502,6 @@ void viewwindow(bool show_updates, bool tiles_only, animation *a)
         // Reset env.show if we munged it.
         if (_layers != LAYERS_ALL)
             show_init();
-
-        _debug_pane_bounds();
     }
 }
 

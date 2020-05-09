@@ -2667,7 +2667,6 @@ void bolt::internal_ouch(int dam)
     }
     else if (monst && (monst->type == MONS_BALLISTOMYCETE_SPORE
                        || monst->type == MONS_BALL_LIGHTNING
-                       || monst->type == MONS_HYPERACTIVE_BALLISTOMYCETE
                        || monst->type == MONS_FULMINANT_PRISM
                        || monst->type == MONS_BENNU // death flames
                        ))
@@ -4262,9 +4261,9 @@ void glaciate_freeze(monster* mon, killer_type englaciator,
 
 void bolt::monster_post_hit(monster* mon, int dmg)
 {
-    // Suppress the message for scattershot.
+    // Suppress the message for tremorstones.
     if (YOU_KILL(thrower) && you.see_cell(mon->pos())
-        && name != "burst of metal fragments")
+        && name != "burst of rock shards")
     {
         print_wounds(*mon);
     }
@@ -4630,15 +4629,21 @@ void bolt::affect_monster(monster* mon)
     if (flavour == BEAM_MISSILE && item)
     {
         actor *ag = agent(true);
-        // if the agent is now dead, check to see if we can get a usable agent
-        // by factoring in reflections. This case will cause
+        // if the immediate agent is now dead, check to see if we can get a
+        // usable agent by factoring in reflections.
+        // At this point, it is possible that the agent is the dummy monster
+        // associated with YOU_FAULTLESS. This case will cause
         // "INVALID YOU_FAULTLESS" to show up in dprfs and mess up the to-hit,
         // but it otherwise works.
-        // TODO Possibly what should happen is that the thrower's death should
-        // be special-cased as a fineff, but this seemed very tricky to
-        // implement...
+        // TODO: is there a good way of handling the to-hit correctly? (And why
+        // should the to-hit be affected by reflections at all?)
+        // An alternative would be to stop the missile at this point.
         if (!ag)
             ag = agent(false);
+        // if that didn't work, blanket fall back on YOU_FAULTLESS. This covers
+        // a number of other weird penetration cases.
+        if (!ag)
+            ag = &menv[YOU_FAULTLESS];
         ASSERT(ag);
         ranged_attack attk(ag, mon, item, use_target_as_pos, agent());
         attk.attack();
@@ -5026,8 +5031,7 @@ bool ench_flavour_affects_monster(beam_type flavour, const monster* mon,
         break;
 
     case BEAM_INNER_FLAME:
-        rc = !(mon->is_summoned() && !mon->is_illusion()
-               || mon->has_ench(ENCH_INNER_FLAME));
+        rc = !mon->has_ench(ENCH_INNER_FLAME);
         break;
 
     case BEAM_PETRIFY:
@@ -5040,6 +5044,12 @@ bool ench_flavour_affects_monster(beam_type flavour, const monster* mon,
 
     case BEAM_VILE_CLUTCH:
         rc = !mons_aligned(&you, mon) && you.can_constrict(mon, false);
+        break;
+
+    // These are special allies whose loyalty can't be so easily bent
+    case BEAM_ENSLAVE:
+        rc = !(mons_is_hepliaklqana_ancestor(mon->type)
+               || testbits(mon->flags, MF_DEMONIC_GUARDIAN));
         break;
 
     default:
@@ -5447,7 +5457,6 @@ mon_resist_type bolt::apply_enchantment_to_monster(monster* mon)
 
     case BEAM_INNER_FLAME:
         if (!mon->has_ench(ENCH_INNER_FLAME)
-            && (!mon->is_summoned() || mon->is_illusion())
             && mon->add_ench(mon_enchant(ENCH_INNER_FLAME, 0, agent())))
         {
             if (simple_monster_message(*mon,
@@ -6106,8 +6115,6 @@ bool bolt::nasty_to(const monster* mon) const
             return !mons_aligned(mon, agent());
         case BEAM_TELEPORT:
         case BEAM_BECKONING:
-            // Friendly and good neutral monsters don't mind being teleported.
-            return !mon->wont_attack();
         case BEAM_INFESTATION:
         case BEAM_VILE_CLUTCH:
         case BEAM_SLOW:

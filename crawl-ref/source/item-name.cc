@@ -618,7 +618,6 @@ static const char* _wand_type_name(int wandtype)
     case WAND_RANDOM_EFFECTS:  return "random effects";
     case WAND_DISINTEGRATION:  return "disintegration";
     case WAND_CLOUDS:          return "clouds";
-    case WAND_SCATTERSHOT:     return "scattershot";
     default:                   return item_type_removed(OBJ_WANDS, wandtype)
                                     ? "removedness"
                                     : "bugginess";
@@ -3278,14 +3277,6 @@ string item_prefix(const item_def &item, bool temp)
 
         else if (is_noxious(item))
             prefixes.push_back("inedible");
-        break;
-
-    case OBJ_POTIONS:
-        if (is_preferred_food(item))
-        {
-            prefixes.push_back("preferred");
-            prefixes.push_back("food");
-        }
         break;
 
     case OBJ_STAVES:

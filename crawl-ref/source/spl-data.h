@@ -2599,7 +2599,7 @@ static const struct spell_desc spelldata[] =
 {
     SPELL_SUMMON_LIGHTNING_SPIRE, "Summon Lightning Spire",
     spschool::summoning | spschool::air,
-    spflag::target | spflag::not_self | spflag::neutral,
+    spflag::none,
     4,
     100,
     2, 2,
@@ -3010,17 +3010,6 @@ static const struct spell_desc spelldata[] =
     -1, -1,
     6, 0,
     TILEG_GENERIC_MONSTER_SPELL,
-},
-
-{
-    SPELL_SCATTERSHOT, "Scattershot",
-    spschool::conjuration | spschool::earth,
-    spflag::dir_or_target | spflag::not_self,
-    6,
-    200,
-    5, 5,
-    6, 0,
-    TILEG_SCATTERSHOT,
 },
 
 {

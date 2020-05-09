@@ -120,6 +120,8 @@ static void _extend_move_to_edge(dist &moves);
 static vector<string> _get_monster_desc_vector(const monster_info& mi);
 static string _get_monster_desc(const monster_info& mi);
 
+static int targeting_behaviour_get_key();
+
 #ifdef DEBUG_DIAGNOSTICS
 static void _debug_describe_feature_at(const coord_def &where);
 #endif
@@ -179,74 +181,6 @@ bool dist::isMe() const
     return isValid && !isCancel
            && (target == you.pos()
                || (target.origin() && delta.origin()));
-}
-
-bool direction_chooser::choose_compass()
-{
-    // Reinitialize moves.
-    moves.isValid       = true;
-    moves.isTarget      = false;
-    moves.isCancel      = false;
-    moves.delta.reset();
-
-    mouse_control mc(MOUSE_MODE_TARGET_DIR);
-
-    behaviour->compass = true;
-
-    do
-    {
-        const command_type key_command = behaviour->get_command();
-
-        if (handle_signals())
-            return false;
-
-#ifdef USE_TILE
-        if (key_command == CMD_TARGET_MOUSE_MOVE)
-            continue;
-        else if (key_command == CMD_TARGET_MOUSE_SELECT)
-        {
-            const coord_def &gc = tiles.get_cursor();
-            if (gc == NO_CURSOR)
-                continue;
-
-            if (!map_bounds(gc))
-                continue;
-
-            coord_def delta = gc - you.pos();
-            if (delta.rdist() > 1)
-            {
-                tiles.place_cursor(CURSOR_MOUSE, gc);
-                delta = tiles.get_cursor() - you.pos();
-                ASSERT(delta.rdist() <= 1);
-            }
-
-            moves.delta = delta;
-            break;
-        }
-#endif
-
-        if (key_command == CMD_TARGET_SELECT)
-        {
-            moves.delta.reset();
-            break;
-        }
-
-        const int i = _targeting_cmd_to_compass(key_command);
-        if (i != -1)
-            moves.delta = Compass[i];
-        else if (key_command == CMD_TARGET_CANCEL)
-        {
-            moves.isCancel = true;
-            moves.isValid = false;
-        }
-    }
-    while (!moves.isCancel && moves.delta.origin());
-
-#ifdef USE_TILE
-    tiles.place_cursor(CURSOR_MOUSE, NO_CURSOR);
-#endif
-
-    return moves.isValid;
 }
 
 static int _targeting_cmd_to_compass(command_type command)
@@ -376,8 +310,6 @@ void direction_chooser::print_key_hints() const
             prompt += ", Dir - move target cursor";
             prompt += hint_string;
             break;
-        case DIR_DIR:
-            break;
         }
     }
 
@@ -418,7 +350,7 @@ void direction_chooser::describe_cell() const
         print_key_hints();
         bool did_cloud = false;
         print_target_description(did_cloud);
-        if (just_looking || (show_items_once && !targets_objects()))
+        if (just_looking)
             print_items_description();
         if (just_looking || show_floor_desc)
         {
@@ -530,8 +462,6 @@ direction_chooser::direction_chooser(dist& moves_,
     need_text_redraw = true;
     need_cursor_redraw = true;
     need_all_redraw = false;
-
-    show_items_once = false;
 }
 
 class view_desc_proc
@@ -636,19 +566,22 @@ void full_describe_view()
             // List monsters in the form
             // (A) An angel (neutral), wielding a glowing long sword
 
-            string prefix = "";
+            ostringstream prefix;
 #ifndef USE_TILE_LOCAL
             cglyph_t g = get_mons_glyph(mi);
             const string col_string = colour_to_str(g.col);
-            prefix = "(<" + col_string + ">"
-                     + (g.ch == '<' ? "<<" : stringize_glyph(g.ch))
-                     + "</" + col_string + ">) ";
+            prefix << "(<" << col_string << ">"
+                     << (g.ch == '<' ? "<<" : stringize_glyph(g.ch))
+                     << "</" << col_string << ">) ";
 #endif
+            if (Options.monster_item_view_coordinates)
+            {
+                const coord_def relpos = mi.pos - you.pos();
+                prefix << "(" << relpos.x << ", " << -relpos.y << ") ";
+            }
+
 
             string str = get_monster_equipment_desc(mi, DESC_FULL, DESC_A, true);
-            if (mi.is(MB_MESMERIZING))
-                str += ", keeping you mesmerised";
-
             if (mi.dam != MDAM_OKAY)
                 str += ", " + mi.damage_desc();
 
@@ -666,7 +599,7 @@ void full_describe_view()
             for (unsigned int j = 0; j < fss.size(); ++j)
             {
                 if (j == 0)
-                    me = new MonsterMenuEntry(prefix + fss[j].tostring(), &mi, hotkey++);
+                    me = new MonsterMenuEntry(prefix.str() + fss[j].tostring(), &mi, hotkey++);
 #ifndef USE_TILE_LOCAL
                 else
                 {
@@ -696,6 +629,7 @@ void full_describe_view()
             // Show glyphs only for ASCII.
             me->set_show_glyph(true);
 #endif
+            me->set_show_coordinates(Options.monster_item_view_coordinates);
             me->tag = "pickup";
             me->hotkeys[0] = hotkey;
             me->quantity = 2; // Hack to make items selectable.
@@ -710,21 +644,25 @@ void full_describe_view()
         desc_menu.add_entry(new MenuEntry("Features", MEL_SUBTITLE));
         for (const coord_def c : list_features)
         {
-            string desc = "";
+            ostringstream desc;
 #ifndef USE_TILE_LOCAL
             cglyph_t g = get_cell_glyph(c, true);
             const string colour_str = colour_to_str(g.col);
-            desc = "(<" + colour_str + ">";
-            desc += stringize_glyph(g.ch);
-            if (g.ch == '<')
-                desc += '<';
+            desc << "(<" << colour_str << ">";
+            desc << (g.ch == '<' ? "<<" : stringize_glyph(g.ch));
 
-            desc += "</" + colour_str +">) ";
+            desc << "</" << colour_str << ">) ";
 #endif
-            desc += feature_description_at(c, false, DESC_A);
+            if (Options.monster_item_view_coordinates)
+            {
+                const coord_def relpos = c - you.pos();
+                desc << "(" << relpos.x << ", " << -relpos.y << ") ";
+            }
+
+            desc << feature_description_at(c, false, DESC_A);
             if (is_unknown_stair(c) || is_unknown_transporter(c))
-                desc += " (not visited)";
-            FeatureMenuEntry *me = new FeatureMenuEntry(desc, c, hotkey);
+                desc << " (not visited)";
+            FeatureMenuEntry *me = new FeatureMenuEntry(desc.str(), c, hotkey);
             me->tag        = "description";
             // Hack to make features selectable.
             me->quantity   = c.x*100 + c.y + 3;
@@ -1102,8 +1040,6 @@ const coord_def& direction_chooser::target() const
 
 void direction_chooser::set_target(const coord_def& new_target)
 {
-    if (restricts == DIR_SHADOW_STEP)
-        valid_shadow_step = hitfunc->has_additional_sites(new_target);
     moves.target = new_target;
 }
 
@@ -1232,7 +1168,6 @@ void direction_chooser::object_cycle(int dir)
                              dir > 0 ? LS_FLIPVH : LS_FLIPHV))
     {
         set_target(objfind_pos);
-        show_items_once = true;
     }
     else
         flush_input_buffer(FLUSH_ON_FAILURE);
@@ -1289,8 +1224,12 @@ bool direction_chooser::select(bool allow_out_of_range, bool endpoint)
 {
     const monster* mons = monster_at(target());
 
-    if (restricts == DIR_SHADOW_STEP && !valid_shadow_step)
-        return false;
+    if (restricts == DIR_SHADOW_STEP)
+    {
+        const auto valid_shadow_step = hitfunc->has_additional_sites(target());
+        if (!valid_shadow_step)
+            return false;
+    }
 
     if ((restricts == DIR_LEAP
          || restricts == DIR_SHADOW_STEP
@@ -1809,7 +1748,6 @@ void direction_chooser::do_redraws()
         msgwin_clear_temporary();
         describe_cell();
         need_text_redraw = false;
-        show_items_once = false;
     }
 
     if (need_cursor_redraw || Options.use_fake_cursor)
@@ -1905,28 +1843,11 @@ void direction_chooser::show_help()
     need_all_redraw = true;
 }
 
-// Return false if we should continue looping, true if we're done.
-bool direction_chooser::do_main_loop()
+bool direction_chooser::process_command(command_type command)
 {
-    if (handle_signals())
-        return true;
-
-    // This needs to be done every loop iteration.
-    reinitialize_move_flags();
-
-    const coord_def old_target = target();
-    const int key = behaviour->get_key();
-    if (key == CK_REDRAW)
-    {
-        redraw_screen(false);
-        return false;
-    }
-
-    const command_type key_command = behaviour->get_command(key);
-    behaviour->update_top_prompt(&top_prompt);
     bool loop_done = false;
 
-    switch (key_command)
+    switch (command)
     {
     case CMD_TARGET_SHOW_PROMPT: describe_cell(); break;
 
@@ -1991,19 +1912,25 @@ bool direction_chooser::do_main_loop()
 
     case CMD_TARGET_CYCLE_BACK:
         if (!targets_objects())
-        {
             monster_cycle(-1);
-            break;
-        } // else fall-through
-    case CMD_TARGET_OBJ_CYCLE_BACK:    object_cycle(-1);  break;
+        else
+            object_cycle(-1);
+        break;
+
+    case CMD_TARGET_OBJ_CYCLE_BACK:
+        object_cycle(-1);
+        break;
 
     case CMD_TARGET_CYCLE_FORWARD:
         if (!targets_objects())
-        {
             monster_cycle(1);
-            break;
-        } // else fall-through
-    case CMD_TARGET_OBJ_CYCLE_FORWARD: object_cycle(1);  break;
+        else
+            object_cycle(1);
+        break;
+
+    case CMD_TARGET_OBJ_CYCLE_FORWARD:
+        object_cycle(1);
+        break;
 
     case CMD_TARGET_CANCEL:
         loop_done = true;
@@ -2015,10 +1942,35 @@ bool direction_chooser::do_main_loop()
 
     default:
         // Some blocks of keys with similar handling.
-        handle_movement_key(key_command, &loop_done);
-        handle_wizard_command(key_command, &loop_done);
+        handle_movement_key(command, &loop_done);
+        handle_wizard_command(command, &loop_done);
         break;
     }
+
+    return loop_done;
+}
+
+// Return false if we should continue looping, true if we're done.
+bool direction_chooser::do_main_loop()
+{
+    if (handle_signals())
+        return true;
+
+    // This needs to be done every loop iteration.
+    reinitialize_move_flags();
+
+    const coord_def old_target = target();
+    const auto key = targeting_behaviour_get_key();
+    if (key == CK_REDRAW)
+    {
+        redraw_screen(false);
+        return false;
+    }
+
+    const command_type key_command = behaviour->get_command(key);
+    behaviour->update_top_prompt(&top_prompt);
+
+    bool loop_done = process_command(key_command);
 
     // Don't allow going out of bounds.
     if (!crawl_view.in_viewport_g(target()))
@@ -2071,9 +2023,6 @@ bool direction_chooser::choose_direction()
 #ifdef USE_TILE
     ui::cutoff_point ui_cutoff_point;
 #endif
-
-    if (restricts == DIR_DIR)
-        return choose_compass();
 
     cursor_control ccon(!Options.use_fake_cursor);
     mouse_control mc(needs_path && !just_looking ? MOUSE_MODE_TARGET_PATH
@@ -3107,10 +3056,8 @@ static vector<string> _get_monster_behaviour_vector(const monster_info& mi)
 {
     vector<string> descs;
 
-    if (mi.is(MB_SLEEPING) || mi.is(MB_DORMANT))
-        descs.emplace_back(mi.is(MB_CONFUSED) ? "sleepwalking" : "resting");
-    else if (mi.is(MB_FLEEING))
-        descs.emplace_back("fleeing");
+    if ((mi.is(MB_SLEEPING) || mi.is(MB_DORMANT)) && mi.is(MB_CONFUSED))
+        descs.emplace_back("sleepwalking");
     else if (mi.attitude == ATT_HOSTILE && (mi.is(MB_UNAWARE) || mi.is(MB_WANDERING)))
         descs.emplace_back("hasn't noticed you");
 
@@ -3121,9 +3068,6 @@ static vector<string> _get_monster_behaviour_vector(const monster_info& mi)
 static vector<string> _get_monster_desc_vector(const monster_info& mi)
 {
     vector<string> descs;
-
-    if (mi.is(MB_MESMERIZING))
-        descs.emplace_back("mesmerising");
 
     _append_container(descs, _get_monster_behaviour_vector(mi));
 
@@ -3151,31 +3095,11 @@ static vector<string> _get_monster_desc_vector(const monster_info& mi)
         descs.emplace_back("indifferent");
     }
 
-    if (mi.is(MB_SUMMONED))
-        descs.emplace_back("summoned");
-
-    if (mi.is(MB_PERM_SUMMON))
-        descs.emplace_back("durably summoned");
-
-    if (mi.is(MB_SUMMONED_CAPPED))
-        descs.emplace_back("expiring");
-
     if (mi.is(MB_HALOED))
         descs.emplace_back("haloed");
 
     if (mi.is(MB_UMBRAED))
         descs.emplace_back("umbra");
-
-    if (mi.is(MB_POSSESSABLE))
-        descs.emplace_back("possessable"); // FIXME: better adjective
-    else if (mi.is(MB_ENSLAVED))
-        descs.emplace_back("disembodied soul");
-
-    if (mi.is(MB_MIRROR_DAMAGE))
-        descs.emplace_back("reflecting injuries");
-
-    if (mi.is(MB_INNER_FLAME))
-        descs.emplace_back("inner flame");
 
     if (mi.fire_blocker)
     {
@@ -3350,25 +3274,13 @@ string get_monster_equipment_desc(const monster_info& mi,
         if (print_attitude)
         {
             vector<string> attributes;
-            if (mi.is(MB_CHARMED))
-                attributes.emplace_back("charmed");
-            else if (mi.attitude == ATT_FRIENDLY)
+            if (mi.attitude == ATT_FRIENDLY)
                 attributes.emplace_back("friendly");
             else if (mi.attitude == ATT_GOOD_NEUTRAL)
                 attributes.emplace_back("peaceful");
-            else if (mi.is(MB_INSANE))
-                attributes.emplace_back("insane");
-            else if (mi.attitude != ATT_HOSTILE)
+            else if (mi.attitude != ATT_HOSTILE && !mi.is(MB_INSANE))
                 attributes.emplace_back("neutral");
-
-            if (mi.is(MB_SUMMONED))
-                attributes.emplace_back("summoned");
-
-            if (mi.is(MB_PERM_SUMMON))
-                attributes.emplace_back("durably summoned");
-
-            if (mi.is(MB_SUMMONED_CAPPED))
-                attributes.emplace_back("expiring");
+            _append_container(attributes, mi.attributes());
 
             string str = comma_separated_line(attributes.begin(),
                                               attributes.end());
@@ -3703,7 +3615,7 @@ static void _describe_cell(const coord_def& where, bool in_range)
 // targeting_behaviour
 
 targeting_behaviour::targeting_behaviour(bool look_around)
-    : just_looking(look_around), compass(false)
+    : just_looking(look_around)
 {
 }
 
@@ -3711,7 +3623,7 @@ targeting_behaviour::~targeting_behaviour()
 {
 }
 
-int targeting_behaviour::get_key()
+static int targeting_behaviour_get_key()
 {
     if (!crawl_state.is_replaying_keys())
         flush_input_buffer(FLUSH_BEFORE_COMMAND);
@@ -3724,9 +3636,6 @@ int targeting_behaviour::get_key()
 
 command_type targeting_behaviour::get_command(int key)
 {
-    if (key == -1)
-        key = get_key();
-
     command_type cmd = key_to_command(key, KMC_TARGETING);
     if (cmd >= CMD_MIN_TARGET && cmd < CMD_TARGET_PREV_TARGET)
         return cmd;

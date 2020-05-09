@@ -22,6 +22,7 @@
 #include <set>
 #include <string>
 
+#include "branch-data-json.h"
 #include "chardump.h"
 #include "clua.h"
 #include "colour.h"
@@ -86,7 +87,7 @@ extern char **NXArgv;
 #ifndef DATA_DIR_PATH
 #include <unistd.h>
 #endif
-#elif defined(TARGET_OS_LINUX) || defined(TARGET_OS_CYGWIN)
+#elif defined(UNIX) || defined(TARGET_COMPILER_MINGW)
 #include <unistd.h>
 #endif
 
@@ -181,6 +182,7 @@ const vector<GameOption*> game_options::build_options_list()
         new BoolGameOption(SIMPLE_NAME(animate_equip_bar), false),
         new BoolGameOption(SIMPLE_NAME(mouse_input), false),
         new BoolGameOption(SIMPLE_NAME(mlist_allow_alternate_layout), false),
+        new BoolGameOption(SIMPLE_NAME(monster_item_view_coordinates), false),
         new BoolGameOption(SIMPLE_NAME(messages_at_top), false),
         new BoolGameOption(SIMPLE_NAME(msg_condense_repeats), true),
         new BoolGameOption(SIMPLE_NAME(msg_condense_short), true),
@@ -212,7 +214,7 @@ const vector<GameOption*> game_options::build_options_list()
         new BoolGameOption(SIMPLE_NAME(bad_item_prompt), true),
         new BoolGameOption(SIMPLE_NAME(dos_use_background_intensity), true),
         new BoolGameOption(SIMPLE_NAME(explore_greedy), true),
-        new BoolGameOption(SIMPLE_NAME(explore_auto_rest), false),
+        new BoolGameOption(SIMPLE_NAME(explore_auto_rest), true),
         new BoolGameOption(SIMPLE_NAME(travel_key_stop), true),
         new BoolGameOption(SIMPLE_NAME(dump_on_save), true),
         new BoolGameOption(SIMPLE_NAME(rest_wait_both), false),
@@ -282,6 +284,7 @@ const vector<GameOption*> game_options::build_options_list()
         new IntGameOption(SIMPLE_NAME(level_map_cursor_step), 7, 1, 50),
         new IntGameOption(SIMPLE_NAME(dump_item_origin_price), -1, -1),
         new IntGameOption(SIMPLE_NAME(dump_message_count), 20),
+        new IntGameOption(SIMPLE_NAME(auto_butcher_max_chunks), 10, 0),
         new ListGameOption<text_pattern>(SIMPLE_NAME(confirm_action)),
         new ListGameOption<text_pattern>(SIMPLE_NAME(drop_filter)),
         new ListGameOption<text_pattern>(SIMPLE_NAME(note_monsters)),
@@ -1046,7 +1049,7 @@ void game_options::reset_options()
     autopickups.set(OBJ_FOOD);
 
     confirm_butcher        = confirm_butcher_type::normal;
-    auto_butcher           = HS_VERY_HUNGRY;
+    auto_butcher           = HS_ENGORGED;
     easy_confirm           = easy_confirm_type::safe;
     allow_self_target      = confirm_prompt_type::prompt;
     skill_focus            = SKM_FOCUS_ON;
@@ -1155,7 +1158,7 @@ void game_options::reset_options()
     dump_order.clear();
     new_dump_fields("header,hiscore,stats,misc,inventory,"
                     "skills,spells,overview,mutations,messages,"
-                    "screenshot,monlist,kills,notes,vaults,"
+                    "screenshot,monlist,kills,notes,screenshots,vaults,"
                     "skill_gains,action_counts");
     // Currently enabled by default for testing in trunk.
     if (Version::ReleaseType == VER_ALPHA)
@@ -3910,6 +3913,7 @@ enum commandline_option_type
     CLO_THROTTLE,
     CLO_NO_THROTTLE,
     CLO_PLAYABLE_JSON, // JSON metadata for species, jobs, combos.
+    CLO_BRANCHES_JSON, // JSON metadata for branches.
     CLO_EDIT_BONES,
 #ifdef USE_TILE_WEB
     CLO_WEBTILES_SOCKET,
@@ -3928,7 +3932,7 @@ static const char *cmd_ops[] =
     "builddb", "help", "version", "seed", "pregen", "save-version", "sprint",
     "extra-opt-first", "extra-opt-last", "sprint-map", "edit-save",
     "print-charset", "tutorial", "wizard", "explore", "no-save", "gdb",
-    "no-gdb", "nogdb", "throttle", "no-throttle", "playable-json",
+    "no-gdb", "nogdb", "throttle", "no-throttle", "playable-json", "branches-json",
     "bones",
 #ifdef USE_TILE_WEB
     "webtiles-socket", "await-connection", "print-webtiles-options",
@@ -3950,7 +3954,7 @@ static string _find_executable_path()
         return utf16_to_8(tempPath);
     else
         return "";
-#elif defined (TARGET_OS_LINUX) || defined (TARGET_OS_CYGWIN)
+#elif defined (UNIX)
     char tempPath[2048];
     const ssize_t rsize =
         readlink("/proc/self/exe", tempPath, sizeof(tempPath) - 1);
@@ -4841,6 +4845,10 @@ bool parse_args(int argc, char **argv, bool rc_only)
 
         case CLO_PLAYABLE_JSON:
             fprintf(stdout, "%s", playable_metadata_json().c_str());
+            end(0);
+
+        case CLO_BRANCHES_JSON:
+            fprintf(stdout, "%s", branch_data_json().c_str());
             end(0);
 
         case CLO_TEST:

@@ -2112,12 +2112,13 @@ void abyss_maybe_spawn_xp_exit()
         || !you.props.exists(ABYSS_STAIR_XP_KEY)
         || you.props[ABYSS_STAIR_XP_KEY].get_int() > 0
         || !in_bounds(you.pos())
-        || feat_is_staircase(grd(you.pos())))
+        || feat_is_critical(grd(you.pos())))
     {
         return;
     }
     const bool stairs = !at_branch_bottom()
                         && you.props.exists(ABYSS_SPAWNED_XP_EXIT_KEY)
+                        && coinflip()
                         && you.props[ABYSS_SPAWNED_XP_EXIT_KEY].get_bool();
 
     destroy_wall(you.pos()); // fires listeners etc even if it wasn't a wall

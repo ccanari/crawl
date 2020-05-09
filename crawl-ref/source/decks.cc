@@ -1140,27 +1140,8 @@ static void _damaging_card(card_type card, int power,
     case CARD_PAIN:
         if (power_level == 2)
         {
-            mpr(prompt);
-
-            if (monster *ghost = _friendly(MONS_FLAYED_GHOST, 3))
-            {
-                apply_visible_monsters([&, ghost](monster& mons)
-                {
-                    if (mons.wont_attack()
-                        || !(mons.holiness() & MH_NATURAL))
-                    {
-                        return false;
-                    }
-
-
-                    flay(*ghost, mons, mons.hit_points * 2 / 5);
-                    return true;
-                }, ghost->pos());
-
-                ghost->foe = MHITYOU; // follow you around (XXX: rethink)
-                return;
-            }
-            // else, fallback to level 1
+            mpr("You reveal a symbol of torment!");
+            torment(&you, TORMENT_CARD_PAIN, you.pos());
         }
 
         ztype = painzaps[min(power_level, (int)ARRAYSZ(painzaps)-1)];
@@ -1480,33 +1461,16 @@ static void _cloud_card(int power)
     {
         monster *mons = monster_at(*di);
         cloud_type cloudy;
-
-        switch (power_level)
-        {
-            case 0: cloudy = !one_chance_in(5) ? CLOUD_MEPHITIC : CLOUD_POISON;
-                    break;
-
-            case 1: cloudy = coinflip() ? CLOUD_COLD : CLOUD_FIRE;
-                    break;
-
-            case 2: cloudy = coinflip() ? CLOUD_ACID: CLOUD_MIASMA;
-                    break;
-
-            default: cloudy = CLOUD_DEBUGGING;
-        }
+        cloudy = CLOUD_BLACK_SMOKE;
 
         if (!mons || mons->wont_attack() || !mons_is_threatening(*mons))
             continue;
 
-        for (adjacent_iterator ai(mons->pos()); ai; ++ai)
+        for (adjacent_iterator ai(mons->pos(), false); ai; ++ai)
         {
-            // don't place clouds on the player or monsters
-            if (*ai == you.pos() || monster_at(*ai))
-                continue;
-
             if (grd(*ai) == DNGN_FLOOR && !cloud_at(*ai))
             {
-                const int cloud_power = 5 + random2((power_level + 1) * 3);
+                const int cloud_power = 5 + random2avg(power_level * 6, 2);
                 place_cloud(cloudy, *ai, cloud_power, &you);
 
                 if (you.see_cell(*ai))

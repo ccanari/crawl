@@ -77,6 +77,7 @@
  #include "tileview.h"
  #include "tile-flags.h"
 #endif
+#include "transform.h"
 #include "unicode.h"
 
 using namespace ui;
@@ -1852,6 +1853,24 @@ static string _describe_armour(const item_def &item, bool verbose)
     return description;
 }
 
+static string _describe_lignify_ac()
+{
+    const Form* tree_form = get_form(transformation::tree);
+    vector<const item_def *> treeform_items;
+
+    for (auto item : you.get_armour_items())
+        if (tree_form->slot_available(get_equip_slot(item)))
+            treeform_items.push_back(item);
+
+    const int treeform_ac =
+        (you.base_ac_with_specific_items(100, treeform_items)
+         - you.racial_ac(true) - you.ac_changes_from_mutations()
+         - get_form()->get_ac_bonus() + tree_form->get_ac_bonus()) / 100;
+
+    return make_stringf("If you quaff this potion your AC will be %d.",
+                        treeform_ac);
+}
+
 static string _describe_jewellery(const item_def &item, bool verbose)
 {
     string description;
@@ -2141,6 +2160,10 @@ string get_item_description(const item_def &item, bool verbose,
         break;
 
     case OBJ_POTIONS:
+        if (item.sub_type == POT_LIGNIFY && verbose)
+            description << "\n\n" + _describe_lignify_ac();
+        break;
+
     case OBJ_SCROLLS:
     case OBJ_ORBS:
     case OBJ_GOLD:
@@ -2633,13 +2656,11 @@ static command_type _get_action(int key, vector<command_type> actions)
  * Do the specified action on the specified item.
  *
  * @param item    the item to have actions done on
- * @param actions the list of actions to search in
- * @param keyin   the key that was pressed
+ * @param action  the action to do
  * @return whether to stay in the inventory menu afterwards
  */
-static bool _do_action(item_def &item, const vector<command_type>& actions, int keyin)
+static bool _do_action(item_def &item, const command_type action)
 {
-    const command_type action = _get_action(keyin, actions);
     if (action == CMD_NO_CMD)
         return true;
 
@@ -2848,15 +2869,7 @@ bool describe_item(item_def &item, function<void (string&)> fixup_desc)
 
     ui::run_layout(move(popup), done);
 
-    if (action != CMD_NO_CMD)
-        return _do_action(item, actions, lastch);
-    else if (item.has_spells())
-    {
-        // only continue the inventory loop if we didn't start memorising a
-        // spell & didn't destroy the item for amnesia.
-        return !already_learning_spell();
-    }
-    return true;
+    return _do_action(item, action);
 }
 
 void inscribe_item(item_def &item)
@@ -3035,7 +3048,7 @@ static string _miscast_damage_string(spell_type spell)
     if (disciplines & (spschool::charms | spschool::hexes))
         descs.push_back("debuff and slow you");
 
-    int dam = div_round_up(expected_miscast_damage(spell), MISCAST_DIVISOR);
+    int dam = max_miscast_damage(spell);
     vector <string> dam_flavors;
     for (const auto flav : damage_flavor)
         if (disciplines & flav.first)
@@ -3043,7 +3056,7 @@ static string _miscast_damage_string(spell_type spell)
 
     if (!dam_flavors.empty())
     {
-        descs.push_back(make_stringf("deal an average of %d %s damage", dam,
+        descs.push_back(make_stringf("deal up to %d %s damage", dam,
                                      comma_separated_line(dam_flavors.begin(),
                                                          dam_flavors.end(),
                                                          " or ").c_str()));
@@ -4530,23 +4543,32 @@ void get_monster_db_desc(const monster_info& mi, describe_info &inf,
         stair_use = true;
     }
 
-    if (mi.is(MB_SUMMONED))
+    if (mi.is(MB_SUMMONED) || mi.is(MB_PERM_SUMMON))
     {
-        inf.body << "\nThis monster has been summoned, and is thus only "
-                    "temporary. Killing " << it_o << " yields no experience, "
-                    "nutrition or items";
-        if (!stair_use)
+        inf.body << "\nThis monster has been summoned"
+                 << (mi.is(MB_SUMMONED) ? ", and is thus only temporary. "
+                                        : " in a durable way. ");
+        // TODO: hacks; convert angered_by_attacks to a monster_info check
+        // (but on the other hand, it is really limiting to not have access
+        // to the monster...)
+        if (!mi.pos.origin() && monster_at(mi.pos)
+                                && monster_at(mi.pos)->angered_by_attacks()
+                                && mi.attitude == ATT_FRIENDLY)
         {
-            inf.body << ", and " << it << " " << is
-                     << " incapable of using stairs";
+            inf.body << "If angered " << it
+                                      << " will immediately vanish, yielding ";
         }
+        else
+            inf.body << "Killing " << it_o << " yields ";
+        inf.body << "no experience, nutrition or items";
+
+        if (!stair_use)
+            inf.body << "; " << it << " " << is << " incapable of using stairs";
+
+        if (mi.is(MB_PERM_SUMMON))
+            inf.body << ", and " << it << " cannot be abjured";
+
         inf.body << ".\n";
-    }
-    else if (mi.is(MB_PERM_SUMMON))
-    {
-        inf.body << "\nThis monster has been summoned in a durable way. "
-                    "Killing " << it_o << " yields no experience, nutrition "
-                    "or items, but " << it << " cannot be abjured.\n";
     }
     else if (mi.is(MB_NO_REWARD))
     {

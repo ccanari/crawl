@@ -64,7 +64,8 @@ amulet of the acrobat
 
 An amulet that allows the user to tumble and roll to evade the blows of their
 enemies, but only while moving and waiting. While taking other actions the
-amulet conveys no benefits. In order to function, it must first attune itself to the wearer's body at full health.
+amulet conveys no benefits. In order to function, it must first attune itself
+to the wearer's body at full health.
 %%%%
 animal skin
 
@@ -646,9 +647,9 @@ phial of floods
 
 An enchanted vessel brimming over with elemental water. Removing the stopper
 unleashes a torrent of water from the phial, dealing damage to the target and
-flooding the nearby area. Any creatures within the flooded area are also
-engulfed in water, silencing them temporarily. The strength of the torrent and
-the duration of the flooding are increased with Evocations skill.
+flooding the nearby area. Any creatures hit by the wave are also engulfed in
+water, silencing them temporarily. The strength of the torrent and the duration
+of the flooding are increased with Evocations skill.
 %%%%
 plate armour
 
@@ -1143,13 +1144,15 @@ speed of an unskilled wearer.
 %%%%
 tin of tremorstones
 
-A set of dormant earth elementals in the form of tiny, very heavy pebbles. When
-thrown, the elementals literally explode with rage at their rest being disturbed.
-Tremorstones usually land slightly off-target, and the user is always at risk of
-being hit. However, armour is extremely effective at repelling the lightweight
-fragments of rock from a tremorstone's explosion, so a well-armoured wielder has
-little to fear. Evocations skill has no effect on tremorstones, and there is a
-one in three chance of accidentally destroying the case when using it.
+A set of dormant, magnetic earth elementals in the form of tiny, very heavy
+pebbles. When released, the elementals are drawn magnetically to the center of
+nearby monsters, where they literally explode with rage at their rest being
+disturbed. Tremorstones usually land slightly off-target, and the user is
+always at risk of being hit. However, armour is extremely effective at
+repelling the lightweight fragments of rock from a tremorstone's explosion, so
+a well-armoured wielder has little to fear. Evocations skill increases the
+number and power of the elementals' explosions. There is a one in three chance
+of accidentally destroying the case when using it.
 %%%%
 trident
 
@@ -1224,11 +1227,6 @@ form. It is especially effective against shape-changing creatures.
 wand of random effects
 
 A magical device which can produce a variety of effects.
-%%%%
-wand of scattershot
-
-A magical device which fires powerful blasts of metallic shrapnel. Its damage
-is strongly reduced by armour.
 %%%%
 war axe
 

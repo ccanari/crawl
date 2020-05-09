@@ -224,6 +224,12 @@ string InvEntry::get_text(bool need_cursor) const
     if (InvEntry::show_glyph)
         tstr << "(" << glyph_to_tagstr(get_item_glyph(*item)) << ")" << " ";
 
+    if (InvEntry::show_coordinates && in_bounds(item->pos))
+    {
+        const coord_def relpos = item->pos - you.pos();
+        tstr << "(" << relpos.x << ", " << -relpos.y << ")" << " ";
+    }
+
     tstr << text;
     return tstr.str();
 }
@@ -304,6 +310,12 @@ bool InvEntry::show_glyph = false;
 void InvEntry::set_show_glyph(bool doshow)
 {
     show_glyph = doshow;
+}
+
+bool InvEntry::show_coordinates = false;
+void InvEntry::set_show_coordinates(bool doshow)
+{
+    show_coordinates = doshow;
 }
 
 InvMenu::InvMenu(int mflags)
@@ -2183,14 +2195,12 @@ bool item_is_evokable(const item_def &item, bool unskilled, bool known,
             mpr("That item cannot be evoked!");
         return false;
 
-    case OBJ_MISCELLANY:
 #if TAG_MAJOR_VERSION == 34
+    case OBJ_MISCELLANY:
         if (item.sub_type != MISC_BUGGY_LANTERN_OF_SHADOWS
             && item.sub_type != MISC_BUGGY_EBONY_CASKET)
         {
-#endif
-            return unskilled || item.sub_type != MISC_TIN_OF_TREMORSTONES;
-#if TAG_MAJOR_VERSION == 34
+            return true;
         }
         // removed items fallthrough to failure
 #endif

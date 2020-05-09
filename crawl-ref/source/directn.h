@@ -35,9 +35,7 @@ public:
     targeting_behaviour(bool just_looking = false);
     virtual ~targeting_behaviour();
 
-    // Returns a keystroke for the prompt.
-    virtual int get_key();
-    virtual command_type get_command(int key = -1);
+    virtual command_type get_command(int key);
 
     // Should we force a redraw?
     virtual bool should_redraw() const { return false; }
@@ -54,7 +52,6 @@ private:
 
 public:
     bool just_looking;
-    bool compass;
     desc_filter get_desc_func; // Function to add relevant descriptions
 };
 
@@ -121,12 +118,13 @@ public:
 private:
     bool targets_objects() const;
     bool targets_enemies() const;
-    bool choose_compass();      // Used when we only need to choose a direction
 
     bool do_main_loop();
 
     // Return the location where targeting should start.
     coord_def find_default_target() const;
+
+    bool process_command(command_type command);
 
     void handle_mlist_cycle_command(command_type key_command);
     void handle_wizard_command(command_type key_command, bool* loop_done);
@@ -260,17 +258,11 @@ private:
     bool have_beam;             // Is the currently stored beam valid?
     coord_def objfind_pos, monsfind_pos; // Cycling memory
 
-    bool valid_shadow_step;     // If shadow-stepping, do we currently have a
-                                // monster target with a valid landing
-                                // position?
-
     // What we need to redraw.
     bool need_viewport_redraw;
     bool need_cursor_redraw;
     bool need_text_redraw;
     bool need_all_redraw;       // All of the above.
-
-    bool show_items_once;       // Should we show items this time?
 
     // Default behaviour, saved across instances.
     static targeting_behaviour stock_behaviour;

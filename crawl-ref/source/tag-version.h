@@ -241,13 +241,11 @@ enum tag_minor_version
     TAG_MINOR_MORE_GHOST_MAGIC,    // Update already placed ghosts for positional magic
     TAG_MINOR_DUMMY_AGILITY,       // Convert garbage "agility" potions into stab
     TAG_MINOR_TRACK_REGEN_ITEMS,   // Regen items take effect only after maxhp is reached
+    TAG_MINOR_MORGUE_SCREENSHOTS,  // Screenshots morgue section
 #endif
     NUM_TAG_MINORS,
     TAG_MINOR_VERSION = NUM_TAG_MINORS - 1
 };
-
-// Marshalled as a byte in several places.
-COMPILE_CHECK(TAG_MINOR_VERSION <= 0xff);
 
 // tags that affect loading bones files. If you do save compat that affects
 // ghosts, these must be updated in addition to the enum above.
@@ -281,6 +279,15 @@ struct save_version
     static save_version current_bones()
     {
         return save_version(TAG_MAJOR_VERSION, *bones_minor_tags.crbegin());
+    }
+
+    static save_version minimum_supported()
+    {
+#if TAG_MAJOR_VERSION == 34
+        return save_version(33, 17);
+#else
+        return save_version(TAG_MAJOR_VERSION, 0);
+#endif
     }
 
     bool valid() const
@@ -335,12 +342,7 @@ struct save_version
 
     bool is_ancient() const
     {
-        return valid() &&
-#if TAG_MAJOR_VERSION == 34
-            (major < 33 && minor < 17);
-#else
-            major < TAG_MAJOR_VERSION;
-#endif
+        return valid() && *this < minimum_supported();
     }
 
     bool is_compatible() const

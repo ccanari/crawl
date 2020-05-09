@@ -191,6 +191,7 @@ public:
     int         msg_max_height;
     int         msg_webtiles_height;
     bool        mlist_allow_alternate_layout;
+    bool        monster_item_view_coordinates;
     bool        messages_at_top;
     bool        msg_condense_repeats;
     bool        msg_condense_short;
@@ -236,6 +237,8 @@ public:
     bool        enable_recast_spell; // Allow recasting spells with 'z' Enter.
     confirm_butcher_type confirm_butcher; // When to prompt for butchery
     hunger_state_t auto_butcher; // auto-butcher corpses while travelling
+    int         auto_butcher_max_chunks; // if nonzero, only auto-butcher if player
+                                         // has fewer than this many chunks
     bool        easy_eat_chunks; // make 'e' auto-eat the oldest safe chunk
     bool        auto_eat_chunks; // allow eating chunks while resting or travelling
     skill_focus_mode skill_focus; // is the focus skills available
