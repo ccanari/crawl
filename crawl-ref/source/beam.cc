@@ -3311,7 +3311,7 @@ bool bolt::harmless_to_player() const
         return player_res_poison(false) > 0 || you.clarity();
 
     case BEAM_PETRIFY:
-        return you.res_petrify() || you.petrified();
+        return you.res_petrify() || you.petrified() || you.petrifying();
 
     case BEAM_COLD:
         return is_big_cloud() && actor_cloud_immune(you, CLOUD_COLD);
@@ -5957,7 +5957,7 @@ bool ench_flavour_affects_monster(actor *agent, beam_type flavour,
         break;
 
     case BEAM_PETRIFY:
-        rc = !mon->res_petrify();
+        rc = !mon->res_petrify() && !mon->petrifying() && !mon->petrified();
         break;
 
     case BEAM_INFESTATION:
