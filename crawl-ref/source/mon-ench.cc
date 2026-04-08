@@ -24,6 +24,7 @@
 #include "fight.h"
 #include "hints.h"
 #include "god-abil.h"
+#include "god-companions.h"
 #include "item-status-flag-type.h"
 #include "items.h"
 #include "libutil.h"
@@ -1973,6 +1974,20 @@ void monster::apply_enchantments()
     for (int i = 0; i < NUM_ENCHANTMENTS; ++i)
         if (ec[i] && has_ench(static_cast<enchant_type>(i)))
             apply_enchantment(enchantments.find(static_cast<enchant_type>(i))->second);
+}
+
+bool monster::is_vengeance_target() const
+{
+    if (!has_ench(ENCH_VENGEANCE_TARGET))
+        return false;
+    // When entering a level, old vengeance will be removed from monsters by a
+    // daction. However, it is possible for a monster to die before that runs
+    // (e.g. from an earlier daction to clean up Pikel minions) and killing a
+    // monster that is a vengeance target while not under penance results in a
+    // crash, so don't count a monster as a vengeance target if it was set by
+    // an old vengeance.
+    return get_ench(ENCH_VENGEANCE_TARGET).degree
+           == you.props[BEOGH_VENGEANCE_NUM_KEY].get_int();
 }
 
 // Used to adjust time durations in calc_duration() for monster speed.

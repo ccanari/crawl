@@ -4802,6 +4802,15 @@ static void _tag_read_you(reader &th)
             you.attribute[ATTR_CHANNEL_DURATION] = 0;
         }
     }
+
+    // We didn't always used to increase the vengeance number when ending a
+    // vengeance, but monster::is_vengeance_target requires it to be higher
+    // than it was during the last vengeance if we are no longer in vengeance
+    if (th.getMinorVersion() < TAG_MINOR_FIX_VENGEANCE_CLEANUP
+        && !you.duration[DUR_BEOGH_SEEKING_VENGEANCE])
+    {
+        you.props[BEOGH_VENGEANCE_NUM_KEY].get_int() += 1;
+    }
 #endif
 }
 
