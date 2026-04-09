@@ -328,7 +328,7 @@ function trove_standard_magic(e, school, use_staff)
     table.insert(orbs, "stardust w:2")
   end
   for sc, iname in pairs(inames) do
-    if school == sc then
+    if school:lower() == sc:lower() then
       staff = "staff of " .. iname[1]
       orb = "orb randart artprops:" .. iname[2] .. " ego:" ..
             table.concat(orbs, " / orb randart artprops:" .. iname[2] .. " ego:")
@@ -1223,7 +1223,7 @@ end
 trove_offense(_G, trove_weap_brand(_G, "venom", false) .. " / quick blade randart / " ..
                   "athame randart w:8 / quick blade ego:devious w:4 / " ..
                   "manual of Stealth w:8",
-                  trove_standard_magic(_G, "Hexes", false) .. " / " ..
+                  trove_standard_magic(_G, "hexes", false) .. " / " ..
                   "orb ego:guile randart artprops:Hexes w:1",
                   trove_good_talisman(_G, "Stlth:2", talis),
                   "hexes magic")
