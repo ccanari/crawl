@@ -435,7 +435,8 @@ void xom_tick()
 
         // ...but They get bored...
         _calculate_exploration_estimate(true);
-        if (you.gift_timeout > 0 && you.explore_estimate > 5 && coinflip())
+        if (you.gift_timeout > 0 && you.explore_estimate > 5 && coinflip() &&
+            !player_on_orb_run())
         {
             you.gift_timeout--;
             // Especially if the floor's mostly done.
