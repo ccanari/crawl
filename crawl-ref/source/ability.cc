@@ -2641,6 +2641,8 @@ unique_ptr<targeter> find_ability_targeter(ability_type ability)
     case ABIL_CHEIBRIADOS_TIME_BEND:
     case ABIL_USKAYAW_STOMP:
         return make_unique<targeter_maybe_radius>(&you, LOS_NO_TRANS, 1, 0, 1);
+    case ABIL_MAKHLEB_VESSEL_OF_SLAUGHTER:
+        return make_unique<targeter_radius>(&you, LOS_SOLID, 3);
 
     // Multiposition:
     case ABIL_SPIDER_JUMP:
