@@ -1381,6 +1381,8 @@ namespace quiver
             case ABIL_STEAM_BREATH:
             case ABIL_NOXIOUS_BREATH:
             case ABIL_MUD_BREATH:
+            case ABIL_GOLDEN_BREATH:
+            case ABIL_BREATHE_RUST:
             case ABIL_DAMNATION:
             case ABIL_ELYVILON_HEAL_OTHER:
             case ABIL_LUGONU_BANISH:
@@ -1391,6 +1393,7 @@ namespace quiver
             case ABIL_USKAYAW_LINE_PASS:
             case ABIL_USKAYAW_GRAND_FINALE:
             case ABIL_WU_JIAN_WALLJUMP:
+            case ABIL_YRED_HURL_TORCHLIGHT:
             case ABIL_EVOKE_DISPATER:
             case ABIL_EVOKE_OLGREB:
 #ifdef WIZARD
