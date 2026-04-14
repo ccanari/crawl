@@ -240,13 +240,6 @@ public:
     vector<vector<coord_def> > queue;
 };
 
-class targeter_splash : public targeter_beam
-{
-public:
-    targeter_splash(const actor *act, int ran, int pow);
-    aff_type is_affected(coord_def loc) override;
-};
-
 class targeter_radius : public targeter
 {
 public:

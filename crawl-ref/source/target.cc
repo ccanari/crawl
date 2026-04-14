@@ -1164,52 +1164,6 @@ bool targeter_cloud::harmful_to_player()
     return !actor_cloud_immune(you, ctype);
 }
 
-
-targeter_splash::targeter_splash(const actor *act, int r, int pow)
-    : targeter_beam(act, r, ZAP_COMBUSTION_BREATH, pow, 0, 0)
-{
-}
-
-aff_type targeter_splash::is_affected(coord_def loc)
-{
-    bool on_path = false;
-    coord_def c;
-    for (auto pc : path_taken)
-    {
-        if (cell_is_invalid_target(pc))
-            break;
-
-        c = pc;
-        if (pc == loc)
-            on_path = true;
-
-        if (anyone_there(pc) && !beam.ignores_monster(monster_at(pc)))
-            break;
-    }
-
-    if (loc == c)
-        return AFF_YES;
-
-    // self-spit doesn't splash
-    if (aim == origin)
-        return AFF_NO;
-
-    // it splashes around only upon hitting someone
-    if (anyone_there(c))
-    {
-        if (grid_distance(loc, c) > 1)
-            return on_path ? AFF_YES : AFF_NO;
-
-        // you're safe from being splashed by own spit
-        if (loc == origin)
-            return AFF_NO;
-
-        return anyone_there(loc) ? AFF_YES : AFF_MAYBE;
-    }
-
-    return on_path ? AFF_YES : AFF_NO;
-}
-
 targeter_radius::targeter_radius(const actor *act, los_type _los,
                              int ran, int ran_max, int ran_min, int ran_maybe):
     range(ran), range_max(ran_max), range_min(ran_min), range_maybe(ran_maybe)
