@@ -14,8 +14,10 @@ enum aff_type // sign and non-zeroness matters
 {
     AFF_TRACER = -1,
     AFF_NO      = 0,
-    AFF_MAYBE   = 1, // can possibly affect
-    AFF_YES,         // intended/likely to affect
+    AFF_BAD     = 1,          // could theoretically affect, but is blocked by
+                              // firewood or allies (for non-penetrating beams)
+    AFF_MAYBE,                // can possibly affect
+    AFF_YES,                  // intended/likely to affect
     // If you want to extend this to pass the probability somehow, feel free to,
     // just keep AFF_YES the minimal "bright" value.
     AFF_LANDING,     // Valid shadow step landing site

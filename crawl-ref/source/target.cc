@@ -292,6 +292,7 @@ aff_type targeter_beam::is_affected(coord_def loc)
     int visit_count = 0;
     coord_def c;
     aff_type current = AFF_YES;
+    aff_type initial = AFF_YES;
     for (auto pc : path_taken)
     {
         if (cell_is_solid(pc)
@@ -306,6 +307,7 @@ aff_type targeter_beam::is_affected(coord_def loc)
         if (c == loc)
         {
             visit_count++;
+            initial = current;
             if (max_expl_rad > 0)
                 on_path = true;
             else if (cell_is_solid(pc))
@@ -326,7 +328,11 @@ aff_type targeter_beam::is_affected(coord_def loc)
             // We assume an exploding spell will always stop here.
             if (max_expl_rad > 0)
                 break;
-            current = AFF_MAYBE;
+
+            if (monster_at(pc) && monster_at(pc)->is_firewood())
+                current = AFF_BAD;
+            else if (current != AFF_BAD)
+                current = AFF_MAYBE;
         }
     }
     if (max_expl_rad > 0)
@@ -352,8 +358,8 @@ aff_type targeter_beam::is_affected(coord_def loc)
     }
 
     return visit_count == 0 ? AFF_NO :
-           visit_count == 1 ? AFF_YES :
-                              AFF_MULTIPLE;
+           visit_count == 1 ? initial
+                            : AFF_MULTIPLE;
 }
 
 bool targeter_beam::affects_monster(const monster_info& mon)
