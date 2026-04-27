@@ -4212,6 +4212,8 @@ tileidx_t tileidx_ability(const ability_type ability)
         return TILEG_ABILITY_BREATHE_ACID;
     case ABIL_MUD_BREATH:
         return TILEG_ABILITY_BREATHE_MUD;
+    case ABIL_REAPING_BREATH:
+        return TILEG_ABILITY_BREATHE_REAPING;
     case ABIL_HOP:
         return TILEG_ABILITY_HOP;
     case ABIL_SPIDER_JUMP:

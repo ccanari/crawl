@@ -1938,6 +1938,17 @@ static bool _mons_reaped(actor &killer, monster& victim)
     return true;
 }
 
+bool _breath_reap(actor &killer, monster& victim)
+{
+    beh_type beh = SAME_ATTITUDE(&killer);
+    string msg = victim.name(DESC_ITS) + " body rises up as a mindless zombie!";
+    string fail_msg = victim.name(DESC_ITS) + " body momentarily moves, then stops moving altogether!";
+    _make_derived_undead(&victim, !you.can_see(victim), MONS_ZOMBIE, beh,
+                         MON_SUMM_WPN_REAP, GOD_NO_GOD, msg, fail_msg);
+
+    return true;
+}
+
 static void _yred_reap(monster &mons, bool uncorpsed)
 {
     monster_type which_z = !uncorpsed && mons_can_be_zombified(mons) ? MONS_ZOMBIE :

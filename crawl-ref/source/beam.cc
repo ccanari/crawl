@@ -5088,6 +5088,11 @@ void bolt::kill_monster(monster &mon)
 
     if (flavour == BEAM_BLOODRITE)
         mon.props[MAKHLEB_BLOODRITE_KILL_KEY] = true;
+	
+	if (origin_spell == SPELL_REAPING_BREATH)
+	{
+		_breath_reap(*agent(), mon);
+	}
 
     item_def *corpse = monster_die(mon, ref_killer, kindex);
 

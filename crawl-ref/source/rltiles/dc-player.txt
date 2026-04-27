@@ -137,7 +137,8 @@ draconian_green DRACONIAN_GREEN
 draconian_pale DRACONIAN_PALE
 draconian_purple DRACONIAN_PURPLE
 draconian_red DRACONIAN_RED
-draconian_white DRACONIAN_WHITE DRACONIAN_LAST
+draconian_white DRACONIAN_WHITE
+draconian_blue DRACONIAN_BLUE DRACONIAN_LAST
 
 demigod_f DEMIGOD
 demigod_m

@@ -1397,6 +1397,10 @@ Mud Breath spell
 
 <Mud Breath ability>
 %%%%
+Reaping Breath spell
+
+<Reaping Breath ability>
+%%%%
 Mutagenic Gaze spell
 
 Causes mutagenic energy to accumulate in a target, eventually reaching levels

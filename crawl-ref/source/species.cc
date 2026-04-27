@@ -197,6 +197,8 @@ namespace species
                 return "rich purple";
             case SP_PALE_DRACONIAN:
                 return "pale cyan-grey";
+            case SP_BLUE_DRACONIAN:
+                return "sparking blue";
             case SP_BASE_DRACONIAN:
                 return "plain brown";
             default:
@@ -216,7 +218,7 @@ namespace species
             return MONS_ACID_DRAGON;
         case SP_GREY_DRACONIAN:
             return MONS_IRON_DRAGON;
-        case SP_BLACK_DRACONIAN:
+        case SP_BLUE_DRACONIAN:
             return MONS_STORM_DRAGON;
         case SP_PURPLE_DRACONIAN:
             return MONS_QUICKSILVER_DRAGON;
@@ -224,6 +226,8 @@ namespace species
             return MONS_STEAM_DRAGON;
         case SP_RED_DRACONIAN:
             return MONS_FIRE_DRAGON;
+        case SP_BLACK_DRACONIAN:
+            return MONS_SHADOW_DRAGON;
         default:
             return MONS_GOLDEN_DRAGON;
         }
@@ -237,11 +241,12 @@ namespace species
         case SP_RED_DRACONIAN:     return ABIL_COMBUSTION_BREATH;
         case SP_WHITE_DRACONIAN:   return ABIL_GLACIAL_BREATH;
         case SP_YELLOW_DRACONIAN:  return ABIL_CAUSTIC_BREATH;
-        case SP_BLACK_DRACONIAN:   return ABIL_GALVANIC_BREATH;
+        case SP_BLACK_DRACONIAN:   return ABIL_REAPING_BREATH;
         case SP_PURPLE_DRACONIAN:  return ABIL_NULLIFYING_BREATH;
         case SP_PALE_DRACONIAN:    return ABIL_STEAM_BREATH;
         case SP_GREY_DRACONIAN:    return ABIL_MUD_BREATH;
-        case SP_BASE_DRACONIAN:
+        case SP_BLUE_DRACONIAN:   return ABIL_GALVANIC_BREATH;
+       case SP_BASE_DRACONIAN:
         default: return ABIL_NON_ABILITY;
         }
     }

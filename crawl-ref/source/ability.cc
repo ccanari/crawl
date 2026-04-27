@@ -372,6 +372,9 @@ static vector<ability_def> &_get_ability_list()
         { ABIL_MUD_BREATH, "Mud Breath",
             0, 0, 0, 3, {fail_basis::xl, 30, 1},
             abflag::drac_charges },
+        { ABIL_REAPING_BREATH, "reaping Breath",
+            0, 0, 0, LOS_MAX_RANGE, {fail_basis::xl, 30, 1},
+            abflag::drac_charges },
         { ABIL_DAMNATION, "Hurl Damnation",
             0, 150, 0, 6, {fail_basis::xl, 50, 1}, abflag::none },
         { ABIL_WORD_OF_CHAOS, "Word of Chaos",
@@ -773,6 +776,7 @@ static map<ability_type, spell_type> breath_to_spell =
     { ABIL_CAUSTIC_BREATH, SPELL_CAUSTIC_BREATH },
     { ABIL_MUD_BREATH, SPELL_MUD_BREATH },
     { ABIL_GALVANIC_BREATH, SPELL_GALVANIC_BREATH },
+    { ABIL_REAPING_BREATH, SPELL_REAPING_BREATH },
 };
 
 spell_type draconian_breath_to_spell(ability_type abil)
@@ -1275,6 +1279,7 @@ static int _adjusted_failure_chance(ability_type ability, int base_chance)
     case ABIL_NOXIOUS_BREATH:
     case ABIL_STEAM_BREATH:
     case ABIL_MUD_BREATH:
+    case ABIL_REAPING_BREATH:
         if (you.form == transformation::dragon)
             return base_chance - 20;
         return base_chance;
@@ -1547,6 +1552,7 @@ static string _ability_damage_string(ability_type ability)
         case ABIL_NOXIOUS_BREATH:
         case ABIL_CAUSTIC_BREATH:
         case ABIL_GOLDEN_BREATH:
+        case ABIL_REAPING_BREATH:
             return spell_damage_string(breath_to_spell[ability], false,
                                        draconian_breath_power());
         default:
@@ -2113,6 +2119,7 @@ static bool _check_ability_possible(const ability_def& abil, bool quiet = false)
     case ABIL_STEAM_BREATH:
     case ABIL_NOXIOUS_BREATH:
     case ABIL_MUD_BREATH:
+    case ABIL_REAPING_BREATH:
         if (draconian_breath_uses_available() <= 0)
         {
             if (!quiet)
@@ -3130,6 +3137,17 @@ static spret _do_draconian_breath(const ability_def& abil, dist *target, bool fa
 
     const int pow = draconian_breath_power();
 
+	if (god_punishes_spell(breath_to_spell[abil.ability], you.religion)
+		&& !crawl_state.disables[DIS_CONFIRMATIONS])
+	{
+		if (!yesno("This will place you under penance. "
+				"Really proceed?", true, 'n'))
+		{
+			canned_msg(MSG_OK);
+			crawl_state.zero_turns_taken();
+			return spret::abort;
+		}
+	}
     result = your_spells(breath_to_spell[abil.ability], pow,
                             false, nullptr, target, fail);
 
@@ -3341,6 +3359,7 @@ static spret _do_ability(const ability_def& abil, bool fail, dist *target,
     case ABIL_CAUSTIC_BREATH:
     case ABIL_GALVANIC_BREATH:
     case ABIL_MUD_BREATH:
+    case ABIL_REAPING_BREATH:
         return _do_draconian_breath(abil, target, fail);
 
     case ABIL_BREATHE_POISON:
@@ -4448,6 +4467,7 @@ vector<talent> your_talents(bool include_unusable, bool ignore_piety)
             ABIL_NOXIOUS_BREATH,
             ABIL_CAUSTIC_BREATH,
             ABIL_MUD_BREATH,
+            ABIL_REAPING_BREATH,
             ABIL_DAMNATION,
             ABIL_WORD_OF_CHAOS,
             ABIL_INVENT_GIZMO,

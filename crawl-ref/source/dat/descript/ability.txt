@@ -39,6 +39,10 @@ Spits an enormous ball of mud that knocks back whatever it hits and drenches the
 surrounding area in a mud slick which impedes enemy movement and causes them to
 sometimes fumble their attacks.
 %%%%
+Reaping Breath ability
+
+Spits a stream of negative energy that revives who are killed by it into a zombie.
+%%%%
 Caustic Breath ability
 
 Breathes a spray of concentrated acid which leaves corrosive clouds on any

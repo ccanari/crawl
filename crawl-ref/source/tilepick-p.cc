@@ -484,6 +484,7 @@ static int _draconian_colour(int race, int level)
     case SP_PURPLE_DRACONIAN:  return 6;
     case SP_RED_DRACONIAN:     return 7;
     case SP_WHITE_DRACONIAN:   return 8;
+    case SP_BLUE_DRACONIAN:    return 9;
     }
     return 0;
 }
@@ -525,6 +526,7 @@ tileidx_t tilep_species_to_base_tile(int sp, int level)
     case SP_BLACK_DRACONIAN:
     case SP_PURPLE_DRACONIAN:
     case SP_PALE_DRACONIAN:
+    case SP_BLUE_DRACONIAN:
         return TILEP_BASE_DRACONIAN + _draconian_colour(sp, level);
 #if TAG_MAJOR_VERSION == 34
     case SP_METEORAN:
@@ -646,6 +648,7 @@ void tilep_race_default(int sp, int level, dolls_data *doll)
         case SP_BLACK_DRACONIAN:
         case SP_PURPLE_DRACONIAN:
         case SP_PALE_DRACONIAN:
+        case SP_BLUE_DRACONIAN:
         {
             tilep_draconian_init(sp, level, &result, &wing);
             hair   = 0;

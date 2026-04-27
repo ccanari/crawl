@@ -1982,7 +1982,7 @@ Grey Draconians
   magic. Later on, iron fuses onto their scales to make them hardier than
   other Draconians.
 
-Black Draconians
+Blue Draconians
   can unleash arcing electrical discharges, and are naturally insulated. They
   are good at air magic but feel cumbersome with earth magic. Their wings will
   eventually grow larger, which allows them to fly when combined with their
@@ -2000,6 +2000,11 @@ Pale Draconians
   are better at air and fire magic, and have no deficiencies in other schools.
   They breathe sight-obscuring steam and, like their Purple cousins, have a
   slight advantage at Evocations.
+
+Black Draconians
+  are better at necromancy.
+  They breathe stream of negative energy that is capable of raising the slain
+  as a mindless zombie.
 
 ****************************************
 2. List of character backgrounds

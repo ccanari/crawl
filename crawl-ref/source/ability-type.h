@@ -69,6 +69,7 @@ enum ability_type
     ABIL_CACOPHONY,
     // Revenants
     ABIL_ENKINDLE,
+	ABIL_REAPING_BREATH,
 
     // Note: this is getting dangerously close to ABIL_EVOKE_BERSERK! be careful
 

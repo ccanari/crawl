@@ -2033,6 +2033,21 @@ _mon_hex_zap(ZAP_VITRIFY, BEAM_VITRIFY),
 },
 
 {
+    ZAP_REAPING_BREATH,
+    "stream of negative energy",
+    new calcdice_calculator<4, 13, 3, 5>,
+    new tohit_calculator<10, 1, 25>,
+    new dicedef_calculator<3, 7, 1, 12>,
+    new tohit_calculator<17, 1, 25>,
+    DARKGRAY,
+    false,
+    BEAM_NEG,
+    DCHAR_FIRED_ZAP,
+    true,
+    false,
+},
+
+{
     ZAP_AUTODAZZLE,
     "blinding ray",
     new dicedef_calculator<0, 1, 0, 1>,

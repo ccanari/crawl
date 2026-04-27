@@ -262,6 +262,7 @@ static unordered_set<int> _player_nonbook_spells =
     SPELL_CAUSTIC_BREATH,
     SPELL_GALVANIC_BREATH,
     SPELL_MUD_BREATH,
+	SPELL_REAPING_BREATH,
     // Form spells
     SPELL_RUST_BREATH,
     SPELL_GOLDEN_BREATH,

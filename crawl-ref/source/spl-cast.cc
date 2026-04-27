@@ -1547,6 +1547,9 @@ unique_ptr<targeter> find_spell_targeter(spell_type spell, int pow, int range)
     case SPELL_NULLIFYING_BREATH:
         return make_unique<targeter_beam>(&you, range, ZAP_NULLIFYING_BREATH, pow,
                                           2, 2);
+    case SPELL_REAPING_BREATH:
+        return make_unique<targeter_beam>(&you, range, ZAP_REAPING_BREATH, pow,
+                                          0, 0);
     case SPELL_GELLS_GAVOTTE:
         return make_unique<targeter_gavotte>(&you);
 
@@ -2815,6 +2818,7 @@ static spret _do_cast(spell_type spell, int powc, const dist& spd,
     case SPELL_MUD_BREATH:
     case SPELL_NULLIFYING_BREATH:
     case SPELL_NOXIOUS_BREATH:
+    case SPELL_REAPING_BREATH:
     {
         static map<spell_type, string> breath_message =
         {
@@ -2825,7 +2829,8 @@ static spret _do_cast(spell_type spell, int powc, const dist& spd,
             { SPELL_NOXIOUS_BREATH, "You exhale a blast of noxious fumes." },
             { SPELL_CAUSTIC_BREATH, "You breathe a spray of caustic vapour." },
             { SPELL_MUD_BREATH, "You spew a torrent of mud." },
-            { SPELL_GALVANIC_BREATH, "You breathe wild lightning."}
+            { SPELL_GALVANIC_BREATH, "You breathe wild lightning."},
+            { SPELL_REAPING_BREATH, "You breathe a stream of negative energy."}
         };
 
         if (!fail)

@@ -1310,6 +1310,7 @@ namespace quiver
         case ABIL_NULLIFYING_BREATH:
         case ABIL_STEAM_BREATH:
         case ABIL_NOXIOUS_BREATH:
+        case ABIL_REAPING_BREATH:
         case ABIL_DAMNATION:
         case ABIL_MAKHLEB_DESTRUCTION:
         case ABIL_LUGONU_BANISH:
@@ -1381,6 +1382,7 @@ namespace quiver
             case ABIL_STEAM_BREATH:
             case ABIL_NOXIOUS_BREATH:
             case ABIL_MUD_BREATH:
+            case ABIL_REAPING_BREATH:
             case ABIL_GOLDEN_BREATH:
             case ABIL_BREATHE_RUST:
             case ABIL_DAMNATION:

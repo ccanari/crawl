@@ -3943,6 +3943,17 @@ static const struct spell_desc spelldata[] =
 },
 
 {
+    SPELL_REAPING_BREATH, "Reaping Breath",
+    spschool::necromancy,
+    spflag::dir_or_target | spflag::needs_tracer,
+    5,
+    0,
+    LOS_RADIUS, LOS_RADIUS,
+    5,
+    TILEG_MIASMA_BREATH,
+},
+
+{
     SPELL_PILEDRIVER, "Maxwell's Portable Piledriver",
     spschool::translocation,
     spflag::target,

@@ -23,8 +23,7 @@ aptitudes:
   shapeshifting: -1
   invocations: 1
   # Black Draconian specific
-  air_magic: 2
-  earth_magic: -2
+  necromancy: 2
 str: 10
 int: 8
 dex: 6
@@ -34,11 +33,9 @@ mutations:
     MUT_COLD_BLOODED: 1
     MUT_ARMOURED_TAIL: 1
   7:
-    MUT_SHOCK_RESISTANCE: 1
-  14:
-    MUT_BIG_WINGS: 1
+    MUT_NEGATIVE_ENERGY_RESISTANCE: 1
 fake_mutations:
-  - long: You can breathe arcing electricity.
-    short: galvanic breath
+  - long: You can breathe stream of negative energy.
+    short: reaping breath
 
 orc_name: Black Orconian
