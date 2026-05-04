@@ -4137,7 +4137,7 @@ static const vector<pie_effect> pie_effects = {
                 simple_monster_message(*mons,
                         " looks more vulnerable to fire.");
                 mons->add_ench(mon_enchant(ENCH_FIRE_VULN, beam.agent(),
-                                           15 + random2(11) * BASELINE_DELAY));
+                                           (15 + random2(11)) * BASELINE_DELAY));
             }
             else
             {
@@ -4446,7 +4446,7 @@ void bolt::affect_player()
     if (flavour == BEAM_CRYSTALLISING && !one_chance_in(4))
         you.vitrify(agent(), random_range(8, 18));
 
-    if (flavour == BEAM_DRAIN_MAGIC)
+    if (flavour == BEAM_ANTIMAGIC)
         you.drain_magic(agent(), ench_power);
 
     if (origin_spell == SPELL_SOJOURNING_BOLT
@@ -4615,6 +4615,9 @@ void bolt::tracer_enchantment_affect_monster(monster* mon)
     }
 
     tracer->monster_hit(*this, *mon);
+
+    // Potentially chain to adjacent monsters.
+    handle_enchant_chaining(mon->pos());
     extra_range_used += range_used_on_hit();
 }
 
@@ -4969,7 +4972,8 @@ static void _add_chain_candidates(const bolt& beam, coord_def pos,
         if (!act
             || mons_aligned(beam.agent(), act)
             || act->is_peripheral()
-            || shoot_through_actor(beam.agent(), act))
+            || shoot_through_actor(beam.agent(), act)
+            || (beam.is_tracer() && !act->visible_to(beam.agent())))
         {
             continue;
         }
@@ -5197,7 +5201,7 @@ void bolt::monster_post_hit(monster* mon, int dmg)
     if (flavour == BEAM_CRYSTALLISING && !one_chance_in(4))
         mon->vitrify(agent(), random_range(8, 18));
 
-    if (flavour == BEAM_DRAIN_MAGIC)
+    if (flavour == BEAM_ANTIMAGIC)
         mon->drain_magic(agent(), ench_power);
 
     if (dmg)
@@ -5931,7 +5935,8 @@ bool ench_flavour_affects_monster(actor *agent, beam_type flavour,
 
     case BEAM_PORKALATOR:
         rc = (mon->holiness() & MH_DEMONIC && mon->type != MONS_HELL_HOG)
-              || (mon->holiness() & MH_NATURAL && mon->type != MONS_HOG)
+              || (mon->holiness() & MH_NATURAL && mon->type != MONS_HOG
+                                               && mon->type != MONS_SEWAGE_SOVEREIGN)
               || (mon->holiness() & MH_HOLY && mon->type != MONS_HOLY_SWINE);
         break;
 
@@ -5953,7 +5958,7 @@ bool ench_flavour_affects_monster(actor *agent, beam_type flavour,
         break;
 
     case BEAM_DIMINISH_SPELLS:
-    case BEAM_DRAIN_MAGIC:
+    case BEAM_ANTIMAGIC:
         rc = mon->antimagic_susceptible();
         break;
 
@@ -7535,7 +7540,7 @@ static string _beam_type_name(beam_type type)
     case BEAM_VIRULENCE:             return "virulence";
     case BEAM_AGILITY:               return "agility";
     case BEAM_SAP_MAGIC:             return "sap magic";
-    case BEAM_DRAIN_MAGIC:           return "drain magic";
+    case BEAM_ANTIMAGIC:             return "antimagic";
     case BEAM_DIMINISH_SPELLS:       return "diminish spells";
     case BEAM_TUKIMAS_DANCE:         return "tukima's dance";
     case BEAM_DEATH_RATTLE:          return "breath of the dead";

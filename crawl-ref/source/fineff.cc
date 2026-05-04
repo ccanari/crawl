@@ -612,6 +612,22 @@ protected:
     bool mergeable(const final_effect&) const override { return true; }
 };
 
+class psychokinetic_burst_fineff : public final_effect
+{
+public:
+    void fire() override;
+
+    psychokinetic_burst_fineff(actor* agent)
+        : final_effect(agent, nullptr, you.pos())
+    {
+        ASSERT(agent->is_monster());
+        env.final_effect_monster_cache.push_back(*agent->as_monster());
+    }
+protected:
+    bool mergeable(const final_effect&) const override { return false; }
+};
+
+
 // Things to happen when the current attack/etc finishes.
 static vector<final_effect*> _final_effects;
 
@@ -833,6 +849,11 @@ void schedule_celebrant_bloodrite_fineff()
 void schedule_eeljolt_fineff()
 {
     _schedule_final_effect(new eeljolt_fineff());
+}
+
+void schedule_psychokinetic_burst_fineff(actor* agent)
+{
+    _schedule_final_effect(new psychokinetic_burst_fineff(agent));
 }
 
 bool mirror_damage_fineff::mergeable(const final_effect &fe) const
@@ -1845,6 +1866,43 @@ void celebrant_bloodrite_fineff::fire()
 void eeljolt_fineff::fire()
 {
     do_eel_arcjolt();
+}
+
+void psychokinetic_burst_fineff::fire()
+{
+    monster* agent = monster_by_mid(att);
+
+    // In case the agent is dead, check for a cached copy.
+    if (!agent)
+        agent = cached_monster_copy_by_mid(att);
+    if (!agent)
+        return;
+
+    simple_monster_message(*agent, " unleashes a burst of psychic force!", false, MSGCH_MONSTER_SPELL);
+
+    const coord_def source = agent->pos();
+    vector<actor*> act_list;
+    for (actor_near_iterator ai(source, LOS_NO_TRANS); ai; ++ai)
+    {
+        if (ai->pos().distance_from(you.pos()) > 4 || ai->pos() == source)
+            continue;
+
+        act_list.push_back(*ai);
+    }
+
+    if (you.see_cell(source))
+        draw_ring_animation(source, LOS_RADIUS, BLUE, LIGHTBLUE, true, 5);
+
+    far_to_near_sorter sorter = { source };
+    sort(act_list.begin(), act_list.end(), sorter);
+
+    for (actor *act : act_list)
+        if (cell_see_cell(source, act->pos(), LOS_NO_TRANS)) // sanity check vs dispersal
+            act->knockback(*agent, random_range(6, 7) - grid_distance(act->pos(), source), 0, "psychic force");
+
+    for (actor *act : act_list)
+        if (!mons_aligned(agent, act) && act->willpower() != WILL_INVULN)
+            act->confuse(agent, random_range(2, 5));
 }
 
 // Effects that occur after all other effects, even if the monster is dead.

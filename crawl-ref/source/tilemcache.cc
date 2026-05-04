@@ -720,8 +720,15 @@ bool mcache_monster::get_weapon_offset(tileidx_t mon_tile,
     case TILEP_MONS_SAINT_ROKA:
     case TILEP_MONS_DRAUGR_QUADRUPED_SMALL:
     case TILEP_MONS_DRAUGR_DRACONIAN:
+    case TILEP_MONS_KOBOLD_GEOMANCER:
+    case TILEP_MONS_KOBOLD_GEOMANCER_1:
+    case TILEP_MONS_KOBOLD_GEOMANCER_2:
         *ofs_x = -3;
         *ofs_y = 1;
+        break;
+    case TILEP_MONS_FUNGAL_SHAMBLER:
+        *ofs_x = -3;
+        *ofs_y = 2;
         break;
     case TILEP_MONS_SERAPH_SWORDLESS:
         *ofs_x = -1;
@@ -729,12 +736,6 @@ bool mcache_monster::get_weapon_offset(tileidx_t mon_tile,
         break;
     case TILEP_MONS_DRAUGR_BIRD:
         *ofs_x = -4;
-        *ofs_y = 1;
-        break;
-    case TILEP_MONS_KOBOLD_GEOMANCER:
-    case TILEP_MONS_KOBOLD_GEOMANCER_1:
-    case TILEP_MONS_KOBOLD_GEOMANCER_2:
-        *ofs_x = -3;
         *ofs_y = 1;
         break;
     case TILEP_MONS_KOBOLD_DEMONOLOGIST:

@@ -3106,6 +3106,8 @@ static string _feat_action_desc(const vector<command_type>& actions,
                 // XX disable for portals without item? The command still works.
                 return string("(>)enter");
             }
+            else if (cmd == CMD_GO_DOWNSTAIRS && feat == DNGN_PURIFIED_MUTATION_CATALYST)
+                return string("(>)imbibe");
             else if (cmd == CMD_GO_UPSTAIRS && feat_is_gate(feat))
                 return string("(<)exit");
             else
@@ -3301,6 +3303,33 @@ void get_feature_desc(const coord_def &pos, describe_info &inf, bool include_ext
                 "with the <w>%s</w> key.",
                 desc_the.c_str(),
                 command_to_string(CMD_GO_DOWNSTAIRS).c_str());
+    }
+    else if (feat == DNGN_PURIFIED_MUTATION_CATALYST)
+    {
+        if (you.religion == GOD_ZIN)
+        {
+            long_desc += make_stringf(
+            "\nYour adherence to the laws of Zin forbids you from using "
+              "such a device.");
+        }
+        else if (you.form == transformation::death)
+        {
+            long_desc += make_stringf(
+            "\nYou must first return to come back to life before you may mutate.");
+        }
+        else if (you.is_lifeless_undead()
+             && you.get_mutation_level(MUT_MUTATION_RESISTANCE) != 3)
+        {
+            long_desc += make_stringf(
+            "\nThis is completely useless to you, as you cannot mutate.");
+        }
+        else
+        {
+            long_desc += make_stringf(
+                      "\nWhile standing here, you can crack open %s with "
+                      "the <w>%s</w> key.", desc_the.c_str(),
+                       command_to_string(CMD_GO_DOWNSTAIRS).c_str());
+        }
     }
     else if (feat == DNGN_SPIKE_LAUNCHER)
     {
@@ -5013,6 +5042,7 @@ static string _flavour_base_desc(attack_flavour flavour)
         { AF_VULN,              "reduce willpower" },
         { AF_SHADOWSTAB,        "increased damage when unseen" },
         { AF_DROWN,             "drowning damage" },
+        { AF_CONTAM_WATER,      "spread contamination & shallow water" },
         { AF_CORRODE,           "cause corrosion" },
         { AF_TRAMPLE,           "knock back the defender" },
         { AF_WEAKNESS,          "cause weakness" },
@@ -5034,6 +5064,7 @@ static string _flavour_base_desc(attack_flavour flavour)
         { AF_DOOM,              "inflict doom" },
         { AF_SLIMIFY,           "slowly slimify the target" },
         { AF_DIM,               "diminish the target's spells" },
+        { AF_BURSTSHROOM,       "grow burstshrooms behind the defender" },
         { AF_PLAIN,             "" },
     };
 
@@ -6493,6 +6524,11 @@ static string _monster_stat_description(const monster_info& mi, bool mark_spells
     {
         const dice_def dam = battlesphere_damage_from_hd(mi.hd);
         result << "Projectile damage: " << dam.num << "d" << dam.size << "\n";
+    }
+    else if (mi.type == MONS_BURSTSHROOM && mi.summoner_id != MID_PLAYER)
+    {
+        const dice_def dam = zap_damage(ZAP_BURSTSPORE, mi.hd * 10, true, false);
+        result << "Spore damage: " << dam.num << "d" << dam.size << "\n";
     }
 
     // Flying monsters can't be forced to fall into liquids these days.

@@ -215,6 +215,7 @@ bestow_arms BESTOW_ARMS
 blink_allies_away BLINK_ALLIES_AWAY
 blink_allies_encircling BLINK_ALLIES_ENCIRCLING
 blink_other BLINK_OTHER
+bolt_of_antimagic BOLT_OF_ANTIMAGIC
 bolt_of_flesh BOLT_OF_FLESH
 brain_bite BRAIN_BITE
 call_of_chaos CALL_OF_CHAOS
@@ -280,6 +281,7 @@ miasma_breath MIASMA_BREATH
 might MIGHT
 mindburst MINDBURST
 mourning_wail MOURNING_WAIL
+murky_legion MURKY_LEGION
 mutagenic_gaze MUTAGENIC_GAZE
 noxious_cloud NOXIOUS_CLOUD
 orb_of_electricity ORB_OF_ELECTRICITY
@@ -315,6 +317,7 @@ spit_acid SPIT_ACID
 spit_poison SPIT_POISON
 spit_lava SPIT_LAVA
 sporulate SPORULATE
+stampede STAMPEDE
 steam_ball STEAM_BALL
 sticky_flame_range STICKY_FLAME_RANGE
 sticks_to_snakes STICKS_TO_SNAKES
@@ -410,3 +413,4 @@ debugging_ray DEBUGGING_RAY
 
 %sdir gui/spells
 memorise MEMORISE
+

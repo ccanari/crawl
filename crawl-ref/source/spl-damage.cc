@@ -1212,7 +1212,6 @@ struct frag_effect
     string name;
     const char* terrain_name;
     bool direct;
-    bool hit_centre;
 };
 
 // Initializes the provided frag_effect with the appropriate Lee's Rapid
@@ -1269,7 +1268,9 @@ static const map<monster_type, monster_frag> fraggable_monsters = {
     { MONS_ROCK_FISH,         { "rock", BROWN } },
     { MONS_VV,                { "rock", BROWN } },
     { MONS_HELLFIRE_MORTAR,   { "rock", BROWN } },
+    { MONS_STACK_OF_SCRAP,    { "metal", CYAN, frag_damage_type::metal } },
     { MONS_CRAWLING_FLESH_CAGE, { "metal", CYAN, frag_damage_type::metal } },
+    { MONS_RUSTED_INSPECTOR,  { "metal", CYAN, frag_damage_type::metal } },
     { MONS_IRON_ELEMENTAL,    { "metal", CYAN, frag_damage_type::metal } },
     { MONS_IRON_GOLEM,        { "metal", CYAN, frag_damage_type::metal } },
     { MONS_PEACEKEEPER,       { "metal", CYAN, frag_damage_type::metal } },
@@ -1412,9 +1413,6 @@ static bool _init_frag_grid(frag_effect &effect,
     if (what)
         *what = frag.what;
 
-    if (!feat_is_solid(grid))
-        effect.hit_centre = true; // to hit monsters standing on doors
-
    // If it was recoloured, use that colour instead.
    if (env.grid_colours(target))
        effect.colour = env.grid_colours(target);
@@ -1450,7 +1448,7 @@ static bool _init_frag_effect(frag_effect &effect, const actor &caster,
 
 bool setup_fragmentation_beam(bolt &beam, int pow, const actor *caster,
                               const coord_def target, bool quiet,
-                              const char **what, bool &hole)
+                              const char **what)
 {
     beam.glyph        = dchar_glyph(DCHAR_FIRED_BURST);
     beam.source_id    = caster->mid;
@@ -1498,9 +1496,6 @@ bool setup_fragmentation_beam(bolt &beam, int pow, const actor *caster,
             break;
     }
 
-    if (effect.hit_centre)
-        hole = false;
-
     beam.source_name = caster->name(DESC_PLAIN, true);
     beam.target = target;
 
@@ -1510,23 +1505,17 @@ bool setup_fragmentation_beam(bolt &beam, int pow, const actor *caster,
 spret cast_fragmentation(int pow, const actor *caster,
                               const coord_def target, bool fail)
 {
-    bool hole                = true;
     const char *what         = nullptr;
 
     bolt beam;
 
-    if (!setup_fragmentation_beam(beam, pow, caster, target, false, &what,
-                                  hole))
-    {
+    if (!setup_fragmentation_beam(beam, pow, caster, target, false, &what))
         return spret::abort;
-    }
 
     if (caster->is_player())
     {
         bolt tempbeam;
-        bool temp;
-        setup_fragmentation_beam(tempbeam, pow, caster, target, true, nullptr,
-                                 temp);
+        setup_fragmentation_beam(tempbeam, pow, caster, target, true, nullptr);
         player_beam_tracer tracer;
         tempbeam.explode(tracer, false);
         if (cancel_beam_prompt(tempbeam, tracer))
@@ -1534,8 +1523,8 @@ spret cast_fragmentation(int pow, const actor *caster,
     }
 
     fail_check();
-
-    if (what != nullptr) // Terrain explodes.
+    bool is_terrain = what != nullptr;
+    if (is_terrain)
     {
         if (you.see_cell(target))
             mprf("The %s shatters!", what);
@@ -1574,7 +1563,9 @@ spret cast_fragmentation(int pow, const actor *caster,
             mon->hurt(caster, dam, BEAM_MINDBURST);
     }
 
-    beam.explode(true, hole);
+    // The explosion has a hole if it was a monster or the player which
+    // exploded, to prevent hitting them twice.
+    beam.explode(true, !is_terrain);
 
     return spret::success;
 }
@@ -4431,6 +4422,7 @@ static bool _bog_can_affect(const actor *caster, const actor *target)
     const monster *mons = target->as_monster();
     return mons
            && mons->type != MONS_FENSTRIDER_WITCH  // stilting above the muck!
+           && mons->type != MONS_ROAMING_SLUDGEFISH // naturally swims in it
            && mons->type != MONS_ORC_APOSTLE;  // walking on top of it
 }
 

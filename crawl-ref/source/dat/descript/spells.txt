@@ -183,8 +183,13 @@ spell power.
 %%%%
 Blinkbolt spell
 
-Transforms the caster into a lightning bolt, and translocates the caster to
-the bolt's destination.
+Transforms the caster into a penetrating lightning bolt, and translocates the
+caster to the bolt's destination.
+%%%%
+Bolt of Antimagic spell
+
+Fires a penetrating bolt of ontologically-paradoxical antimagic, draining its
+victims' reserves of magic.
 %%%%
 Bolt of Cold spell
 
@@ -192,7 +197,8 @@ Fires a penetrating bolt of frost.
 %%%%
 Bolt of Devastation spell
 
-Fires a bolt of grief and heartache that cuts its victims' willpower in half.
+Fires a penetrating bolt of grief and heartache that cuts its victims'
+willpower in half.
 %%%%
 Bolt of Draining spell
 
@@ -205,13 +211,13 @@ Fires a penetrating bolt of flames.
 %%%%
 Bolt of Flesh spell
 
-Fires a barrage of conjured flesh, which will briefly remain as a pile on the
-ground at the end of its path.
+Fires a penetrating barrage of conjured flesh, which will briefly remain as a
+pile on the ground at the end of its path.
 %%%%
 Bolt of Light spell
 
-Fires a ray of searing light, which may blind any living, demonic, or holy
-creature it strikes.
+Fires a pentrating ray of searing light, which may blind any living, demonic,
+or holy creature it strikes.
 %%%%
 Bolt of Magma spell
 
@@ -589,7 +595,7 @@ will not avoid what fate has in store for you.
 %%%%
 Doom Bolt spell
 
-Fires a bolt of accursed malice which inflicts Doom.
+Fires a penetrating bolt of accursed malice which inflicts Doom.
 %%%%
 Oblivion Howl spell
 
@@ -632,7 +638,7 @@ Recalls woodland creatures from elsewhere on the same level.
 %%%%
 Electrical Bolt spell
 
-Throws a bolt of electricity at the target, with high accuracy.
+Throws a penetrating bolt of electricity at the target, with high accuracy.
 %%%%
 Enfeeble spell
 
@@ -1209,8 +1215,8 @@ Beckons the target forward, attempting to place them adjacent to the caster.
 %%%%
 Lightning Bolt spell
 
-Fires a mighty bolt of lightning. Its damage bypasses half of defenders'
-armour, and it can be bounced off walls to hit targets twice.
+Fires a mighty penetrating bolt of lightning. Its damage bypasses half of
+defenders' armour, and it can be bounced off walls to hit targets twice.
 %%%%
 Magic Dart spell
 
@@ -1397,9 +1403,10 @@ Mud Breath spell
 
 <Mud Breath ability>
 %%%%
-Reaping Breath spell
+Murky Legion spell
 
-<Reaping Breath ability>
+Summons some glowmurk ghasts, which spread both magical contamination and
+shallow water in a single attack before disappearing.
 %%%%
 Mutagenic Gaze spell
 
@@ -1660,8 +1667,8 @@ put to rest for good.
 %%%%
 Quicksilver Bolt spell
 
-Fires a bolt of dispelling energy at a targeted creature, possibly removing
-some of its enchantments.
+Fires a penetrating bolt of dispelling energy at a targeted creature, possibly
+removing some of its enchantments.
 %%%%
 Ravenous Swarm spell
 
@@ -1670,6 +1677,10 @@ Unleashes a torrent of vampire bats, filling the air around a target.
 These vampires will gnaw on anything which isn't undead with a voracious hunger,
 and their bites will eventually even lull their victims to sleep, leaving them
 easy prey.
+%%%%
+Reaping Breath spell
+
+<Reaping Breath ability>
 %%%%
 Rebounding Blaze spell
 
@@ -2014,6 +2025,16 @@ Releases a fast, gas-filled floating spore. After seeking out its foe, the
 spore will explode, damaging anything caught in the blast and further confusing
 living creatures.
 %%%%
+Stampede spell
+
+Charges rapidly in a straight line towards a foe. The user will move at double
+speed in that direction each turn afterward, attacking any enemies in their path
+with increased damage and accuracy and pushing them backward, until they either
+become unable to move or have overshot their target.
+
+Can only be used while their target is standing in a compass direction from the
+user.
+%%%%
 Starburst spell
 
 Releases penetrating bolts of fire from the caster in every direction.
@@ -2302,7 +2323,7 @@ aversion to drinking potions.
 %%%%
 Thunderbolt spell
 
-Creates an arc of electricity.
+Creates a penetrating arc of electricity.
 %%%%
 Trog's Hand spell
 
@@ -2442,3 +2463,4 @@ destructive mutagenic radiation. The victim and anyone adjacent will be
 blasted and heavily deformed, weakening them and reducing their armour.
 Summoned creatures are particularly vulnerable, as the enchantments binding
 them to this plane will unravel and cause them to be dismissed immediately.
+

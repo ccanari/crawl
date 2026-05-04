@@ -53,7 +53,7 @@ msc += $warning:portcullis has been lowered
 msc += $warning:wave of frost
 msc += $warning:crackling.*melting
 msc += $warning:hiss.*sand
-msc += $warning:sound.*rushing water
+msc += $warning:sound.*rushing (water|sludge)
 msc += $warning:rusting.*drain
 msc += $warning:drain falling apart
 msc += $warning:heat about you
@@ -130,6 +130,7 @@ force_more_message += There is a(n entrance| portal| gateway) to.*on this level
 force_more_message += Beware! This is a limited time offer
 
 # Religion
+force_more_message += warns you to remove
 force_more_message += press .* to convert to Beogh
 force_more_message += welcomes you( back)?!
 force_more_message += You have lost your religion

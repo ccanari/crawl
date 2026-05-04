@@ -1689,7 +1689,7 @@ monster_type pick_local_zombifiable_monster(level_id place,
         // Vaults draugr are later enough they can get a little push-up.
         place.depth += random_range(1, 3);
     }
-    else
+    else if (cs != MONS_DRAUGR || place.branch == BRANCH_CRYPT)
     {
         // Zombies tend to be weaker than their normal counterparts;
         // thus, make them OOD proportional to the current dungeon depth.
@@ -2077,6 +2077,7 @@ static const map<monster_type, band_set> bands_by_leader = {
     { MONS_KOBOLD_BLASTMINER, { {}, {{ BAND_BLASTMINER, {0, 2} }}}},
     { MONS_ARACHNE,          { {}, {{ BAND_ORB_SPIDERS, {3, 5} }}}},
     { MONS_ROCK_FISH,        { {}, {{ BAND_ROCK_FISH, {1, 2} }}}},
+    { MONS_SEWAGE_SOVEREIGN, { {}, {{ BAND_SEWAGE_SOVEREIGNS, {1, 2} }}}},
 
     // special-cased band-sizes
     { MONS_SPRIGGAN_DRUID,  { {3}, {{ BAND_SPRIGGAN_DRUID, {0, 1}, true }}}},
@@ -2401,6 +2402,7 @@ static const map<band_type, vector<member_possibilities>> band_membership = {
     { BAND_EXECUTIONER,         {{{MONS_ABOMINATION_LARGE, 1}}}},
     { BAND_VASHNIA,             {{{MONS_NAGA_SHARPSHOOTER, 1}}}},
     { BAND_PHANTASMAL_WARRIORS, {{{MONS_PHANTASMAL_WARRIOR, 1}}}},
+    { BAND_SEWAGE_SOVEREIGNS,   {{{MONS_SEWAGE_SOVEREIGN, 1}}}},
     { BAND_PRESERVER,           {{{MONS_DEEP_TROLL, 10},
                                   {MONS_POLTERGUARDIAN, 2}},
                                 {{MONS_DEEP_TROLL, 1}}}},

@@ -1350,7 +1350,8 @@ static bool _can_take_stairs(dungeon_feature_type ftype, bool down,
                              bool known_shaft)
 {
     // Up and down both work for shops, portals, and altars.
-    if (ftype == DNGN_ENTER_SHOP || feat_is_altar(ftype))
+    if (ftype == DNGN_ENTER_SHOP || feat_is_altar(ftype)
+        || ftype == DNGN_PURIFIED_MUTATION_CATALYST)
     {
         if (crawl_state.doing_prev_cmd_again)
         {
@@ -1362,6 +1363,8 @@ static bool _can_take_stairs(dungeon_feature_type ftype, bool down,
             canned_msg(MSG_TOO_BERSERK);
         else if (ftype == DNGN_ENTER_SHOP) // don't convert to capitalism
             shop();
+        else if (ftype == DNGN_PURIFIED_MUTATION_CATALYST)
+            use_mutation_catalyst();
         else
             try_god_conversion(feat_altar_god(ftype));
         // Even though we may have "succeeded", return false so we don't keep

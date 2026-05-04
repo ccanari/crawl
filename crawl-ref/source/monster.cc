@@ -3507,6 +3507,11 @@ int monster::known_chaos(bool check_spells_god) const
         || type == MONS_ABOMINATION_SMALL
         || type == MONS_ABOMINATION_LARGE
         || type == MONS_MUTANT_BEAST
+        || type == MONS_TELENCEPHALON       // Experimental mutant.
+        || type == MONS_MONGREL_WURM       // Hybrid breed mutants.
+        || type == MONS_ROAMING_SLUDGEFISH  // Psychic mutant.
+        || type == MONS_SEWAGE_SOVEREIGN    // Hulking mutant.
+        || type == MONS_SCRAPSHELL_CHIMERA  // Manufactured hybrid mutant.
         || type == MONS_WRETCHED_STAR
         || type == MONS_MORPHOGENIC_OOZE
         || type == MONS_KOBOLD_FLESHCRAFTER // Mutated tentacles!
@@ -4402,7 +4407,7 @@ int monster::hurt(const actor *agent, int amount, beam_type flavour,
             {
                 if (type == MONS_WITHERED_PLANT)
                     mprf("%s begins to crumble.", this->name(DESC_THE).c_str());
-                if (type == MONS_PILE_OF_DEBRIS)
+                if (type == MONS_PILE_OF_DEBRIS || type == MONS_STACK_OF_SCRAP)
                     mprf("%s begins to collapse.", this->name(DESC_THE).c_str());
                 else
                     mprf("%s begins to die.", this->name(DESC_THE).c_str());
@@ -6020,6 +6025,12 @@ void monster::react_to_damage(const actor *oppressor, int damage,
     {
         add_ench(mon_enchant(ENCH_DIMINISHED_SPELLS, this, random_range(500, 650)));
         schedule_stardust_fineff(this, 150, 3, true);
+    }
+    else if (type == MONS_TELENCEPHALON && !has_ench(ENCH_WEAK)
+             && mons_get_damage_level(*this) >= MDAM_SEVERELY_DAMAGED)
+    {
+        schedule_psychokinetic_burst_fineff(this);
+        add_ench(mon_enchant(ENCH_WEAK, this, random_range(500, 650)));
     }
 
     // Interrupt autorest for allies standing clouds, on fire, etc.

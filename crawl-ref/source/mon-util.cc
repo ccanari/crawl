@@ -636,6 +636,7 @@ bool mons_class_is_draconic(monster_type mc)
         case MONS_DRAKE:
         case MONS_DRACONIAN:
         case MONS_WYRMHOLE:
+        case MONS_MONGREL_WURM:
             return true;
         default:
             return false;
@@ -2141,8 +2142,10 @@ bool flavour_triggers_damageless(attack_flavour flavour)
         || flavour == AF_AIRSTRIKE
         || flavour == AF_SHADOWSTAB
         || flavour == AF_DROWN
+        || flavour == AF_CONTAM_WATER
         || flavour == AF_CORRODE
-        || flavour == AF_DIM;
+        || flavour == AF_DIM
+        || flavour == AF_BURSTSHROOM;
 }
 
 /**

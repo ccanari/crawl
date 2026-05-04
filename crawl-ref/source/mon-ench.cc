@@ -1082,6 +1082,10 @@ void monster::remove_enchantment_effect(const mon_enchant &me, bool quiet)
             simple_monster_message(*this, " is no longer exposed.");
         break;
 
+    case ENCH_STAMPEDE:
+        if (!quiet)
+            simple_monster_message(*this, " stops stampeding.");
+
     default:
         break;
     }
@@ -1402,6 +1406,7 @@ void monster::apply_enchantment(const mon_enchant &me)
     case ENCH_SUNDER_CHARGE:
     case ENCH_EXPOSED:
     case ENCH_BRAMBLE_COOLDOWN:
+    case ENCH_STAMPEDE:
         decay_enchantment(en);
         break;
 
@@ -2153,8 +2158,7 @@ static const char *enchant_names[] =
     "vampire_thrall", "pyrrhic_recollection", "clockwork_bee_cast",
     "phalanx_barrier", "figment", "paradox-touched", "warding",
     "diminished_spells", "orb_cooldown", "sunder_charge",
-    "exposed",
-    "briar_cooldown",
+    "exposed", "briar_cooldown", "stampeding",
     "buggy", // NUM_ENCHANTMENTS
 };
 

@@ -932,7 +932,7 @@ war_axe WAR_AXE
 %enchant_variation WAR_AXE shiny runed glowing randart
 war_axe2 WAR_AXE_MAGIC
 broad_axe BROAD_AXE
-%enchant_variation BROAD_AXE shiny runed glowing randart
+%enchant_variation BROAD_AXE shiny runed glowing
 broad_axe2 BROAD_AXE_MAGIC
 %enchant_variation BROAD_AXE randart
 broad_axe3 BROAD_AXE_RANDART
@@ -1463,3 +1463,4 @@ stampeding_wind_north STAMPEDE_WIND_NORTH
 stampeding_wind_south STAMPEDE_WIND_SOUTH
 stampeding_wind_east STAMPEDE_WIND_EAST
 stampeding_wind_west STAMPEDE_WIND_WEST
+

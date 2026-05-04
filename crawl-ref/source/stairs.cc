@@ -1020,6 +1020,22 @@ void floor_transition(dungeon_feature_type how,
         if (branch == BRANCH_ARENA)
             okawaru_duel_healing();
 
+        if (branch == BRANCH_GULCH)
+        {
+            mpr("Mutagenic energy floods into you!");
+            if (you.can_safely_mutate())
+            {
+                temp_mutate(RANDOM_CORRUPT_MUTATION, "entering Gulch");
+                temp_mutate(RANDOM_CORRUPT_MUTATION, "entering Gulch");
+                temp_mutate(RANDOM_CORRUPT_MUTATION, "entering Gulch");
+            }
+            else
+            {
+                mprf(MSGCH_MUTATION, "Your body decomposes!");
+                drain_player(150, false, true, true);
+            }
+        }
+
         const set<branch_type> boring_branch_exits = {
             BRANCH_TEMPLE,
             BRANCH_BAZAAR,

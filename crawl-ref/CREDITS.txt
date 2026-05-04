@@ -1,4 +1,4 @@
-﻿The Dungeon Crawl Stone Soup team would like to thank:
+The Dungeon Crawl Stone Soup team would like to thank:
 
 * Linley Henzell, the author of Dungeon Crawl, for writing this great game.
 
@@ -216,6 +216,7 @@
     Brian Haase
     Sophie Hamilton
     Chris Hamons
+    hanchyan
     Tomas Krag Hansen
     Lexi Hattaway
     Taylor Hedberg
@@ -510,3 +511,4 @@ The Dungeon Crawl Stone Soup development team is:
     Chris West
     Samuel Wilson
     Wizard Ike
+

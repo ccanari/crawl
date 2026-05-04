@@ -487,7 +487,7 @@ NSUBST:  10 = 2:3 / 1:2, % = 1:| / 1:* / 1:e / * = *%%
 SUBST:   W = ., X = x
 : end
 ITEM:    throwing net q:1 no_pickup / rapier ego:venom no_pickup w:12 / \
-         scimitar ego:venom no_pickup w:8 / \ any hex wand charges:8 no_pickup / \
+         scimitar ego:venom no_pickup w:8 / any hex wand charges:8 no_pickup / \
          potion of ambrosia q:1 w:3 pre_id / potion of curing w:3 pre_id / \
          fen folio w:3 / my sojourn through swampland w:3 / \
          dart ego:curare no_pickup w:3 / scarab talisman
@@ -528,7 +528,7 @@ DEPTH:   D:3-7, Depths
 : if you.in_branch("D") then
 MONS:    bombardier beetle
 MONS:    orc wizard w:20 / orc wizard band w:15 / orc band / orc w:5
-KITEM:   any weapon ego:flaming w:18 / parchment disc:fire w:18 / \
+ITEM:    any weapon ego:flaming w:18 / parchment disc:fire w:18 / \
          wand of flame w:18 / scarab talisman w:18 / \
          ring of protection from fire w:18 / manual of fire magic w:15 / \
          fire dragon scales w:15 / pair of gloves ego:fire w:5 / \
@@ -1772,14 +1772,16 @@ NAME:    minmay_goblin_outpost
 TAGS:    no_pool_fixup transparent
 DEPTH:   D:2-4
 MONS:    goblin / hobgoblin w:5, goblin ; sling
-KMASK:   >_"+2 = opaque
+KMONS:   S = stack of scrap
+KFEAT:   S = w
+KMASK:   >_"+2S = opaque
 SUBST:   y = .WWw, Y = ...W, . = .....1
 SHUFFLE: >X/_"
 SUBST:   X = x, _ = +, " = @
 MAP
    XXX
 xxxx>xxxx
-xxxx+xxxx
+xSxx+xxSx
 xwww2wwwx
 xyywwwyyx
 xYYYYYYYx
@@ -2179,20 +2181,22 @@ Xxx+xxx
    @
 ENDMAP
 
-NAME:   corexii_shack
-TAGS:   no_monster_gen no_item_gen allow_dup extra transparent
-DEPTH:  D:2-6
-NSUBST: + = 1:+ / *:x, m = 1:m / *:x, - = 1:1 / *:d
-ITEM:   any weapon / any armour / w:5 any potion / w:40 nothing
-MONS:   goblin / hobgoblin / kobold / orc, plant / w:100 nothing
+NAME:    corexii_shack
+TAGS:    no_monster_gen no_item_gen allow_dup extra transparent
+DEPTH:   D:2-6
+MONS:    goblin / hobgoblin w:15, kobold / orc, stack of scrap, plant
+ITEM:    any weapon / any armour / any potion w:5
+NSUBST:  + = 1:+ / *:x, m = 1:m / *:x, - = 1:1 / 1:d. / * = 1 d:25 .:30
+NSUBST:  S = 1:3 / 1:. / * = 3 .:100
+SHUFFLE: 13 / 24
 MAP
 ........
-..2..2..
-.2x++x2.
-.2m--m2.
-.2m--m2.
-.2xmmx2.
-..2222..
+..S..S..
+.Sx++xS.
+.Sm--mS.
+.Sm--mS.
+.SxmmxS.
+..SSSS..
 ........
 ENDMAP
 
@@ -9619,12 +9623,12 @@ DEPTH:  D:13-, Elf
 WEIGHT: 3
 ITEM:   damnation no_pickup
 : if you.in_branch("Elf") then
-MONS:   deep elf sorcerer / deep elf high priest, hellion
+MONS:   deep elf sorcerer / deep elf high priest, deep elf master archer
 KFEAT:  a = iron_grate
-NSUBST: D = 2=2 / 1.
+NSUBST: D = 1:2 / * = 1.
 : else  -- D:13-
 MONS:   efreet, hellion
-NSUBST: D = 2 / 1..
+NSUBST: D = 1:2 / * = 1..
 SUBST:  a = c
 : end
 SUBST:  b = bc, c : cv

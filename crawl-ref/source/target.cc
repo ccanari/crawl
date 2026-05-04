@@ -926,8 +926,7 @@ bool targeter_fragment::valid_aim(coord_def a)
         return false;
 
     bolt tempbeam;
-    bool temp;
-    if (!setup_fragmentation_beam(tempbeam, pow, agent, a, true, nullptr, temp))
+    if (!setup_fragmentation_beam(tempbeam, pow, agent, a, true, nullptr))
         return notify_fail("You cannot affect that.");
     return true;
 }
@@ -938,9 +937,8 @@ bool targeter_fragment::set_aim(coord_def a)
         return false;
 
     bolt tempbeam;
-    bool temp;
 
-    if (setup_fragmentation_beam(tempbeam, pow, agent, a, true, nullptr, temp))
+    if (setup_fragmentation_beam(tempbeam, pow, agent, a, true, nullptr))
     {
         exp_range_min = tempbeam.ex_size;
         exp_range_max = tempbeam.ex_size;
@@ -2554,6 +2552,9 @@ bool targeter_surprising_crocodile::set_aim(coord_def a)
 
 aff_type targeter_surprising_crocodile::is_affected(coord_def loc)
 {
+    if (loc == aim)
+        return AFF_YES;
+
     for (coord_def spot : landing_spots)
         if (spot == loc)
             return AFF_YES;

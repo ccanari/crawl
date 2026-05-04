@@ -89,6 +89,8 @@ Scamper hence
 
 Scamper home
 
+Scuttle off
+
 Slither away
 
 Slither hence
@@ -1258,3 +1260,4 @@ wrapping tissue
 pyre
 
 tinder
+

@@ -152,6 +152,7 @@ static map<enchant_type, monster_info_flags> trivial_ench_mb_mappings = {
     { ENCH_WARDING,         MB_WARDING },
     { ENCH_DIMINISHED_SPELLS, MB_DIMINISHED_SPELLS },
     { ENCH_EXPOSED,         MB_EXPOSED },
+    { ENCH_STAMPEDE,        MB_STAMPEDE },
 };
 
 static monster_info_flags ench_to_mb(const monster& mons, enchant_type ench)
@@ -201,7 +202,8 @@ static monster_info_flags ench_to_mb(const monster& mons, enchant_type ench)
         return mons.get_ench(ench).degree == 1 ? MB_CONTAM_LIGHT : MB_CONTAM_HEAVY;
     case ENCH_SLOWLY_DYING:
         if (mons.type == MONS_WITHERED_PLANT ||
-            mons.type == MONS_PILE_OF_DEBRIS)
+            mons.type == MONS_PILE_OF_DEBRIS ||
+            mons.type == MONS_STACK_OF_SCRAP)
         {
             return MB_CRUMBLING;
         }

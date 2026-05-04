@@ -779,8 +779,11 @@ static vector<coord_def> _get_salvo_targets(const coord_def& orig_target, int nu
     vector<monster*> to_check;
     for (monster_near_iterator mi(&you, LOS_SOLID_SEE); mi; ++mi)
     {
-        if (mi->wont_attack() || mi->is_firewood() || mi->mid == primary)
+        if (mi->wont_attack() || mi->pacified() || mi->is_firewood()
+            || mi->mid == primary)
+        {
             continue;
+        }
 
         if (exists_ray(you.pos(), mi->pos(), opc_unblocked_shot, you.current_vision))
             to_check.push_back(*mi);

@@ -211,6 +211,11 @@ tileidx_t tileidx_feature_base(dungeon_feature_type feat)
         return TILE_DNGN_TOXIC_BOG;
     case DNGN_MUD:
         return TILE_LIQUEFACTION;
+    case DNGN_MOULD_PATCH:
+        if (player_in_branch(BRANCH_GULCH))
+            return TILE_DNGN_MOULD_PATCH_GULCH;
+        else
+            return TILE_DNGN_MOULD_PATCH;
     case DNGN_FLOOR:
         return TILE_FLOOR_NORMAL;
     case DNGN_ENDLESS_SALT:
@@ -381,6 +386,8 @@ tileidx_t tileidx_feature_base(dungeon_feature_type feat)
         return TILE_DNGN_PORTAL_ICE_CAVE;
     case DNGN_ENTER_VOLCANO:
         return TILE_DNGN_PORTAL_VOLCANO;
+    case DNGN_ENTER_GULCH:
+        return TILE_DNGN_PORTAL_GULCH;
     case DNGN_ENTER_WIZLAB:
         return TILE_DNGN_PORTAL_WIZARD_LAB;
     case DNGN_ENTER_DESOLATION:
@@ -440,6 +447,8 @@ tileidx_t tileidx_feature_base(dungeon_feature_type feat)
         return TILE_DNGN_PORTAL_ICE_CAVE;
     case DNGN_EXIT_VOLCANO:
         return TILE_DNGN_EXIT_VOLCANO;
+    case DNGN_EXIT_GULCH:
+        return TILE_DNGN_EXIT_GULCH;
     case DNGN_EXIT_DESOLATION:
         return TILE_DNGN_EXIT_DESOLATION;
     case DNGN_EXIT_WIZLAB:
@@ -550,6 +559,8 @@ tileidx_t tileidx_feature_base(dungeon_feature_type feat)
         return TILE_DNGN_SPIKE_LAUNCHER;
     case DNGN_FRIGID_WALL:
         return TILE_DNGN_WALL_FRIGID;
+    case DNGN_PURIFIED_MUTATION_CATALYST:
+        return TILE_DNGN_PURIFIED_MUTATION_CATALYST;
     default:
         return TILE_DNGN_ERROR;
     }
@@ -944,17 +955,13 @@ static tileidx_t _tileidx_feature_no_overrides(const coord_def &gc)
 {
     dungeon_feature_type feat = env.map_knowledge(gc).feat();
 
-    tileidx_t override = tile_env.flv(gc).feat;
-    bool can_override = !feat_is_door(feat)
-                        && feat != DNGN_FLOOR
-                        && feat != DNGN_UNSEEN
-                        && feat != DNGN_PASSAGE_OF_GOLUBRIA
-                        && feat != DNGN_MALIGN_GATEWAY
-                        && feat != DNGN_BINDING_SIGIL
-                        && feat != DNGN_UNKNOWN_PORTAL
-                        && feat != DNGN_TREE; // summon forest spell
-    if (override && can_override)
+    tileidx_t override = tile_env.remembered_flavour.feat_flavour(gc);
+    // Door tile overrides get special handling in apply_variations
+    if (override && !feat_is_door(feat)
+        && env.map_knowledge(gc).feat_known())
+    {
         return override;
+    }
 
     // Any grid-specific tiles.
     switch (feat)
@@ -1781,6 +1788,7 @@ static tileidx_t _mon_to_zombie_tile(const monster_info &mon)
         { MONS_GOLDEN_DRAGON,           TILEP_MONS_ZOMBIE_GOLDEN_DRAGON },
         { MONS_QUICKSILVER_DRAGON,      TILEP_MONS_ZOMBIE_QUICKSILVER_DRAGON },
         { MONS_LINDWURM,                TILEP_MONS_ZOMBIE_LINDWURM, },
+        { MONS_MONGREL_WURM,            TILEP_MONS_ZOMBIE_LINDWURM, },
         { MONS_MELIAI,                  TILEP_MONS_ZOMBIE_MELIAI, },
         { MONS_HORNET,                  TILEP_MONS_ZOMBIE_HORNET, },
         { MONS_SPARK_WASP,              TILEP_MONS_ZOMBIE_HORNET, },
@@ -2396,6 +2404,16 @@ static tileidx_t _tileidx_monster_no_props(const monster_info& mon)
                 return TILEP_MONS_BURNING_BUSH;
             return base;
 
+        case MONS_FUNGUS:
+            if (player_in_branch(BRANCH_GULCH))
+            {
+                if (env.map_knowledge(mon.pos).feat() == DNGN_MOULD_PATCH)
+                    return _mon_mod(TILEP_MONS_FUNGUS_GULCH_PATCH, tile_num);
+                else
+                    return _mon_mod(TILEP_MONS_FUNGUS_GULCH, tile_num);
+            }
+            return base;
+
         case MONS_BOULDER_BEETLE:
             return mon.is(MB_ROLLING)
                    ? _mon_random(TILEP_MONS_BOULDER_BEETLE_ROLLING, mon.number)
@@ -2766,6 +2784,7 @@ static const map<monster_info_flags, tileidx_t> monster_status_icons = {
     { MB_SUNDERING_READY, TILEI_SUNDERING },
     { MB_MUTE, TILEI_MUTE },
     { MB_EXPOSED, TILEI_EXPOSED },
+    { MB_STAMPEDE, TILEI_STAMPEDE },
 };
 
 set<tileidx_t> status_icons_for(const monster_info &mons)
@@ -3888,6 +3907,7 @@ tileidx_t vary_bolt_tile(tileidx_t tile, int dir, int dist)
     case TILE_BOLT_BOMBLET_BLAST:
     case TILE_BOLT_MANIFOLD_ASSAULT:
     case TILE_BOLT_PARAGON_TEMPEST:
+    case TILE_BOLT_ANTIMAGIC:
     case TILE_BOLT_FLESH:
     case TILE_BOLT_CHAOS:
     case TILE_BOLT_CHAOS_BUFF:
@@ -4666,6 +4686,8 @@ tileidx_t tileidx_branch(const branch_type br)
         return TILE_DNGN_PORTAL_ICE_CAVE;
     case BRANCH_VOLCANO:
         return TILE_DNGN_PORTAL_VOLCANO;
+    case BRANCH_GULCH:
+        return TILE_DNGN_PORTAL_GULCH;
     case BRANCH_WIZLAB:
         return TILE_DNGN_PORTAL_WIZARD_LAB_7; /* I like this colour */
     case BRANCH_DESOLATION:

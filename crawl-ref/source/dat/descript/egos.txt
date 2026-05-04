@@ -148,7 +148,7 @@ It enhances your Air magic.
 %%%%
 archery (Archery) armour ego
 
-It has half the normal encumbrance for the purpose of ranged combat.
+It has one-third the normal encumbrance for the purpose of ranged combat.
 %%%%
 attunement (Attunement) armour ego
 
@@ -395,3 +395,4 @@ It deals increased damage compared to normal missiles and substantially
 increased damage to chaotic and magically transformed beings. It also inflicts
 extra damage against mutated beings, depending on how mutated they are.
 %%%%
+

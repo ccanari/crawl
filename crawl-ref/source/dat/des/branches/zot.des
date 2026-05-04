@@ -3840,7 +3840,7 @@ SHUFFLE: ])deOG, OGUCD~, GM
 : tile("b = dngn_crystal_" .. wallc)
 : tile("v = dngn_metal_wall_" .. wallc)
 : tile("c = dngn_stone_wall_" .. wallc)
-: ftile(".`123409deO%CDTG~+ = floor_rough_" .. floorc)
+: ftile(".`^123409deO%CDTG~+ = floor_rough_" .. floorc)
 : vault_granite_statue_setup(_G, "G", "scintillating statue")
 : vault_metal_statue_setup(_G, "M", "enigmatic dynamo")
 MAP
@@ -3900,7 +3900,7 @@ KMONS:  O = diamond obelisk
 KMONS:  S = lightning spire
 ITEM:   storm talisman, randbook disc:air spells:chain_lightning
 : local e = "ego:electrocution good_item pre_id no_pickup"
-: item("quickblade " .. e .. " w:5 / double sword " .. e .. " w:5 / " ..
+: item("quick blade " .. e .. " w:5 / double sword " .. e .. " w:5 / " ..
 :      "executioner's axe " .. e .. " w:5 / eveningstar " .. e .. " w:5 / " ..
 :      "bardiche " .. e .. " w:5 / lajatang " .. e .. " w:5 / " ..
 :      "rapier " .. e .. " / scimitar " .. e .. " / dire flail " .. " / " ..
@@ -4769,3 +4769,4 @@ LROCKTILE:  wall_zot_magenta
 MAP
 .
 ENDMAP
+

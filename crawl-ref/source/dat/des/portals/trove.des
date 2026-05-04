@@ -312,7 +312,7 @@ function trove_standard_magic(e, school, use_staff)
     ["conjuration"] = {"conjuration", "Conj", "conjurations"},
     ["summoning"] = {"ERROR: set use_staff to false", "Summ", "summonings"},
     ["necromancy"] = {"necromancy", "Necro", "necromancy"},
-    ["translocations"] = {"ERROR: set use_staff to false", "Tloc", "translocations"},
+    ["translocation"] = {"ERROR: set use_staff to false", "Tloc", "translocations"},
     ["hexes"] = {"ERROR: set use_staff to false", "Hexes", "hexes"},
     ["fire"] = {"fire", "Fire", "fire magic"},
     ["ice"] = {"cold", "Ice", "ice magic"},
@@ -1092,7 +1092,8 @@ local box = nil
 local talis = nil
 local magic = trove_standard_magic(_G, "alchemy", true)
 if no_friendlies(_G) == false then
-  table.insert(scroll, "any ally scroll q:2")
+  table.insert(scroll, "butterflies w:5 q:2")
+  table.insert(scroll, "summoning w:5 q:2")
   box = "box of beasts w:5"
   talis = "hive talisman"
   if you.mutation("no summoning magic") ~= 1 then
@@ -1217,7 +1218,7 @@ elseif you.mutation("hooves") ~= 3 and you.mutation("talons") ~= 3 then
             "pair of boots ego:rampaging good_item w:2"
 end
 if not no_evil(e) then
-  talis = " w:30 / sanguine talisman"
+  talis = "sanguine talisman"
 end
 
 trove_offense(_G, trove_weap_brand(_G, "venom", false) .. " / quick blade randart / " ..
@@ -1298,7 +1299,7 @@ if you.species() ~= "Demigod" then
 end
 kitem('d = ' .. weap)
 kitem('e = ' .. manual)
-kitem('f = any ally scroll q:2')
+kitem('f = scroll of summoning q:2')
 trove_defense(_G, "pearl dragon scales good_item / \
                    pearl dragon scales randart artprops:*Silence&Will w:5",
                    trove_ego_gen_armour(_G, "willpower", "Will"), jewelery,
@@ -1376,7 +1377,7 @@ if you.mutation("no potions") ~= 1 then
                      potion of heal wounds pre_id q:2"
 end
 if no_friendlies(_G) == false then
-  cons = cons .. " / any ally scroll q:4 w:2"
+  cons = cons .. " / scroll of summoning q:3 w:2"
 end
 kitem("h = " .. cons)
 kitem("i = scroll of brand weapon q:2 pre_id")
@@ -1530,10 +1531,10 @@ MONS:    spectral golden dragon, spectral quicksilver dragon
 -- All dragon scales, some elemental books, some elemental / slay jewellery,
 -- hats and a manual of invocations to match the Mask, some consumables,
 -- and some decoration.
-local dg = "dragon_scales good_item"
+local dg = "dragon scales good_item"
 local dr = "dragon scales randart"
 kitem("d = steam " .. dr .. " / acid " .. dr .. " / swamp " .. dg .. " w:7 / \
-           swamp" .. dr .. " / quicksilver dragon scales w:2 / \
+           swamp " .. dr .. " / quicksilver dragon scales w:2 / \
            quicksilver " .. dr .. " w:1")
 kitem("e = fire " .. dg .. " w:6 / fire " .. dr .. " w:2 / \
            ice " .. dg .. " w:6 / ice " .. dr .. " w:2 / \
@@ -1541,7 +1542,7 @@ kitem("e = fire " .. dg .. " w:6 / fire " .. dr .. " w:2 / \
 kitem("f = storm " .. dg .. " w:6 / storm " .. dr .. " w:4 / \
            shadow " .. dg .. " w:6 / shadow " .. dr .. " w:4 / \
            golden " .. dg .. " w:4 / golden " .. dr .. " w:2")
-kitem("g = serpent tailsman randart w:2 / dragon-coil talisman w:6 / \
+kitem("g = serpent talisman randart w:2 / dragon-coil talisman w:6 / \
            dragon-coil talisman randart w:12")
 local book = trove_book(_G, "fire", "ice") .. " / " ..
              trove_book(_G, "air", "earth")
@@ -1552,7 +1553,7 @@ kitem("h = " .. book)
 kitem("i = ring of slaying randart w:15 / any amulet randart artprops:rF / \
            any amulet randart artprops:rC / any amulet randart artprops:rPois")
 kitem("j = useful hat ego:see_invisible good_item w:4 / \
-           useful hat ego_willpower good_item w:4 / \
+           useful hat ego:willpower good_item w:4 / \
            hat randart artprops:Will / hat randart artprops:Slay")
 kitem("k = " .. trove_cons(_G, {"fear q:2", "enchant armour w:15 q:2"},
                           {"berserk rage q:2", "enlightenment q:2"},
@@ -1638,7 +1639,7 @@ NSUBST: ? = 6:d / 6:g / *:'
 {{
 local weap = ""
 local aux1 = ""
-local magic = trove_standard_magic(_G, "translocations", false)
+local magic = trove_standard_magic(_G, "translocation", false)
 local extra = "any manual w:1"
 if no_evil(_G) then
   weap = "acquire weapon / any useful weapon good_item"
@@ -1751,7 +1752,7 @@ local magic = trove_standard_magic(_G, "earth", true)
 local aux = ""
 local extra = ""
 if no_friendlies(_G) == false then
-  extra = extra .. " / any ally scroll q:2"
+  extra = extra .. " / scroll of butterflies q:2"
   if you.mutation("no summoning magic") ~= 1 then
     magic = magic .. " / " .. trove_standard_magic(_G, "summoning", false) ..
             " / any magical staff randart artprops:Summ&Will w:5"
@@ -1811,3 +1812,4 @@ bb.'''...bgb.bdb?bgb...'''.bb
     bb.bb   bbgbb   bb.bb
      bbb     bbb     bbb
 ENDMAP
+

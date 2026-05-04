@@ -5001,6 +5001,11 @@ void explore_discoveries::found_feature(const coord_def &pos,
         runelights.emplace_back(cleaned_feature_description(pos), 1);
         es_flags |= ES_RUNELIGHT;
     }
+    else if (feat == DNGN_PURIFIED_MUTATION_CATALYST)
+    {
+        mutation_catalysts.emplace_back(cleaned_feature_description(pos), 1);
+        es_flags |= ES_MUTATION_CATALYST;
+    }
 }
 
 void explore_discoveries::add_stair(
@@ -5176,6 +5181,7 @@ bool explore_discoveries::stop_explore() const
     say_any(apply_quantities(transporters), "transporter");
     say_any(apply_quantities(runed_doors), "runed door");
     say_any(apply_quantities(runelights), "runelights");
+    say_any(apply_quantities(mutation_catalysts), "mutation catalysts");
 
     return true;
 }

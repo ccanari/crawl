@@ -53,6 +53,7 @@
 #include "stringutil.h"
 #include "tag-version.h"
 #include "tileview.h"
+#include "timed-effects.h"
 #include "transform.h"
 #include "traps.h"
 #include "travel.h"
@@ -70,19 +71,26 @@ actor* actor_at(const coord_def& c)
     return monster_at(c);
 }
 
+/** Is this feature safe to replace in all circumstances?
+ */
+bool feat_is_floor(dungeon_feature_type feat)
+{
+    return feat == DNGN_FLOOR
+            || feat == DNGN_DECORATIVE_FLOOR
+            || feat_is_fountain(feat)
+            || feat_is_food(feat);
+}
+
 /** Can a malign gateway be placed on this feature?
  */
 bool feat_is_malign_gateway_suitable(dungeon_feature_type feat)
 {
-    return feat == DNGN_FLOOR
-            || feat == DNGN_SHALLOW_WATER
+    return feat == DNGN_SHALLOW_WATER
             || feat == DNGN_DEEP_WATER
             || feat == DNGN_LAVA
             || feat == DNGN_MUD
             || feat == DNGN_TOXIC_BOG
-            || feat == DNGN_DECORATIVE_FLOOR
-            || feat_is_fountain(feat)
-            || feat_is_food(feat);
+            || feat_is_floor(feat);
 }
 
 /** Is this feature a type of wall?
@@ -347,7 +355,7 @@ command_type feat_stair_direction(dungeon_feature_type feat)
         return CMD_GO_UPSTAIRS;
     }
 
-    if (feat_is_altar(feat))
+    if (feat_is_altar(feat) || feat == DNGN_PURIFIED_MUTATION_CATALYST)
         return CMD_GO_DOWNSTAIRS; // arbitrary; consistent with shops
 
     switch (feat)
@@ -2016,6 +2024,8 @@ void set_terrain_changed(const coord_def p)
             }
         }
     }
+    else if (env.grid(p) == DNGN_MOULD_PATCH)
+        update_mould_tracking(p);
 
     env.map_knowledge(p).flags |= MAP_CHANGED_FLAG;
 
@@ -2255,11 +2265,16 @@ bool revert_terrain_change(coord_def pos, terrain_change_type ctype)
         noisy(spell_effect_noise(SPELL_GOLUBRIAS_PASSAGE), pos);
     }
 
-    if (ctype == TERRAIN_CHANGE_BOG)
-        env.map_knowledge(pos).set_feature(newfeat, colour);
     _current_terrain_changed(pos, newfeat, false, true, false, newfeat_flv,
                              newfeat_flv_idx);
     env.grid_colours(pos) = colour;
+
+    if (ctype == TERRAIN_CHANGE_BOG)
+    {
+        update_terrain_knowledge(pos);
+        update_grid_colour_knowledge(pos);
+    }
+
     return true;
 }
 
@@ -2657,7 +2672,7 @@ void descent_crumble_stairs()
             mpr("The exit collapses.");
         if (env.map_knowledge(*ri).feat() == original_feat)
         {
-            env.map_knowledge(*ri).set_feature(DNGN_FLOOR);
+            update_terrain_knowledge(*ri, !env.map_knowledge(*ri).seen());
             set_terrain_mapped(*ri);
             redraw_view_at(*ri);
         }

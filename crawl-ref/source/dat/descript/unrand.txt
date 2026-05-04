@@ -490,7 +490,8 @@ obsidian axe
 
 An axe with a powerful curse placed on it by one of the lords of Pandemonium,
 so that unsuspecting adventurers would unleash demons into this world. Beware,
-for it has ways of taking its wielder under its command...
+for it has ways of mesmerising its wielder, no matter how clear and focused
+their mind...
 %%%%
 consecrated labrys
 
@@ -862,3 +863,4 @@ historians, as it is uncertain whether it was made from some renowned witch's
 pet dragon, or her frequent prey, or from her own non-human body itself.
 Regardless of its origins, the magic woven into it freely rains toxins all
 over its bearer's especially misfortunate foes.
+

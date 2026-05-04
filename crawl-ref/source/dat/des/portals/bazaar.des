@@ -1,3 +1,4 @@
+=======
 ###############################################################################
 # bazaar.des - Bazaar entry vaults and bazaar layouts.
 #
@@ -2030,7 +2031,7 @@ WEIGHT: 50
 NAME:    regret_index_bazaar_xom_original
 TAGS:    allow_dup xom_bazaar
 ORIENT:  encompass
-KMONS:   p = pile of debris
+KMONS:   p : pile of debris / stack of scrap w:1
 KMONS:   E = demonic plant
 KMONS:   f = butterfly perm_ench:paralysis
 KITEM:   d = potion of moonshine pre_id
@@ -2349,3 +2350,4 @@ ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
 ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
 ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
 ENDMAP
+

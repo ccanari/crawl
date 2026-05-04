@@ -42,6 +42,7 @@
 #include "libutil.h"
 #include "losglobal.h"
 #include "makeitem.h"
+#include "map-knowledge.h"
 #include "mapmark.h"
 #include "message.h"
 #include "misc.h"
@@ -145,6 +146,7 @@ static ai_action::goodness _foe_near_lava(const monster &caster);
 static ai_action::goodness _mons_likes_blinking(const monster &caster);
 static ai_action::goodness _mesmerise_is_effective(monster* mons, bool check_hearing);
 static ai_action::goodness _spike_launcher_goodness(const monster& caster);
+static ai_action::goodness _stampede_goodness(const monster& caster);
 static void _cast_injury_mirror(monster &mons, mon_spell_slot, bolt&);
 static void _cast_smiting(monster &mons, mon_spell_slot slot, bolt&);
 static void _cast_brain_bite(monster &mons, mon_spell_slot slot, bolt&);
@@ -196,6 +198,7 @@ static bool _cast_dominate_undead(const monster& caster, int pow, bool check_onl
 static bool _mon_cast_tempering(const monster& caster, bool check_only);
 static coord_def _mons_boulder_tracer(const monster* mons);
 static bool _mons_splinterfrost_shell(const monster& caster, bool check_only = false);
+static void _mons_start_stampede(monster& caster);
 
 enum spell_logic_flag
 {
@@ -1070,6 +1073,12 @@ static const map<spell_type, mons_spell_logic> spell_to_logic = {
         },
         [](monster& caster, mon_spell_slot, bolt&) {
             _mons_splinterfrost_shell(caster);
+        }
+    } },
+    { SPELL_STAMPEDE, {
+        _stampede_goodness,
+       [](monster &caster, mon_spell_slot, bolt&) {
+            _mons_start_stampede(caster);
         }
     } },
 };
@@ -2379,6 +2388,7 @@ bolt mons_spell_beam(const monster* mons, spell_type spell_cast, int power,
     case SPELL_STUNNING_BURST:
     case SPELL_MALIGN_OFFERING:
     case SPELL_BOLT_OF_DEVASTATION:
+    case SPELL_BOLT_OF_ANTIMAGIC:
     case SPELL_BORGNJORS_VILE_CLUTCH:
     case SPELL_CRYSTALLISING_SHOT:
     case SPELL_HELLFIRE_MORTAR:
@@ -2715,6 +2725,7 @@ bool setup_mons_cast(const monster* mons, bolt &pbolt, spell_type spell_cast,
     case SPELL_SUMMON_MANA_VIPER:
     case SPELL_SUMMON_SCORPIONS:
     case SPELL_SUMMON_EMPEROR_SCORPIONS:
+    case SPELL_MURKY_LEGION:
     case SPELL_BATTLECRY:
     case SPELL_WARNING_CRY:
     case SPELL_HUNTING_CALL:
@@ -3529,7 +3540,7 @@ static bool _seal_doors_and_stairs(const monster* warden,
                 {
                     if (env.map_knowledge(dc).seen())
                     {
-                        env.map_knowledge(dc).set_feature(DNGN_CLOSED_DOOR);
+                        update_terrain_knowledge(dc);
 #ifdef USE_TILE
                         tile_env.bk_bg(dc) = TILE_DNGN_CLOSED_DOOR;
 #endif
@@ -5913,6 +5924,49 @@ static ai_action::goodness _spike_launcher_goodness(const monster& caster)
     return ai_action::bad();
 }
 
+static ai_action::goodness _stampede_goodness(const monster& caster)
+{
+    // Can only stampede if we're able to move and not already stampeding
+    if (caster.has_ench(ENCH_STAMPEDE) || caster.cannot_move() || caster.is_constricted() || caster.caught())
+        return ai_action::impossible();
+
+    // Can only stampede at visible foes.
+    const actor* foe = caster.get_foe();
+    if (!foe || !caster.can_see(*foe) || adjacent(caster.pos(), foe->pos()))
+        return ai_action::impossible();
+
+    // Can only stampede in a compass direction.
+    const coord_def delta = foe->pos() - caster.pos();
+    if (!(abs(delta.x) == abs(delta.y) || delta.x == 0 || delta.y == 0))
+        return ai_action::impossible();
+
+    // Now actually trace to see if it's possible to reach our foe from here.
+    const coord_def step = delta.sgn();
+    coord_def pos = caster.pos();
+    while (!adjacent(pos, foe->pos()))
+    {
+        pos += step;
+        if (actor_at(pos) || !monster_habitable_grid(&caster, pos))
+            return ai_action::impossible();
+    }
+
+    return ai_action::good();
+}
+
+static void _mons_start_stampede(monster& mon)
+{
+    const actor* foe = mon.get_foe();
+    const coord_def step = (foe->pos() - mon.pos()).sgn();
+
+    mon.add_ench(mon_enchant(ENCH_STAMPEDE, &mon, INFINITE_DURATION));
+    mon.props[STAMPEDE_DIRECTION_KEY].get_coord() = step;
+
+    if (you.can_see(mon))
+        mprf("%s starts stampeding towards %s.", mon.name(DESC_THE).c_str(), foe->name(DESC_THE).c_str());
+
+    mon_do_stampede(mon);
+}
+
 void setup_breath_timeout(monster* mons)
 {
     if (mons->has_ench(ENCH_BREATH_WEAPON))
@@ -6276,14 +6330,12 @@ static coord_def _mons_fragment_target(const monster &mon)
     int maxpower = 0;
     for (distance_iterator di(mons->pos(), true, true, range); di; ++di)
     {
-        bool temp;
-
         if (!cell_see_cell(mons->pos(), *di, LOS_NO_TRANS))
             continue;
 
         bolt beam;
         const char *what = nullptr;
-        if (!setup_fragmentation_beam(beam, pow, mons, *di, true, &what, temp))
+        if (!setup_fragmentation_beam(beam, pow, mons, *di, true, &what))
             continue;
 
         beam.range = range;
@@ -8422,6 +8474,13 @@ void mons_cast(monster* mons, bolt pbolt, spell_type spell_cast,
         return;
     }
 
+    case SPELL_MURKY_LEGION:
+    {
+        for (int i = 0; i < 2; ++i)
+            _summon(*mons, MONS_GLOWMURK_GHAST, summ_dur(1), slot);
+        return;
+    }
+
     case SPELL_SUMMON_SCORPIONS:
     {
         const int max_scorps = 1 + div_rand_round(splpow, 42);
@@ -8438,6 +8497,8 @@ void mons_cast(monster* mons, bolt pbolt, spell_type spell_cast,
             _summon(*mons, MONS_EMPEROR_SCORPION, summ_dur(5), slot);
         return;
     }
+
+
 
     case SPELL_BATTLECRY:
         _battle_cry(*mons, SPELL_BATTLECRY);

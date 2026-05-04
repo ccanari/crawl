@@ -4024,13 +4024,14 @@ ORIENT: float
 DEPTH:  D:2-4
 KMONS:  1 = Ijyb / hobgoblin, hobgoblin
 KMONS:  2 = goblin
+KMONS:  S = stack of scrap
 KFEAT:  F = cache_of_fruit / cache_of_meat / cache_of_baked_goods
-SUBST:  F : F..
+SUBST:  F : F.., S : SS.
 MAP
 xxxxxxxxx
 xF.%1%.Fx
 xG2...2Gx
-x.2...2.x
+x.2SSS2.x
 xc2...2cx
 x.......x
 xc.....cx
@@ -4602,9 +4603,9 @@ NAME:   minmay_shoctagon
 DEPTH:  D:12-, Elf, Depths
 ORIENT: float
 ITEM:   book of air / book of lightning / book of storms / \
-        manual of air magic / staff of air pre_id / lightning rod w:20 \
+        manual of air magic / staff of air pre_id / lightning rod w:20 / \
         storm dragon scales w:5 / storm talisman w:5
-KITEM:  2 = arc blade / quick blade ego:electrocution randart pre_id \
+KITEM:  2 = arc blade / quick blade ego:electrocution randart pre_id / \
         glaive of the guard / \
         demon trident ego:electrocution randart pre_id / storm bow
 : if you.in_branch("D") then
@@ -5379,9 +5380,10 @@ ORIENT: float
 : if you.in_branch("Vaults") then
 KMONS:  1 = war gargoyle
 KMONS:  2 = vault sentinel
+KMONS:  S = stack of scrap
 KITEM:  12 = % / * w:4
 NSUBST: - = 3:1 / 2:2 / 2 = 1G / *:G
-SUBST:  @ = ., '" = .
+SUBST:  @ = ., '" = ., G : GGS
 :   vault_metal_statue_setup(_G, "G", "silver statue")
 :   vaults_hard_standard(_G)
 : else
@@ -7488,7 +7490,7 @@ MONS:    rakshasa, vampire knight, shadow dragon
 SUBST:   ' = 12, " = 56
 : end
 KITEM:   & = shadow dragon scales randart / manual of stealth / \
-             boots ego:stealth good_item pre_id / \
+             pair of boots ego:stealth good_item pre_id / \
              cloak ego:stealth good_item pre_id / \
              scroll of fog q:3 pre_id
 KFEAT:   B = cache_of_baked_goods
@@ -13390,3 +13392,4 @@ cc-..8T8...ccc-..8T8...ccc-..8T8...cc
            ccc         ccc         ccc
             c           c           c
 ENDMAP
+

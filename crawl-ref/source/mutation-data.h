@@ -2635,4 +2635,5 @@ static const mutation_category_def category_mut_data[] =
   { RANDOM_BAD_MUTATION, "bad"},
   { RANDOM_SLIME_MUTATION, "slime"},
   { RANDOM_CORRUPT_MUTATION, "corrupt"},
+  { RANDOM_CATALYST_MUTATION, "catalyst"},
 };

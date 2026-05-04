@@ -246,6 +246,10 @@ splinters_metal5
 splinters_metal6
 splinters_metal7
 
+antimagic0 BOLT_ANTIMAGIC
+antimagic1
+antimagic2
+
 flesh0 BOLT_FLESH
 flesh1
 
@@ -514,3 +518,4 @@ error ERROR
 %rim 1
 todo TODO
 %rim 0
+

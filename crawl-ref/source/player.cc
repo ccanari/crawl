@@ -53,6 +53,7 @@
 #include "level-state-type.h"
 #include "libutil.h"
 #include "macro.h"
+#include "map-knowledge.h"
 #include "melee-attack.h"
 #include "message.h"
 #include "mon-behv.h"
@@ -2398,6 +2399,7 @@ void forget_map(bool rot)
         env.map_knowledge(p).clear();
         if (env.map_forgotten)
             (*env.map_forgotten)(p).clear();
+        tile_env.remembered_flavour.clear_at(p);
         StashTrack.update_stash(p);
 #ifdef USE_TILE
         tile_forget_map(p);
@@ -4046,8 +4048,11 @@ void inc_mp(int mp_gain, bool silent)
 
     if (!silent)
     {
-        if (_should_stop_resting(you.magic_points, you.max_magic_points))
+        if (_should_stop_resting(you.magic_points, you.max_magic_points)
+            && !Options.rest_wait_ignore_mp)
+        {
             interrupt_activity(activity_interrupt::full_mp);
+        }
         you.redraw_magic_points = true;
     }
 
@@ -5830,7 +5835,7 @@ bool player::is_sufficiently_rested(bool starting) const
     return (!player_regenerates_hp()
                 || _should_stop_resting(hp, hp_max, !starting)
                 || !hp_interrupts)
-        && (!player_regenerates_mp()
+        && (!player_regenerates_mp() || Options.rest_wait_ignore_mp
                 || _should_stop_resting(magic_points, max_magic_points, !starting)
                 || !mp_interrupts)
         && (can_freely_move || !hp_interrupts);
@@ -6147,7 +6152,7 @@ int player::unadjusted_body_armour_penalty(bool archery) const
     if (!body_armour)
         return 0;
 
-    int rfactor = archery && you.wearing_ego(OBJ_ARMOUR, SPARM_ARCHERY) ? 2 : 1;
+    int rfactor = archery && you.wearing_ego(OBJ_ARMOUR, SPARM_ARCHERY) ? 3 : 1;
 
     // PARM_EVASION is always less than or equal to 0
     return max(0, -property(*body_armour, PARM_EVASION) / 10 / rfactor
@@ -6724,6 +6729,7 @@ void player::preview_stats_with_specific_item(int scale, const item_def& new_ite
 
     // Now actually equip the item.
     you.equipment.add(item, slot);
+    you.equipment.meld_equipment(get_form()->blocked_slots, true);
     you.equipment.update();
 
     // Now, simply calculate AC/EV/SH without temporary boosts.
@@ -8943,7 +8949,7 @@ void player_open_door(coord_def doorpos)
         // door!
         if (env.map_knowledge(dc).seen())
         {
-            env.map_knowledge(dc).set_feature(env.grid(dc));
+            update_terrain_knowledge(dc);
 #ifdef USE_TILE
             tile_env.bk_bg(dc) = tileidx_feature_base(env.grid(dc));
 #endif
@@ -9114,7 +9120,7 @@ void player_close_door(coord_def doorpos)
         // want the entire door to be updated.
         if (env.map_knowledge(dc).seen())
         {
-            env.map_knowledge(dc).set_feature(env.grid(dc));
+            update_terrain_knowledge(dc);
 #ifdef USE_TILE
             tile_env.bk_bg(dc) = tileidx_feature_base(env.grid(dc));
 #endif

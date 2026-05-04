@@ -2847,7 +2847,8 @@ bool full_describe_square(const coord_def &c, bool cleanup)
 
     // I'm not sure if features should be included. But it seems reasonable to
     // at least include what full_describe_view shows
-    if (feat_stair_direction(feat) != CMD_NO_CMD || feat_is_trap(feat))
+    if (feat_stair_direction(feat) != CMD_NO_CMD || feat_is_trap(feat)
+        || feat == DNGN_MOULD_PATCH)
     {
         list_features.push_back(c);
         ++quantity;

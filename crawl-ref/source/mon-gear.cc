@@ -513,6 +513,12 @@ int make_mons_weapon(monster_type type, int level, bool melee_only)
                 { WPN_BROAD_AXE,        10 },
                 { WPN_BATTLEAXE,        16 },
         }, {2, 1, 4}, { { SPWPN_DRAINING, 1 }, { NUM_SPECIAL_WEAPONS, 1 }, } } },
+        { MONS_FUNGAL_SHAMBLER,
+            { { { WPN_MORNINGSTAR,      4 },
+                { WPN_PARTISAN,         6 },
+                { WPN_SCIMITAR,         3 },
+                { WPN_WAR_AXE,          6 },
+            } } },
         { MONS_GNOLL,                   { GNOLL_WEAPONS } },
         { MONS_OGRE_MAGE,               { GNOLL_WEAPONS } },
         { MONS_NAGA_MAGE,               { GNOLL_WEAPONS } },
@@ -1179,6 +1185,11 @@ int make_mons_weapon(monster_type type, int level, bool melee_only)
 
     case MONS_GOBLIN_RIDER:
         if (coinflip())
+            level = ISPEC_GOOD_ITEM;
+        break;
+
+    case MONS_FUNGAL_SHAMBLER:
+        if (one_chance_in(4))
             level = ISPEC_GOOD_ITEM;
         break;
 
@@ -2015,6 +2026,7 @@ int make_mons_armour(monster_type type, int level)
     case MONS_TERENCE:
     case MONS_URUG:
     case MONS_HAROLD:
+    case MONS_FUNGAL_SHAMBLER:
         item.base_type = OBJ_ARMOUR;
         item.sub_type  = random_choose_weighted(1, ARM_RING_MAIL,
                                                 3, ARM_SCALE_MAIL,

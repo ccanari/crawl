@@ -254,6 +254,7 @@ enum enchant_type
     ENCH_SUNDER_CHARGE,
     ENCH_EXPOSED,
     ENCH_BRAMBLE_COOLDOWN,
+    ENCH_STAMPEDE,
     // Update enchant_names[] in mon-ench.cc when adding or removing
     // enchantments.
     NUM_ENCHANTMENTS

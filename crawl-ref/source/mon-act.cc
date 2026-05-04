@@ -36,6 +36,7 @@
 #include "libutil.h"
 #include "losglobal.h"
 #include "los.h"
+#include "melee-attack.h"
 #include "mapmark.h"
 #include "message.h"
 #include "mon-abil.h"
@@ -49,6 +50,7 @@
 #include "mon-project.h"
 #include "mon-speak.h"
 #include "mon-tentacle.h"
+#include "movement.h"
 #include "nearby-danger.h"
 #include "player-notices.h"
 #include "religion.h"
@@ -1361,23 +1363,25 @@ static void _burstshroom_grow(monster& mons)
     mons.number -= 1;
     if (mons.number <= 0)
     {
-        if (mons.was_created_by(you, MON_SUMM_SPORE) && !you.can_see(mons))
+        // Player-created mushrooms wither when out of sight.
+        const bool player_mushroom = mons.was_created_by(you, MON_SUMM_SPORE);
+        if (player_mushroom && !you.can_see(mons))
         {
             monster_die(mons, KILL_TIMEOUT, NON_MONSTER);
             return;
         }
 
-        vector<monster*> affected;
+        vector<actor*> affected;
         bool need_redraw = false;
         for (adjacent_iterator ai(mons.pos()); ai; ++ai)
         {
-            if (monster* mon_at = monster_at(*ai))
+            if (actor* act = actor_at(*ai))
             {
-                if (mons_aligned(&mons, mon_at))
+                if (mons_aligned(&mons, act))
                     continue;
 
-                if (!mon_at->is_unbreathing())
-                    affected.push_back(mon_at);
+                if (!act->is_unbreathing())
+                    affected.push_back(act);
             }
 
             if (you.see_cell(*ai) && !cell_is_solid(*ai))
@@ -1392,21 +1396,31 @@ static void _burstshroom_grow(monster& mons)
             animation_delay(20, true);
 
         bolt spores;
-        zappy(ZAP_BURSTSPORE, 1, false, spores);
-        spores.damage = get_form(transformation::spore)->get_special_damage();
-        spores.set_agent(&you);
+        zappy(ZAP_BURSTSPORE, mons.get_hit_dice() * 10, !player_mushroom, spores);
+        if (player_mushroom)
+        {
+            spores.damage = get_form(transformation::spore)->get_special_damage();
+            spores.set_agent(&you);
+        }
+        else
+            spores.set_agent(&mons);
         spores.source = mons.pos();
         spores.hit_verb = "engulf";
         spores.in_explosion_phase = true;
 
-        for (monster* targ : affected)
+        for (actor* targ : affected)
         {
             spores.explosion_affect_cell(targ->pos());
-            if (targ->alive() && !targ->has_ench(ENCH_DAZED)
-                && x_chance_in_y(get_form(transformation::spore)->get_level(10), targ->get_hit_dice() * 30))
+            if (targ->alive()
+                && ((targ->is_monster() && !targ->as_monster()->has_ench(ENCH_DAZED)
+                     && x_chance_in_y(mons.get_hit_dice() * 2, targ->get_hit_dice() * 3))
+                    || (targ->is_player() && !you.duration[DUR_DAZED] && one_chance_in(3))))
             {
                 targ->daze(random_range(2, 5));
-                simple_monster_message(*targ, " is dazed by the spores.");
+                if (targ->is_monster())
+                    simple_monster_message(*targ->as_monster(), " is dazed by the spores.");
+                else
+                    mprf(MSGCH_WARN, "You are dazed by the spores!");
             }
         }
 
@@ -1414,6 +1428,62 @@ static void _burstshroom_grow(monster& mons)
     }
     else
         mons.lose_energy(EUT_MOVE);
+}
+
+// Handles one turn of a monster stampeding, moving them and potentially ending
+// the status if stampeding is no longer possible.
+//
+// Returns false if no stampede effect could happen (and thus the monster should
+// take a normal action this turn instead).
+bool mon_do_stampede(monster& mon)
+{
+    // If our movement is forcibly stopped, end immediately.
+    if (mon.cannot_move() || mon.is_constricted() || mon.cannot_act() || mon.caught())
+    {
+        mon.del_ench(ENCH_STAMPEDE);
+        return false;
+    }
+
+    // If continuing to move in our current direction will start to move us
+    // further away from our foe, mark stampede to end after this movement.
+    // (To allow the monster to 'overshoot', but not too far.)
+    bool should_end = false;
+    actor* foe = mon.get_foe();
+    coord_def target = foe && mon.can_see(*foe) ? foe->pos() : mon.target;
+    const coord_def step = mon.props[STAMPEDE_DIRECTION_KEY].get_coord();
+    if (grid_distance(mon.pos() + (step * 2), target) > grid_distance(mon.pos(), target))
+        should_end = true;
+
+    // Attempt to take up to two steps, leaving dust clouds as we do so.
+    if (stampede_step(mon, mon.pos() + step, true))
+    {
+        place_cloud(CLOUD_DUST, mon.pos() - step, random_range(2, 4), &mon);
+        if (stampede_step(mon, mon.pos() + step, true))
+            place_cloud(CLOUD_DUST, mon.pos() - step, random_range(2, 4), &mon);
+    }
+    // Couldn't take even one step, so end immediately and do something else.
+    else
+    {
+        mon.del_ench(ENCH_STAMPEDE);
+        return false;
+    }
+
+    // If there is some enemy in the direction of our charge at the end of it, attack them.
+    if (actor* act = actor_at(mon.pos() + step))
+    {
+        if (!mons_aligned(&mon, act))
+        {
+            melee_attack attk(&mon, act);
+            attk.to_hit_bonus = 15;
+            attk.dmg_mult = 50;
+            attk.launch_attack_set();
+        }
+    }
+
+    if (should_end)
+        mon.del_ench(ENCH_STAMPEDE);
+
+    return true;
 }
 
 static void _mons_fire_wand(monster& mons, spell_type mzap, bolt &beem)
@@ -2127,6 +2197,12 @@ void handle_monster_move(monster* mons)
             && (++mons->move_spurt / 6 % 3 == 1 || mons->move_spurt / 3 % 5 == 1))
     {
         mons->speed_increment -= non_move_energy;
+        return;
+    }
+
+    if (mons->has_ench(ENCH_STAMPEDE) && mon_do_stampede(*mons))
+    {
+        mons->lose_energy(EUT_MOVE);
         return;
     }
 
