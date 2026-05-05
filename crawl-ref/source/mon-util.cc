@@ -2542,8 +2542,9 @@ static const pair<monster_type, monster_type> _draconian_combos[] =
     { MONS_DRACONIAN_MONK, MONS_GREEN_DRACONIAN },
     { MONS_DRACONIAN_SHIFTER, MONS_PURPLE_DRACONIAN },
     { MONS_DRACONIAN_ANNIHILATOR, MONS_YELLOW_DRACONIAN },
-    { MONS_DRACONIAN_KNIGHT, MONS_BLACK_DRACONIAN },
+    { MONS_DRACONIAN_KNIGHT, MONS_BLUE_DRACONIAN },
     { MONS_DRACONIAN_SCORCHER, MONS_RED_DRACONIAN },
+    { MONS_DRACONIAN_ZEALOT, MONS_BLACK_DRACONIAN },
 #if TAG_MAJOR_VERSION == 34
     { MONS_PROGRAM_BUG, MONS_PROGRAM_BUG }, // MONS_MOTTLED_DRACONIAN
 #endif
@@ -2662,7 +2663,8 @@ mon_spell_slot drac_breath(monster_type drac_type)
     spell_type sp;
     switch (drac_type)
     {
-    case MONS_BLACK_DRACONIAN:   sp = SPELL_LIGHTNING_BOLT; break;
+    case MONS_BLACK_DRACONIAN:   sp = SPELL_BOLT_OF_DRAINING; break;
+    case MONS_BLUE_DRACONIAN:    sp = SPELL_LIGHTNING_BOLT; break;
     case MONS_YELLOW_DRACONIAN:  sp = SPELL_SPIT_ACID; break;
     case MONS_GREEN_DRACONIAN:   sp = SPELL_POISONOUS_CLOUD; break;
     case MONS_PURPLE_DRACONIAN:  sp = SPELL_QUICKSILVER_BOLT; break;
@@ -3008,7 +3010,7 @@ static const char *drac_colour_names[] =
 #if TAG_MAJOR_VERSION == 34
     "",
 #endif
-    "yellow", "green", "purple", "red", "white", "grey", "pale"
+    "yellow", "green", "purple", "red", "blue", "white", "grey", "pale"
 };
 
 string draconian_colour_name(monster_type mon_type)

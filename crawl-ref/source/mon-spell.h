@@ -629,6 +629,14 @@ static const mon_spellbook mspell_list[] =
        { SPELL_BLINK_RANGE, 15, MON_SPELL_WIZARD | MON_SPELL_EMERGENCY },
       }
     },
+    {  MST_DRACONIAN_ZEALOT,
+      {
+       { SPELL_CALL_DOWN_DAMNATION, 11, MON_SPELL_PRIEST },
+       { SPELL_SMITING, 11, MON_SPELL_PRIEST },
+       { SPELL_SUMMON_DEMON, 11, MON_SPELL_PRIEST },
+       { SPELL_MINOR_HEALING, 22, MON_SPELL_PRIEST },
+      }
+    },
 
     // ('r') rodents
     {  MST_CRYSTAL_ECHIDNA,

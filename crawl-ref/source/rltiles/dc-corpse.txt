@@ -375,6 +375,11 @@ bunyip CORPSE_BUNYIP
 %compose base/draconian_yellow
 %finish CORPSE_YELLOW_DRACONIAN
 
+%start
+%compose drcwing/drcwing_blue
+%compose base/draconian_blue
+%finish CORPSE_BLUE_DRACONIAN
+
 # Demonspawn ('6')
 %sdir mon/humanoids/demonspawn
 demonspawn CORPSE_DEMONSPAWN

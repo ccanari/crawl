@@ -1441,6 +1441,7 @@ draco-base-yellow
 draco-base-green
 draco-base-purple
 draco-base-red
+draco-base-blue
 draco-base-white
 draco-base-grey
 draco-base-pale
@@ -1451,6 +1452,7 @@ draco-job-knight MONS_DRACONIAN_KNIGHT
 draco-job-monk MONS_DRACONIAN_MONK
 draco-job-scorcher MONS_DRACONIAN_SCORCHER
 draco-job-shifter MONS_DRACONIAN_SHIFTER
+draco-job-zealot MONS_DRACONIAN_ZEALOT
 ## From the Wucad Mu wizard laboratory
 mon/vault/draconian_monk_ghost MONS_FAINT_GREY_DRACONIAN_MONK
 
@@ -1593,4 +1595,3 @@ prune MONS_PRUNE
 jack_o_lantern MONS_JACK_O_LANTERN
 gastronaut MONS_GASTRONAUT
 crawling_zombie_skyshark MONS_SKYSHARK_CRAWLING
-

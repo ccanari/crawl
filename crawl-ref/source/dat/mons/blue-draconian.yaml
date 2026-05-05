@@ -1,7 +1,7 @@
-name: "black draconian"
-glyph: {char: "d", colour: darkgray}
+name: "blue draconian"
+glyph: {char: "d", colour: blue}
 flags: [flies, speaks, cold_blood]
-resists: {neg: 1}
+resists: {elec: 3}
 exp: 1019
 genus: draconian
 will: 40

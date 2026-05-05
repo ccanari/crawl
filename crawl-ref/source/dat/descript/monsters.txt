@@ -804,7 +804,7 @@ A small black bear. Like all ursines, it will become enraged if badly hurt.
 %%%%
 black draconian
 
-A muscular black-scaled humanoid with a reptilian tail and powerful wings.
+A muscular black-scaled humanoid with a reptilian tail and small wings.
 %%%%
 black mamba
 
@@ -839,6 +839,10 @@ concussive blast.
 block of ice
 
 A block of ice shaped like a statue, but worked by no living hands.
+%%%%
+blue draconian
+
+A muscular blue-scaled humanoid with a reptilian tail and powerful wings.
 %%%%
 bog body
 
@@ -1326,6 +1330,11 @@ draconian stormcaller
 
 A draconian deriving its thunderous powers and draconic allies from the worship
 of Qazlal.
+%%%%
+draconian zealot
+
+A draconian deriving its hellish powers and demonic allies from the worship of
+some unknown dark god.
 %%%%
 draugr
 
@@ -4094,4 +4103,3 @@ You hear the echoes of planets behind the deafening roar of stars as it
 approaches. It is the jaws of the abyss. It brings forth crawling chaos from
 within. It is the last sight you will ever see.
 %%%%
-
