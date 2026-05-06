@@ -1617,7 +1617,7 @@ Draconians (Dr)
   colour is determined by chromosomes, not by behaviour.
 
   Most types of Draconians have breath weapons or special resistances.
-  Draconians cannot wear body armour and advance very slowly in levels, but are
+  Draconians cannot wear dragpn scales and advance very slowly in levels, but are
   reasonably good at all skills other than missile weapons, and they develop
   natural physical defences that compensate for the lack of body armour, without
   needing to train their Armour skill at all. Still, each colour has its own

@@ -14,7 +14,7 @@ aptitudes:
   fighting: 1
   ranged weapons: -1
   throwing: -1
-  armour: False
+  armour: -1
   dodging: -1
   spellcasting: -1
   hexes: -1

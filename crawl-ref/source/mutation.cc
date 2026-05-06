@@ -866,8 +866,8 @@ static vector<pair<string, string>> _get_fakemuts()
     // _dragon_abil should get called on all draconian fake muts would break.
     if (species::is_draconian(you.species))
     {
-        armour_mut = {"unfitting armour",
-                      _innatemut("You cannot fit into any form of body armour or wear helmets.")};
+        armour_mut = {"no dragon scales",
+                      _innatemut("Your draconic ancestry forbids you from wearing dragon scales.")};
     }
     if (!weapon_mut.first.empty() && !you.has_mutation(MUT_NO_GRASPING))
         result.push_back(weapon_mut);

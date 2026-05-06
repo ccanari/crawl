@@ -116,12 +116,6 @@ int count = 0;
     case SLOT_BODY_ARMOUR:
         if (you.has_mutation(MUT_FORMLESS))
             NO_SLOT("You can't haunt something so large.")
-        if (species::is_draconian(you.species))
-        {
-            NO_SLOT(make_stringf("Your wings%s won't fit in that.",
-                                    you.has_mutation(MUT_BIG_WINGS)
-                                    ? "" : ", even vestigial as they are,"))
-        }
         else if (you.species == SP_OCTOPODE || you.has_mutation(MUT_NO_ARMOUR))
             NO_SLOT("You can't wear armour!");
 
@@ -517,6 +511,18 @@ bool can_equip_item(const item_def& item, bool include_form, string* veto_reason
                                             (bad_size > 0) ? "large" : "small"))
             }
         }
+		if (species::is_draconian(you.species) && slot == SLOT_BODY_ARMOUR)
+		{
+			if (item.sub_type == ARM_FIRE_DRAGON_ARMOUR || item.sub_type == ARM_ICE_DRAGON_ARMOUR 
+			|| item.sub_type == ARM_STEAM_DRAGON_ARMOUR || item.sub_type == ARM_ACID_DRAGON_ARMOUR 
+			|| item.sub_type == ARM_STORM_DRAGON_ARMOUR || item.sub_type == ARM_GOLDEN_DRAGON_ARMOUR 
+			|| item.sub_type == ARM_SWAMP_DRAGON_ARMOUR || item.sub_type == ARM_PEARL_DRAGON_ARMOUR 
+			|| item.sub_type == ARM_SHADOW_DRAGON_ARMOUR || item.sub_type == ARM_QUICKSILVER_DRAGON_ARMOUR  )
+			{
+				NO_EQUIP(make_stringf("That would betray your draconic pride."));
+				return false;
+			}
+		}
 
         if (is_hard_helmet(item))
         {
