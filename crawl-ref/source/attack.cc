@@ -1001,7 +1001,7 @@ int attack::calc_damage()
         damage = apply_mon_damage_modifiers(damage);
 
         set_attack_verb(damage);
-        return apply_defender_ac(damage, damage_max);
+        return apply_defender_ac(damage, damage_max, weapon_half_ac(*weapon) ? ac_type::half : ac_type::normal);
     }
     else
     {
@@ -1029,7 +1029,7 @@ int attack::calc_damage()
         if (!defender->alive())
             return 0;
         damage = player_apply_final_multipliers(damage);
-        damage = apply_defender_ac(damage);
+        damage = apply_defender_ac(damage, 0, weapon_half_ac(*weapon) ? ac_type::half : ac_type::normal);
         damage = player_apply_postac_multipliers(damage);
 
         damage = max(0, damage);

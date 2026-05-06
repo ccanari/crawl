@@ -188,6 +188,7 @@ int  ammo_destroy_chance(const item_def &missile) PURE;
 int  ammo_type_damage(int missile_type) PURE;
 
 int weapon_reach(const item_def &item) PURE;
+bool weapon_half_ac(const item_def &item) PURE;
 
 // gem functions:
 int gem_time_limit(gem_type gem) PURE;

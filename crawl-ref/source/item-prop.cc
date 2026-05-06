@@ -2350,6 +2350,18 @@ int weapon_reach(const item_def &item)
 }
 
 //
+// Weapon that ignore half of AC:
+//
+bool weapon_half_ac(const item_def &item)
+{
+    if (item_attack_skill(item) == SK_MACES_FLAILS)
+    {
+        return true;
+    }
+    return false;
+}
+
+//
 // Macguffins
 //
 bool item_is_unique_rune(const item_def &item)
