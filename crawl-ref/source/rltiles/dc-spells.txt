@@ -413,4 +413,3 @@ debugging_ray DEBUGGING_RAY
 
 %sdir gui/spells
 memorise MEMORISE
-

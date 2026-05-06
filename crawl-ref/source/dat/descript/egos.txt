@@ -395,4 +395,3 @@ It deals increased damage compared to normal missiles and substantially
 increased damage to chaotic and magically transformed beings. It also inflicts
 extra damage against mutated beings, depending on how mutated they are.
 %%%%
-

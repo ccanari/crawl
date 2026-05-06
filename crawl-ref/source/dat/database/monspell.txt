@@ -1412,4 +1412,3 @@ beam catchall cast
 
 @The_monster@ throws @beam@ @at@ @target@.
 %%%%
-

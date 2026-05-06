@@ -1457,4 +1457,3 @@ ink_full WAVE_INK_FULL
 %shrink 1
 liquefaction1 LIQUEFACTION
 liquefaction2
-

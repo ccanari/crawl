@@ -763,4 +763,3 @@ high-tier stab monstatus
 <blue>Melee attacks you make against this creature will deal greatly increased damage,
 especially if made with a short blade.</blue>
 %%%%
-

@@ -1104,4 +1104,3 @@ vine_corner_SW VINE_OVERLAY_SW
 
 %sdir effect
 east_wind OVERLAY_EAST_WIND
-
