@@ -1,6 +1,6 @@
 name: "black draconian"
 glyph: {char: "d", colour: darkgray}
-flags: [flies, speaks, cold_blood]
+flags: [speaks, cold_blood]
 resists: {neg: 1}
 exp: 1019
 genus: draconian
