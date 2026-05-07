@@ -1262,6 +1262,10 @@ ability_type fixup_ability(ability_type ability)
             return ability;
         return ABIL_NON_ABILITY;
 
+    case ABIL_REAPING_BREATH:
+        if (is_good_god(you.religion))
+            return ABIL_NON_ABILITY;
+
     default:
         return ability;
     }
@@ -3137,17 +3141,6 @@ static spret _do_draconian_breath(const ability_def& abil, dist *target, bool fa
 
     const int pow = draconian_breath_power();
 
-	if (god_punishes_spell(breath_to_spell[abil.ability], you.religion)
-		&& !crawl_state.disables[DIS_CONFIRMATIONS])
-	{
-		if (!yesno("This will place you under penance. "
-				"Really proceed?", true, 'n'))
-		{
-			canned_msg(MSG_OK);
-			crawl_state.zero_turns_taken();
-			return spret::abort;
-		}
-	}
     result = your_spells(breath_to_spell[abil.ability], pow,
                             false, nullptr, target, fail);
 

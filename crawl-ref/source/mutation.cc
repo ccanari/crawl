@@ -784,7 +784,8 @@ static vector<pair<string, string>> _get_fakemuts()
         if (species::is_draconian(you.species))
         {
             result.push_back(_annotate_form_based({short_fakemut[i], long_fakemut[i]},
-                                form_changes_anatomy() && you.form != transformation::dragon));
+                                (form_changes_anatomy() && you.form != transformation::dragon)
+                                || ((short_fakemut[i] == "reaping breath") && is_good_god(you.religion))));
         }
         else
         {
