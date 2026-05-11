@@ -1190,11 +1190,6 @@ When you kill an edible enemy in melee (any hostile, non-summoned, living or
 plant monster), your maw devours it, greatly increasing your regeneration for a
 short while. More powerful enemies provide a longer duration of this effect.
 %%%%
-growling stomach mutation
-
-Your maw's appetite is insatiable. Whenever you first encounter an edible
-monster, there is a chance to become mesmerised by it and let out a loud growl.
-%%%%
 eel punch mutation
 
 Your melee hits have a 50% chance of discharging an arc of electricity that

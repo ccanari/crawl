@@ -704,7 +704,4 @@ void seen_monster(monster* mons, bool do_encounter_message)
             update_monster_pane();
 #endif
     }
-
-    if (you.form == transformation::maw)
-        maw_hunger_check(mons);
 }

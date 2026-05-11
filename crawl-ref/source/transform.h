@@ -374,7 +374,6 @@ void sun_scarab_spawn_ember(bool first_time);
 monster* get_solar_ember();
 
 bool maw_considers_appetising(const monster& mon);
-bool maw_hunger_check(monster* mon);
 
 bool vampire_mesmerism_check(monster& mon);
 

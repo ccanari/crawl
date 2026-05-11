@@ -972,8 +972,7 @@ A miniature, desiccated head of some ferocious and hopefully extinct creature.
 Transforms the wearer's midsection into a giant mouth, gnashing and ready to devour
 foes. This maw confers a powerful bite attack which scales additionally with the
 wearer's own strength and can devour slain creatures to temporariy increase
-one's regeneration. Unfortunately, it also confers such profound hunger that it
-can be difficult to pull oneself away from particularly appetising foes.
+one's regeneration.
 %%%%
 medusa talisman
 

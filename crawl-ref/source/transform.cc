@@ -2579,34 +2579,6 @@ bool maw_considers_appetising(const monster& mon)
            && !(mon.flags & MF_HARD_RESET);
 }
 
-bool maw_hunger_check(monster* mon)
-{
-    if (you.beheld())
-        return false;
-
-    // Only become mesmerised by things that look edible. (Alas, they still look
-    // edible for Gozag worshippers, even if you are doomed to suffer the curse
-    // of Midas.)
-    if (maw_considers_appetising(*mon) && one_chance_in(6))
-    {
-        if (!you.clarity())
-        {
-            mprf("Your maw growls hungrily at the sight of %s.", mon->name(DESC_THE).c_str());
-            you.add_beholder(*mon, true, random_range(6, 10));
-        }
-        else
-        {
-            mprf("Your maw growls hungrily at the sight of %s, but you resist your urges.",
-                 mon->name(DESC_THE).c_str());
-        }
-
-        noisy(you.shout_volume(), you.pos(), MID_PLAYER);
-        return true;
-    }
-
-    return false;
-}
-
 bool vampire_mesmerism_check(monster& mon)
 {
     if (you.form == transformation::vampire && you.can_see(mon) && mon.can_see(you)
