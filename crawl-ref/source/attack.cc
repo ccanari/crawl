@@ -175,7 +175,7 @@ int attack::calc_pre_roll_to_hit(bool random)
     // player_to_hit methods.
     if (stat_source().is_player())
     {
-        mhit = 15 + (you.dex() / 2);
+        mhit = 15 + ((weapon_uses_strength(wpn_skill) ? you.strength() : you.dex()) / 2);//////////////////////
         // fighting contribution
         mhit += maybe_random2_div(you.skill(SK_FIGHTING, 100), 100, random);
 
