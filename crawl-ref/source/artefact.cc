@@ -29,6 +29,7 @@
 #include "random.h"
 #include "religion.h"
 #include "shout.h"
+#include "size-type.h"
 #include "spl-book.h"
 #include "state.h"
 #include "stringutil.h"
@@ -1282,6 +1283,12 @@ static void _get_randart_properties(const item_def &item,
     // For each point of quality and for each bad property added, we'll add or
     // enhance one good property.
     int good = max(quality + fixed_bad + bad - fixed_good, 0);
+	
+	//Weapon that is generally two-handed will be generated with higher quality.
+	//Could be dependant to player size, but I think using medium as a baseline
+	//will suffice.
+    if (item_class == OBJ_WEAPONS && basic_hands_reqd(item, SIZE_MEDIUM))
+		good += binomial(max_quality, 21);
 
     // We want to avoid generating more than 4-ish properties or things
     // get spammy. Extra "good" properties will be used to enhance properties
