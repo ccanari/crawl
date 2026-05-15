@@ -92,3 +92,4 @@ vile_clutch: 11
 pain_bond: 11
 mute: 11
 stampede: 11
+corporal_gateway: 11

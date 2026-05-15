@@ -2810,3 +2810,28 @@ bool targeter_paragon_deploy::valid_aim(coord_def a)
 
     return true;
 }
+
+targeter_corporal_gateway::targeter_corporal_gateway(const actor* act, int r)
+    : targeter_smite(act, r)
+{
+}
+
+bool targeter_corporal_gateway::affects_monster(const monster_info& mon)
+{
+    return mons_class_can_leave_corpse(mon.type);
+}
+
+bool targeter_corporal_gateway::valid_aim(coord_def a)
+{
+    if (!targeter_smite::valid_aim(a))
+        return false;
+
+    const monster_info *mon = env.map_knowledge(a).monsterinfo();
+    if (mon && !affects_monster(*mon))
+    {
+        return notify_fail(mon->full_name(DESC_THE) + " cannot be affected by "
+                           "corporal gateway.");
+    }
+
+    return true;
+}

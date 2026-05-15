@@ -40,12 +40,14 @@
 #include "monster.h"
 #include "movement.h"
 #include "ouch.h"
+#include "player.h"
 #include "religion.h"
 #include "spl-damage.h"
 #include "spl-monench.h"
 #include "spl-summoning.h"
 #include "state.h"
 #include "stringutil.h"
+#include "teleport.h"
 #include "terrain.h"
 #include "transform.h"
 #include "view.h"
@@ -627,6 +629,19 @@ protected:
     bool mergeable(const final_effect&) const override { return false; }
 };
 
+class corporal_gateway_fineff : public final_effect
+{
+public:
+    void fire() override;
+
+    corporal_gateway_fineff(coord_def pos)
+        : final_effect(nullptr, &you, pos)
+    {
+    }
+protected:
+    bool mergeable(const final_effect&) const override { return false; }
+};
+
 
 // Things to happen when the current attack/etc finishes.
 static vector<final_effect*> _final_effects;
@@ -854,6 +869,11 @@ void schedule_eeljolt_fineff()
 void schedule_psychokinetic_burst_fineff(actor* agent)
 {
     _schedule_final_effect(new psychokinetic_burst_fineff(agent));
+}
+
+void schedule_corporal_gateway_fineff(coord_def pos)
+{
+	_schedule_final_effect(new corporal_gateway_fineff(pos));
 }
 
 bool mirror_damage_fineff::mergeable(const final_effect &fe) const
@@ -1903,6 +1923,27 @@ void psychokinetic_burst_fineff::fire()
     for (actor *act : act_list)
         if (!mons_aligned(agent, act) && act->willpower() != WILL_INVULN)
             act->confuse(agent, random_range(2, 5));
+}
+
+void corporal_gateway_fineff::fire()
+{
+    actor *defend = defender();
+    ASSERT(defend && defend->alive());
+	
+	if(feat_is_solid(env.grid(posn)) || monster_at(posn)
+		|| is_feat_dangerous(env.grid(posn),false, false))
+	{
+		mpr("But you cannot move into the destination.");
+		return;
+	}
+	
+    if(!defend->blink_to(posn, true))
+	{
+		mpr("However, you are barred from passing through it.");
+		return;
+	}
+	
+	mpr("You emerge from portal through exploding gore!");
 }
 
 // Effects that occur after all other effects, even if the monster is dead.

@@ -765,3 +765,11 @@ public:
     targeter_paragon_deploy(int range);
     bool valid_aim(coord_def a) override;
 };
+
+class targeter_corporal_gateway : public targeter_smite
+{
+public:
+    targeter_corporal_gateway(const actor *act, int range);
+    bool affects_monster(const monster_info& mon) override;
+    bool valid_aim(coord_def a) override;
+};

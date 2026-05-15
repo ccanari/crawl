@@ -2568,3 +2568,66 @@ spret do_bestial_takedown(coord_def target)
 
     return spret::success;
 }
+
+string mons_corporal_gateway_immune_reason(const monster *mons)
+{
+    if (!mons || !you.can_see(*mons))
+        return "You can't see anything there.";
+
+    if (mons->has_ench(ENCH_CORPORAL_GATEWAY))
+    {
+        return make_stringf("%s is already affected by this magic!",
+                            mons->name(DESC_THE).c_str());
+    }
+	
+	if (mons->is_summoned())
+		return "Summoned body is not susceptible to this magic!";
+
+    if (mons->willpower() == WILL_INVULN)
+    {
+        return make_stringf("%s has infinite will and cannot be affected.",
+                            mons->name(DESC_THE).c_str());
+    }
+
+    return "";
+}
+
+bool apply_corporal_gateway(monster& victim, int power, bool quiet = false)
+{
+    if (victim.check_willpower(&you, power) > 0)
+        return false;
+	
+    int duration = (random_range(8, 12) + div_rand_round(power, 30))
+                    * BASELINE_DELAY;
+    victim.add_ench(mon_enchant(ENCH_CORPORAL_GATEWAY, &you, duration));
+	behaviour_event(&victim, ME_WHACK, &you);
+    if (!quiet)
+        simple_monster_message(victim, " is affected by corporal gateway.");
+
+    return true;
+}
+
+spret cast_corporal_gateway(coord_def target, int pow, bool fail)
+{
+    if (cell_is_invalid_target(target))
+    {
+        canned_msg(MSG_UNTHINKING_ACT);
+        return spret::abort;
+    }
+
+    monster* mons = monster_at(target);
+    const string immune_reason = mons_corporal_gateway_immune_reason(mons);
+    if (!immune_reason.empty())
+    {
+        mpr(immune_reason);
+        return spret::abort;
+    }
+	
+    fail_check();
+
+    if(!apply_corporal_gateway(*mons, pow))
+		simple_monster_message(*mons, " resists.");
+	
+	return spret::success;
+}
+

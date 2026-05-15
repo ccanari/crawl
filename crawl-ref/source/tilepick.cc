@@ -2785,6 +2785,7 @@ static const map<monster_info_flags, tileidx_t> monster_status_icons = {
     { MB_MUTE, TILEI_MUTE },
     { MB_EXPOSED, TILEI_EXPOSED },
     { MB_STAMPEDE, TILEI_STAMPEDE },
+	{ MB_CORPORAL_GATEWAY, TILEI_CORPORAL_GATEWAY},
 };
 
 set<tileidx_t> status_icons_for(const monster_info &mons)

@@ -48,6 +48,7 @@
 #include "spl-damage.h"
 #include "spl-monench.h"
 #include "spl-summoning.h"
+#include "spl-transloc.h"
 #include "state.h"
 #include "stepdown.h"
 #include "stringutil.h"
@@ -1870,6 +1871,12 @@ void monster::apply_enchantment(const mon_enchant &me)
         break;
     }
 
+    case ENCH_CORPORAL_GATEWAY:
+        hurt(me.agent(), roll_dice(3, 2));
+        if (alive())
+            decay_enchantment(en);
+        break;
+
     default:
         break;
     }
@@ -2158,7 +2165,7 @@ static const char *enchant_names[] =
     "vampire_thrall", "pyrrhic_recollection", "clockwork_bee_cast",
     "phalanx_barrier", "figment", "paradox-touched", "warding",
     "diminished_spells", "orb_cooldown", "sunder_charge",
-    "exposed", "briar_cooldown", "stampeding",
+    "exposed", "briar_cooldown", "stampeding", "mid-portalifying",
     "buggy", // NUM_ENCHANTMENTS
 };
 

@@ -85,6 +85,7 @@ void schedule_pyromania_fineff();
 void schedule_celebrant_bloodrite_fineff();
 void schedule_eeljolt_fineff();
 void schedule_psychokinetic_burst_fineff(actor* agent);
+void schedule_corporal_gateway_fineff(coord_def pos);
 
 void fire_final_effects();
 void clear_final_effects();

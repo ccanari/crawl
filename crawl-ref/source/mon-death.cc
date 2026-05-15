@@ -3520,6 +3520,15 @@ item_def* monster_die(monster& mons, killer_type killer,
         }
     }
 
+	if(mons.has_ench(ENCH_CORPORAL_GATEWAY) && !was_banished && !mons_reset)
+	{
+		schedule_corporal_gateway_fineff(mons.pos());
+        mons.flags |= MF_EXPLODE_KILL;
+        mpr(make_stringf("Portal appears from where %s once stood!",
+                                mons.name(DESC_THE).c_str()));
+        blood_spray(mons.pos(), mons.type, mons.stat_maxhp() / 5);
+	}
+	
     // Poof messages for summoned things exploded are stored in explosion_fineff
     // to print later.
     if (!silent && !mons_reset && !exploded)
