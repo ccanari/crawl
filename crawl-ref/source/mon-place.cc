@@ -2077,10 +2077,10 @@ static const map<monster_type, band_set> bands_by_leader = {
     { MONS_KOBOLD_BLASTMINER, { {}, {{ BAND_BLASTMINER, {0, 2} }}}},
     { MONS_ARACHNE,          { {}, {{ BAND_ORB_SPIDERS, {3, 5} }}}},
     { MONS_ROCK_FISH,        { {}, {{ BAND_ROCK_FISH, {1, 2} }}}},
-    { MONS_SEWAGE_SOVEREIGN, { {}, {{ BAND_SEWAGE_SOVEREIGNS, {1, 2} }}}},
 
     // special-cased band-sizes
     { MONS_SPRIGGAN_DRUID,  { {3}, {{ BAND_SPRIGGAN_DRUID, {0, 1}, true }}}},
+    { MONS_SEWAGE_SOVEREIGN, { {}, {{ BAND_SEWAGE_SOVEREIGNS, {0, 1} }}}},
     { MONS_THRASHING_HORROR, { {}, {{ BAND_THRASHING_HORRORS, {0, 1} }}}},
     { MONS_BRAIN_WORM, { {}, {{ BAND_BRAIN_WORMS, {0, 1} }}}},
     { MONS_LAUGHING_SKULL, { {}, {{ BAND_LAUGHING_SKULLS, {0, 1} }}}},
@@ -2245,6 +2245,10 @@ static band_type _choose_band(monster_type mon_type, int *band_size_p,
     case MONS_WEEPING_SKULL:
         if (player_in_branch(BRANCH_ABYSS) && you.depth > 1)
             band_size = 1;
+        break;
+
+    case MONS_SEWAGE_SOVEREIGN:
+        band_size = one_chance_in(3) ? 2 : 1;
         break;
 
     case MONS_BRAIN_WORM:

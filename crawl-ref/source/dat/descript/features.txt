@@ -1404,6 +1404,10 @@ manner on display send a more deliberate message to trespassers: the pike has
 room for one more skull, and whoever set it up is happy to help relieve its
 owner of theirs.
 %%%%
+An assortment of trash
+
+A scattered mess of fragmented, crumbling garbage, caked in ashes and dirt.
+%%%%
 # Graveyards, Crypt, Necropolis.
 A mourning vase
 

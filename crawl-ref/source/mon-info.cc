@@ -161,8 +161,7 @@ static monster_info_flags ench_to_mb(const monster& mons, enchant_type ench)
     // Suppress silly-looking combinations, even if they're
     // internally valid.
     if (mons.paralysed() && (ench == ENCH_SLOW || ench == ENCH_HASTE
-                      || ench == ENCH_SWIFT
-                      || ench == ENCH_PETRIFIED || ench == ENCH_PETRIFYING))
+                      || ench == ENCH_SWIFT || ench == ENCH_PETRIFIED))
     {
         return NUM_MB_FLAGS;
     }

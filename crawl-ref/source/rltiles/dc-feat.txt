@@ -490,6 +490,9 @@ ensign_beogh DNGN_ENSIGN_BEOGH
 ensign_dark DNGN_ENSIGN_DARK
 ensign_gehenna DNGN_ENSIGN_GEHENNA
 bottled_spirits DNGN_BOTTLED_SPIRITS
+assortment_of_trash0 DNGN_ASSORTMENT_OF_TRASH
+assortment_of_trash1
+assortment_of_trash2
 ## preferably have more of these
 %weight 10
 skull_pike_1 DNGN_SKULL_PIKE

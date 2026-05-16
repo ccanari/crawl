@@ -513,6 +513,12 @@ bool magic_mapping(int map_radius, int proportion, bool suppress_msg,
             open = false;
             for (adjacent_iterator ai(pos); ai; ++ai)
             {
+                // This avoids revealing walls at the 'back' of the minotaur
+                // areas in Gauntlets (where the wall is technically not part of
+                // the subvault, but still outlines it).
+                if (respect_no_automap && (env.pgrid(*ai) & FPROP_NO_AUTOMAP))
+                    break;
+
                 if (map_bounds(*ai) && (!feat_is_opaque(env.grid(*ai))
                                         || feat_is_closed_door(env.grid(*ai))))
                 {
@@ -520,6 +526,7 @@ bool magic_mapping(int map_radius, int proportion, bool suppress_msg,
                     break;
                 }
             }
+
         }
 
         if (open)

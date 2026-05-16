@@ -2819,7 +2819,7 @@ KMONS:   L = moth of wrath
 NSUBST:  V> = 1:} / 1 = ):6 >:1 / 1 = ]:6 >:1
 SUBST:   " = 1
 TILE:    v = dngn_metal_wall_red
-FTILE:   ."~01234567Rs>V%$d*|-+abcdefABCDEFTUVn = floor_zot_diamonds
+FTILE:   ._"~012345678Rs>V%$d*|-+abcdefABCDEFTUVn = floor_zot_diamonds
 : end
 KITEM:   & = demon whip / demon blade / demon trident / \
              plate armour ego:fire_resistance pre_id / \
@@ -2827,12 +2827,12 @@ KITEM:   & = demon whip / demon blade / demon trident / \
              fire dragon scales good_item / fire dragon scales randart / \
              sanguine talisman w:2 / dragon-coil talisman w:3
 KITEM:   d = large rock q:1 / stone q:10
-KITEM:   e = any weapon
+KITEM:   ef = any weapon
 KFEAT:   L = l
 KFEAT:   - = broken_door
 KFEAT:   _ = altar_ecumenical / altar_ignis
 SHUFFLE: ABCDEF
-SUBST:   A = v, B : v., C : v., DEF" = ., d = xldd, ~ = lllds., _ = __b
+SUBST:   A = v, B : v., C : v., DEF" = ., d = xldd, e = ef, ~ = lllds., _ = __b
 NSUBST:  0 = 1:56 / 2:1 / 2:2 / 2:3 / 2:5 / * = 1123.
 NSUBST:  1 = 2:. / 2:L / *:1, | = 1:& / *:|
 SHUFFLE: 23, 23 / 23 / 23 / 24 / 34
@@ -2840,6 +2840,7 @@ KPROP:   lL_ = no_tele_into
 KMASK:   lL_ = opaque
 TILE:    b = bedevilled_crystal_dis
 : set_feature_name("crystal_wall", "bedevilled crystal wall")
+: decorative_floor(_G, 'f', "assortment of trash")
 MAP
         xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

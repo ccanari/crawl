@@ -569,6 +569,8 @@ lears_hauberk LEARS_HAUBERK
 faerie_dragon_armour FAERIE_DRAGON_ARMOUR
 moon_troll_leather_armour MOON_TROLL_LEATHER_ARMOUR
 swamp_witch SWAMP_WITCH
+occultist_scales OCCULTIST_SCALES
+arcanist_scales ARCANIST_SCALES
 orange_crystal ORANGE_CRYSTAL
 vines VINES
 kryias KRYIAS
@@ -653,6 +655,7 @@ sword_of_power SWORD_OF_POWER
 knife_of_accuracy KNIFE_OF_ACCURACY
 vampires_tooth VAMPIRES_TOOTH
 spriggans_knife SPRIGGANS_KNIFE
+fimbulwinter FIMBULWINTER
 %rim 0
 capt_cutlass CAPT_CUTLASS
 %rim 1

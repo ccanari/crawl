@@ -99,9 +99,9 @@ KITEM:  d = club, quarterstaff, quarterstaff
 KITEM:  e = club, any magical staff
 : decorative_floor(_G, '?', "mop and bucket")
 MAP
-xxxxx
-xde]x
-xxxxx
+xxxxxx
+x?de]x
+xxxxxx
 ENDMAP
 
 ################################################################################
@@ -2242,9 +2242,9 @@ NAME:    old_forge
 DEPTH:   D:4-11
 ORIENT:  float
 ITEM:    singing sword, damaged executioner's axe, damaged eveningstar
-ITEM:    damaged short sword / damaged long sword / \
-         damaged morningstar / damaged war axe
-ITEM:    damaged mace
+KITEM:   g = damaged short sword / damaged long sword / \
+             damaged morningstar / damaged war axe
+KITEM:   h = damaged mace
 MONS:    fungus, plant
 : if you.depth() < 9 then
 MONS:    adder, scorpion, bat
@@ -2260,6 +2260,7 @@ SUBST:   c:cccvvb , b = cc.
 SUBST:   1 : 1112
 SUBST:   1 = 1. , 2=2...., 3 = 3., 4 = 4.
 SUBST:   ' : .'''x, ' = .x
+: decorative_floor(_G, 'gh', "assortment of trash")
 MAP
    xxxxxxxxxxxxxxxx
   xxx11'cccccccxxxx
@@ -7686,7 +7687,7 @@ SUBST:   ^)] = .
 MONS:    tengu warrior / tengu conjurer w:1 / \
          white ugly thing w:1 / necromancer w:1
 MONS:    ice statue, spriggan rider simulacrum, white very ugly thing
-:     mons("rakshasa ; long blade " .. f .. " | mace " .. f .. " . robe ")
+:     mons("rakshasa ; long sword " .. f .. " | mace " .. f .. " . robe ")
 MONS:    frost giant
 KFEAT:   ) = enter_depths
 KITEM:   R = smoky gem
@@ -8574,8 +8575,9 @@ ITEM:   any weapon / any missile / w:5 any armour / w:5 any potion
 NSUBST: A = 1:+ / *:x, B = 1:+ / *:x, C = 1:+ / *:x, D = 1:+ / *:x
 NSUBST: E = 1:+ / *:x, F = 1:+ / *:x, G = 1:+ / *:x, H = 1:+ / *:x
 # 39 - glyphs, leading to about 10 monsters.
-SUBST:  - = 2:20 d .:50, 1 = 1....
+SUBST:  - = 2:20 d .:40 M, M : M., 1 = 1....
 SUBST:  T = T:50 V G 1 .:20
+: decorative_floor(_G, 'M', "assortment of trash")
 MAP
 ....................
 .1xAAx1.xxxxx111111.
@@ -9949,7 +9951,9 @@ DEPTH:  D:6-10
 TAGS:   transparent
 ORIENT: float
 SUBST:  X = x.
-MONS:   orc wizard / nothing
+KMONS:  1 = orc wizard
+SUBST:  1 = 1M
+: decorative_floor(_G, 'M', "assortment of trash")
 MAP
 ....................
 .xxxxX...........Xx.

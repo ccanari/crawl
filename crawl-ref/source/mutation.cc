@@ -49,7 +49,9 @@
 #include "stringutil.h"
 #include "tag-version.h"
 #include "terrain.h"
+#include "rltiles/tiledef-dngn.h"
 #include "tile-env.h"
+#include "tileview.h"
 #include "transform.h"
 #include "unicode.h"
 #include "view.h"
@@ -2315,18 +2317,22 @@ void use_mutation_catalyst()
         // XXX: This hardcoded flavour rearrangements, as Imprison also uses,
         //      should be vastly simplified and standardized.
         map_wiz_props_marker *marker = new map_wiz_props_marker(you.pos());
+        tileidx_t idx = tile_dngn_coloured(TILE_FLOOR_GULCH, GREEN);
         marker->set_property("feature_description", "an empty mutation catalyst");
         env.markers.add(marker);
         dungeon_terrain_changed(you.pos(), DNGN_DECORATIVE_FLOOR);
         tile_env.flv(you.pos()).feat_idx =
                 store_tilename_get_index("dngn_empty_mutation_catalyst");
         tile_env.flv(you.pos()).feat = TILE_DNGN_EMPTY_MUTATION_CATALYST;
-        update_terrain_knowledge(you.pos());
-        update_grid_colour_knowledge(you.pos());
 #ifdef USE_TILE
         tile_env.bk_bg(you.pos()) = TILE_DNGN_EMPTY_MUTATION_CATALYST;
         tile_env.bk_fg(you.pos()) = 0;
 #endif
+        tile_env.flv(you.pos()).floor = idx;
+        tile_env.flv(you.pos()).floor_idx = store_tilename_get_index(tile_dngn_name(idx));
+        tile_init_flavour(you.pos());
+        update_terrain_knowledge(you.pos());
+        update_grid_colour_knowledge(you.pos());
         you.turn_is_over = true;
     }
 }

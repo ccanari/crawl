@@ -531,7 +531,7 @@ bool prompt_dangerous_portal(dungeon_feature_type ftype)
     }
     case DNGN_ENTER_GULCH:
         return yesno("If you enter this portal, the magical contamination on the "
-                     "other side will temporarily mutate you. Continue?", false, 'n');
+                     "other side will temporarily mutate you thrice. Continue?", false, 'n');
     default:
         return true;
     }

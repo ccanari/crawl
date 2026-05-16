@@ -442,12 +442,21 @@ void xom_tick()
             // Especially if the floor's mostly done.
             if (you.explore_estimate >= 85)
                 you.gift_timeout = max(you.gift_timeout - 2, 0);
-        }
 
-        if (you.explore_estimate >= 85 && you.gift_timeout <= 15 ||
-            you.gift_timeout == 1)
-        {
-            simple_god_message(" is getting BORED.");
+            // Xom gives between 6 and 2 warnings of reaching bottom boredom,
+            // fuzzed to make each deincrement make the warning more likely
+            // until it's guaranteed at the last two: much more useful as a
+            // less spammy warning than the previous detached state.
+            int min_bored = you.explore_estimate >= 85 ? you.gift_timeout / 3
+                                                       : you.gift_timeout;
+
+            if (min_bored <= 6 && x_chance_in_y(4, min_bored + 2))
+            {
+                if (min_bored > 2)
+                    simple_god_message(" is getting Bored.");
+                else if (you.gift_timeout > 0)
+                    simple_god_message(" is getting VERY BORED.");
+            }
         }
 
         new_xom_favour = describe_xom_favour();
@@ -2061,10 +2070,8 @@ static void _xom_give_mutations(bool good)
 
     for (int i = num_tries; i > 0; --i)
     {
-        // One bad mutation guaranteed when under Xom wrath,
-        // or if you're on a nearly-full-explored floor while They're bored.
-        if (i == num_tries && !good && (you.penance[GOD_XOM] ||
-            _bored_explore_estimate(95)))
+        // One bad mutation guaranteed when under Xom wrath.
+        if (i == num_tries && !good && you.penance[GOD_XOM])
         {
             if (!mutate(RANDOM_BAD_MUTATION, "Xom's mischief",
                         failMsg, false, true, false, MUTCLASS_NORMAL))
@@ -4933,7 +4940,7 @@ static const vector<xom_event_data> _list_xom_bad_actions = {
         {
             const int explored = you.explore_estimate;
 
-            return ((!player_in_branch(BRANCH_ABYSS) || _teleportation_check()))
+            return ((!player_in_branch(BRANCH_ABYSS) && _teleportation_check()))
                  && !((_xom_feels_nasty() && (explored >= 40 || tn > 10))
                      || (explored >= 60 + random2(40)));
         }
@@ -5255,7 +5262,7 @@ void xom_take_action(xom_event_type action, int sever)
     {
         bool mostly_explored = _bored_explore_estimate(85);
         const int badness = _xom_event_badness(action);
-        const int interest = mostly_explored ? random2avg(badness * 20, 2)
+        const int interest = mostly_explored ? random2avg(badness * 45, 2)
                                              : random2avg(badness * 60, 2);
 
         if (mostly_explored)

@@ -4367,7 +4367,7 @@ int monster::hurt(const actor *agent, int amount, beam_type flavour,
                 schedule_mirror_damage_fineff(valid_agent, this, amount * 2 / 3);
         }
 
-        // Trigger corrupting presence and orbs of glass
+        // Trigger corrupting presence, elemental damage checks, orbs of glass
         if (agent && agent->is_player() && alive())
         {
             if (you.get_mutation_level(MUT_CORRUPTING_PRESENCE))
@@ -4378,6 +4378,44 @@ int monster::hurt(const actor *agent, int amount, beam_type flavour,
                         && one_chance_in(12))
                 {
                     this->malmutate(&you, "Your corrupting presence");
+                }
+            }
+
+            bool fire_check = ((flavour == BEAM_FIRE || flavour == BEAM_LAVA
+                               || flavour == BEAM_STICKY_FLAME)
+                               && this->res_fire() < 3);
+            bool cold_check = ((flavour == BEAM_COLD || flavour == BEAM_ICE)
+                               && this->res_cold() < 3);
+            bool elec_check = ((flavour == BEAM_ELECTRICITY || flavour == BEAM_THUNDER)
+                                && this->res_elec() < 3);
+
+            if (fire_check)
+            {
+                if (you.unrand_equipped(UNRAND_FIRE_DRAGON_OCCULTIST_SCALES)
+                    && !this->has_ench(ENCH_EXPOSED) && coinflip())
+                {
+                    this->add_ench(mon_enchant(ENCH_EXPOSED, &you, random_range(30, 50)));
+                }
+            }
+            else if (cold_check)
+            {
+                if (you.unrand_equipped(UNRAND_FIMBULWINTER))
+                    this->doom(5 + roll_dice(4, 3));
+
+                if (you.unrand_equipped(UNRAND_ICE_DRAGON_ARCANIST_SCALES)
+                    && !this->has_ench(ENCH_EXPOSED) && coinflip())
+                {
+                    this->add_ench(mon_enchant(ENCH_EXPOSED, &you, random_range(30, 50)));
+                }
+            }
+
+            if (fire_check || elec_check)
+            {
+                if (you.has_mutation(MUT_SPARK_SWARM)
+                    && !this->has_ench(ENCH_CORONA)
+                    && x_chance_in_y(you.get_mutation_level(MUT_SPARK_SWARM) * 3, 9))
+                {
+                    this->add_ench(mon_enchant(ENCH_CORONA, &you, random_range(90, 150)));
                 }
             }
         }
@@ -5248,10 +5286,14 @@ bool monster::doom(int amount)
     if (stacks >= 50)
     {
         stacks = 0;
-        if (you.can_see(*this))
-            mprf("Doom befalls %s.", name(DESC_THE).c_str());
-
         enchant_type ench = random_choose(ENCH_SLOW, ENCH_VITRIFIED, ENCH_WEAK, ENCH_BLIND, ENCH_DRAINED);
+        if (you.can_see(*this))
+        {
+            mprf("Doom befalls %s, leaving %s %s.", name(DESC_THE).c_str(),
+                 pronoun(PRONOUN_OBJECTIVE).c_str(),
+                 ench == ENCH_DRAINED ? "deeply drained" :
+                 description_for_ench(ench).c_str());
+        }
 
         // High degree specifically for Draining
         add_ench(mon_enchant(ench, nullptr, random_range(1000, 2000), 7));

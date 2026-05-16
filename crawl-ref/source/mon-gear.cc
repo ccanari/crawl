@@ -616,9 +616,9 @@ int make_mons_weapon(monster_type type, int level, bool melee_only)
         { MONS_DEEP_ELF_AIR_MAGE,       { DE_MAGE_WEAPONS } },
         { MONS_DEEP_ELF_FIRE_MAGE,      { DE_MAGE_WEAPONS } },
         { MONS_DEEP_ELF_ANNIHILATOR,    { DE_MAGE_WEAPONS } },
-        { MONS_DEEP_ELF_DEATH_MAGE,     { DE_VILE_MAGE_WEAPONS } },
-        { MONS_DEEP_ELF_DEMONOLOGIST,   { DE_VILE_MAGE_WEAPONS } },
-        { MONS_DEEP_ELF_SORCERER,       { DE_VILE_MAGE_WEAPONS } },
+        { MONS_DEEP_ELF_DEATH_MAGE,     DE_VILE_MAGE_WEAPONS },
+        { MONS_DEEP_ELF_DEMONOLOGIST,   DE_VILE_MAGE_WEAPONS },
+        { MONS_DEEP_ELF_SORCERER,       DE_VILE_MAGE_WEAPONS },
         { MONS_DEEP_ELF_ELEMENTALIST,   { DE_MAGE_WEAPONS } },
         { MONS_DRACONIAN_SHIFTER,       { DRAC_MAGE_WEAPONS } },
         { MONS_DRACONIAN_SCORCHER,      { DRAC_MAGE_WEAPONS } },
@@ -1439,7 +1439,7 @@ int make_mons_weapon(monster_type type, int level, bool melee_only)
     // and subtype and create a new item. - bwr
     const int thing_created =
         ((force_item) ? get_mitm_slot() : items(false, xitc, xitt, level,
-                                                item.brand, NO_AGENT,
+                                                item.brand, NO_AGENT, false,
                                                 custom_name));
 
     if (thing_created == NON_ITEM)

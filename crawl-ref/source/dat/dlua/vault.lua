@@ -329,6 +329,7 @@ function decorative_floor (e, glyph, type)
     ["skull pike"] = {"lightgrey", "dngn_skull_pike"},
     ["mop and bucket"] = {"lightblue", "dngn_mop"},
     ["bloodied mop and bucket"] = {"lightred", "dngn_mop_bloody"},
+    ["assortment of trash"] = {"lightgrey", "dngn_assortment_of_trash"},
     ["weapon-inlaid floor"] = {"lightgrey", "floor_blade"},
     ["empty mutation catalyst"] = {"blue", "dngn_empty_mutation_catalyst"}
   }

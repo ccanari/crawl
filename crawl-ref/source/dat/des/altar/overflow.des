@@ -5024,7 +5024,7 @@ ENDMAP
 
 NAME:    regret_index_xom_buried_treasure
 TAGS:    transparent decor
-ITEM:    stone q:1 no_pickup
+KITEM:   d = stone q:1 no_pickup
 KMONS:   ! = pile of debris
 KITEM:   ! = plate armour randart plus:-12 pre_id / \
              kite shield randart plus:-12 pre_id / mundane club w:9980
@@ -5032,6 +5032,7 @@ KITEM:   ? = mundane club / gold q:1 w:9970, large rock q:1
 SHUFFLE: ?" / ?" / !!
 SUBST:   b : bcc, y : xx., z : xx., Y : xxd, Z : xxd, " = .
 : standard_overflow_setup(_G, { { "xom", "_" } }, true)
+: decorative_floor(_G, 'd', "assortment of trash")
 MAP
 xx@. ..xx
 xbx...zbx

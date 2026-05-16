@@ -282,6 +282,7 @@ SUBST:   D : xc, E : x .:5, F : xxc .:2
 SUBST:   0 = 3:50 0
 :    else
 SUBST:   c : cb
+:      decorative_floor(_G, '2', "assortment of trash")
 :    end
 :  end
 MAP
@@ -595,8 +596,9 @@ ENDMAP
 NAME:  minmay_rat_gold_closets
 TAGS:  transparent
 DEPTH: D:1-2
-MONS:  rat
-SUBST: 1 = 111$
+KMONS: 01 = rat
+SUBST: 1 = 001$
+: decorative_floor(_G, '0', "assortment of trash")
 MAP
 .............
 .x+x+x+x+x+x.
@@ -934,6 +936,7 @@ SUBST: d = e
 : elseif crawl.one_chance_in(2) then
 SUBST: d = f
 : end
+: decorative_floor(_G, 'def', "assortment of trash")
 MAP
 ...........
 .xxxxxxxxx.
@@ -2835,12 +2838,13 @@ KITEM:  e = randbook disc:necromancy slevels:2 owner:Jessica / \
             randbook disc:hexes slevels:2 owner:Jessica / \
             randbook disc:translocation slevels:2 owner:Jessica
 MONS:   jessica, quokka
+: decorative_floor(_G, 'M', "assortment of trash")
 veto {{ return you.uniques("Jessica") }}
 MAP
    .....
   .......
  ..xxxxx..
-..xx.12xx..
+..xxM12xx..
 ..xd...dx..
 ..xd...dx..
 ..xd...dx..
@@ -2902,7 +2906,11 @@ MONS:  orc warrior band
 : else
 MONS:  gnoll sergeant band
 : end
-: decorative_floor(_G, 'V', "floral vase")
+: if you.in_branch("D") and crawl.coinflip() then
+:   decorative_floor(_G, 'V', "assortment of trash")
+: else
+:   decorative_floor(_G, 'V', "floral vase")
+: end
 MAP
 wwwwwwwww
 wccwwwccw
@@ -3923,13 +3931,14 @@ MONS:    orc warrior ; trident good_item . ring mail
 KITEM:   $ = $ no_pickup
 SHUFFLE: 1234
 KMASK:   l = no_monster_gen
+: decorative_floor(_G, 'M', "assortment of trash")
 MAP
 ...........
 .ll.v.v.ll.
 .l..v.v..l.
 ...vv.vv...
 .vvv1$2vvv.
-....$.$....
+....$M$....
 .vvv3$4vvv.
 ...vv.vv...
 .l..v.v..l.
@@ -4437,7 +4446,7 @@ ENDMAP
 # It's mostly ufetubi. It's fine. You'll be fine.
 NAME:    nicolae_fort_ynox
 TAGS:    transparent no_pool_fixup
-DEPTH:   D:9-12
+DEPTH:   D:10-14
 MONS:    ufetubus, ynoxinul
 KFEAT:   - = iron_grate
 SHUFFLE: }])>>
@@ -7905,6 +7914,8 @@ NAME:   minmay_increasing_density
 TAGS:   transparent
 DEPTH:  D:2-
 SUBST:  0 = 0.
+KITEM:  % = %
+: decorative_floor(_G, '%', "assortment of trash")
 MAP
 .........................
 x.......x.......x.......x
@@ -8259,7 +8270,7 @@ ENDMAP
 
 NAME:   minmay_shattered_shrine
 DEPTH:  D:7-, Depths, Lair
-TAGS:   transparent
+TAGS:   transparent no_hmirror no_vmirror
 KMONS:  p = plant
 SUBST:  9 = 9., " = .:190 0:5 %:5, ' = .:30 0:5 %:5
 MAP
@@ -9515,9 +9526,10 @@ NAME:   wander_guarded_unrand_ratskin
 TAGS:   no_monster_gen no_item_gen
 DEPTH:  D:5-8
 WEIGHT: 3
-ITEM:   ratskin_cloak no_pickup
 MONS:   river rat, hell rat
-SUBST:  - = 1 .:50, ' = 112...
+ITEM:   ratskin_cloak no_pickup
+SUBST:  - = 1 .:50, ' = 112MM.
+: decorative_floor(_G, 'M', "assortment of trash")
 MAP
      xxxxxxxxx
   xxxx-x---x-xxx
