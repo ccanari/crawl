@@ -1921,7 +1921,8 @@ int player_speed()
     if (you.duration[DUR_SLOW] || have_stat_zero())
         ps = haste_mul(ps);
 
-    if (you.duration[DUR_BERSERK] && !have_passive(passive_t::no_haste))
+    if (you.duration[DUR_BERSERK] && !have_passive(passive_t::no_haste)
+								  && !you.stasis())
         ps = berserk_div(ps);
     else if (you.duration[DUR_HASTE])
         ps = haste_div(ps);

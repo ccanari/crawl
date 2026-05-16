@@ -735,8 +735,6 @@ bool player::can_go_berserk(bool intentional, bool potion, bool quiet,
         msg = "You're too calm and focused to rage.";
     else if (is_lifeless_undead(temp))
         msg = "You cannot raise a blood rage in your lifeless body.";
-    else if (stasis())
-        msg = "Your stasis prevents you from going berserk.";
     else
         success = true;
 
