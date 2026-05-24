@@ -536,7 +536,7 @@ static const vector<spell_type> spellbook_templates[] =
     SPELL_SUBLIMATION_OF_BLOOD,
     SPELL_CURSE_OF_AGONY,
     SPELL_RIMEBLIGHT,
-	SPELL_CORPORAL_GATEWAY,
+	SPELL_corporeal_GATEWAY,
 },
 
 { // Codex of Conductivity

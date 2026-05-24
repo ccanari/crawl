@@ -1589,8 +1589,8 @@ unique_ptr<targeter> find_spell_targeter(spell_type spell, int pow, int range)
                                                                     : AFF_YES);
     }
 
-    case SPELL_CORPORAL_GATEWAY:
-        return make_unique<targeter_corporal_gateway>(&you, range);
+    case SPELL_corporeal_GATEWAY:
+        return make_unique<targeter_corporeal_gateway>(&you, range);
 
     default:
         break;
@@ -2820,8 +2820,8 @@ static spret _do_cast(spell_type spell, int powc, const dist& spd,
     case SPELL_PILEDRIVER:
         return cast_piledriver(beam.target, powc, fail);
 
-    case SPELL_CORPORAL_GATEWAY:
-        return cast_corporal_gateway(spd.target, powc, fail);
+    case SPELL_corporeal_GATEWAY:
+        return cast_corporeal_gateway(spd.target, powc, fail);
 
     // Just to do extra messaging; spell is handled by default zapping
     case SPELL_COMBUSTION_BREATH:

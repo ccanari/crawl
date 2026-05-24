@@ -3520,9 +3520,9 @@ item_def* monster_die(monster& mons, killer_type killer,
         }
     }
 
-	if(mons.has_ench(ENCH_CORPORAL_GATEWAY) && !was_banished && !mons_reset)
+	if(mons.has_ench(ENCH_corporeal_GATEWAY) && !was_banished && !mons_reset)
 	{
-		schedule_corporal_gateway_fineff(mons.pos());
+		schedule_corporeal_gateway_fineff(mons.pos());
         mons.flags |= MF_EXPLODE_KILL;
         mpr(make_stringf("Portal appears from where %s once stood!",
                                 mons.name(DESC_THE).c_str()));

@@ -167,7 +167,7 @@ gavotte GAVOTTE
 gravitas GRAVITAS
 manifold_assault MANIFOLD_ASSAULT
 electric_charge ELECTRIC_CHARGE
-cigotuvis_corporal_gateway CIGOTUVIS_CORPORAL_GATEWAY
+cigotuvis_corporeal_gateway CIGOTUVIS_corporeal_GATEWAY
 
 %sdir gui/spells/forgecraft
 awaken_armour AWAKEN_ARMOUR

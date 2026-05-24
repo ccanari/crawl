@@ -82,6 +82,6 @@ spret cast_teleport_other(const coord_def& target, int power, bool fail);
 
 vector<coord_def> get_bestial_landing_spots(coord_def target);
 spret do_bestial_takedown(coord_def target);
-string mons_corporal_gateway_immune_reason(const monster *mons);
-bool apply_corporal_gateway(monster& victim, int power, bool quiet);
-spret cast_corporal_gateway(coord_def target, int pow, bool fail);
+string mons_corporeal_gateway_immune_reason(const monster *mons);
+bool apply_corporeal_gateway(monster& victim, int power, bool quiet);
+spret cast_corporeal_gateway(coord_def target, int pow, bool fail);

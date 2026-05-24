@@ -357,7 +357,7 @@ Chaos Breath spell
 
 Exhales a large cloud of fumes filled with the very essence of chaos.
 %%%%
-Cigotuvi's corporal gateway spell
+Cigotuvi's corporeal gateway spell
 
 Cast enchantment upon a living creature that attempts to turn the victim's body
 into an loop of flesh and bones that bears translocational portal inside. The 

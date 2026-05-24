@@ -2569,12 +2569,12 @@ spret do_bestial_takedown(coord_def target)
     return spret::success;
 }
 
-string mons_corporal_gateway_immune_reason(const monster *mons)
+string mons_corporeal_gateway_immune_reason(const monster *mons)
 {
     if (!mons || !you.can_see(*mons))
         return "You can't see anything there.";
 
-    if (mons->has_ench(ENCH_CORPORAL_GATEWAY))
+    if (mons->has_ench(ENCH_corporeal_GATEWAY))
     {
         return make_stringf("%s is already affected by this magic!",
                             mons->name(DESC_THE).c_str());
@@ -2592,22 +2592,22 @@ string mons_corporal_gateway_immune_reason(const monster *mons)
     return "";
 }
 
-bool apply_corporal_gateway(monster& victim, int power, bool quiet = false)
+bool apply_corporeal_gateway(monster& victim, int power, bool quiet = false)
 {
     if (victim.check_willpower(&you, power) > 0)
         return false;
 	
     int duration = (random_range(8, 12) + div_rand_round(power, 30))
                     * BASELINE_DELAY;
-    victim.add_ench(mon_enchant(ENCH_CORPORAL_GATEWAY, &you, duration));
+    victim.add_ench(mon_enchant(ENCH_corporeal_GATEWAY, &you, duration));
 	behaviour_event(&victim, ME_WHACK, &you);
     if (!quiet)
-        simple_monster_message(victim, " is affected by corporal gateway.");
+        simple_monster_message(victim, " is affected by corporeal gateway.");
 
     return true;
 }
 
-spret cast_corporal_gateway(coord_def target, int pow, bool fail)
+spret cast_corporeal_gateway(coord_def target, int pow, bool fail)
 {
     if (cell_is_invalid_target(target))
     {
@@ -2616,7 +2616,7 @@ spret cast_corporal_gateway(coord_def target, int pow, bool fail)
     }
 
     monster* mons = monster_at(target);
-    const string immune_reason = mons_corporal_gateway_immune_reason(mons);
+    const string immune_reason = mons_corporeal_gateway_immune_reason(mons);
     if (!immune_reason.empty())
     {
         mpr(immune_reason);
@@ -2625,7 +2625,7 @@ spret cast_corporal_gateway(coord_def target, int pow, bool fail)
 	
     fail_check();
 
-    if(!apply_corporal_gateway(*mons, pow))
+    if(!apply_corporeal_gateway(*mons, pow))
 		simple_monster_message(*mons, " resists.");
 	
 	return spret::success;

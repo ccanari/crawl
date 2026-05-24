@@ -629,12 +629,12 @@ protected:
     bool mergeable(const final_effect&) const override { return false; }
 };
 
-class corporal_gateway_fineff : public final_effect
+class corporeal_gateway_fineff : public final_effect
 {
 public:
     void fire() override;
 
-    corporal_gateway_fineff(coord_def pos)
+    corporeal_gateway_fineff(coord_def pos)
         : final_effect(nullptr, &you, pos)
     {
     }
@@ -871,9 +871,9 @@ void schedule_psychokinetic_burst_fineff(actor* agent)
     _schedule_final_effect(new psychokinetic_burst_fineff(agent));
 }
 
-void schedule_corporal_gateway_fineff(coord_def pos)
+void schedule_corporeal_gateway_fineff(coord_def pos)
 {
-	_schedule_final_effect(new corporal_gateway_fineff(pos));
+	_schedule_final_effect(new corporeal_gateway_fineff(pos));
 }
 
 bool mirror_damage_fineff::mergeable(const final_effect &fe) const
@@ -1925,7 +1925,7 @@ void psychokinetic_burst_fineff::fire()
             act->confuse(agent, random_range(2, 5));
 }
 
-void corporal_gateway_fineff::fire()
+void corporeal_gateway_fineff::fire()
 {
     actor *defend = defender();
     ASSERT(defend && defend->alive());
