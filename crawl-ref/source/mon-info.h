@@ -272,7 +272,7 @@ enum monster_info_flags
     MB_SEE_INVIS,
     MB_EXPOSED,
     MB_STAMPEDE,
-	MB_corporeal_GATEWAY,
+	MB_CORPOREAL_GATEWAY,
     NUM_MB_FLAGS
 };
 
