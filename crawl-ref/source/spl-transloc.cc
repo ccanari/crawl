@@ -2574,7 +2574,7 @@ string mons_corporeal_gateway_immune_reason(const monster *mons)
     if (!mons || !you.can_see(*mons))
         return "You can't see anything there.";
 
-    if (mons->has_ench(ENCH_corporeal_GATEWAY))
+    if (mons->has_ench(ENCH_CORPOREAL_GATEWAY))
     {
         return make_stringf("%s is already affected by this magic!",
                             mons->name(DESC_THE).c_str());
@@ -2599,7 +2599,7 @@ bool apply_corporeal_gateway(monster& victim, int power, bool quiet = false)
 	
     int duration = (random_range(8, 12) + div_rand_round(power, 30))
                     * BASELINE_DELAY;
-    victim.add_ench(mon_enchant(ENCH_corporeal_GATEWAY, &you, duration));
+    victim.add_ench(mon_enchant(ENCH_CORPOREAL_GATEWAY, &you, duration));
 	behaviour_event(&victim, ME_WHACK, &you);
     if (!quiet)
         simple_monster_message(victim, " is affected by corporeal gateway.");

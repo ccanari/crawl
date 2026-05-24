@@ -124,7 +124,7 @@ sundering SUNDERING
 mute MUTE
 exposed EXPOSED
 stampede STAMPEDE
-corporeal_gateway corporeal_GATEWAY
+corporeal_gateway CORPOREAL_GATEWAY
 
 something_under SOMETHING_UNDER
 new_stair NEW_STAIR

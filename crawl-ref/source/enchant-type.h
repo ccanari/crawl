@@ -255,7 +255,7 @@ enum enchant_type
     ENCH_EXPOSED,
     ENCH_BRAMBLE_COOLDOWN,
     ENCH_STAMPEDE,
-	ENCH_corporeal_GATEWAY,
+	ENCH_CORPOREAL_GATEWAY,
     // Update enchant_names[] in mon-ench.cc when adding or removing
     // enchantments.
     NUM_ENCHANTMENTS

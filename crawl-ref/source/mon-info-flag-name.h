@@ -163,5 +163,5 @@ static const vector<monster_info_flag_name> monster_info_flag_names = {
     { MB_TESSERACT_SPAWN, "", "called by a tesseract", ""},
     { MB_SUNDERING_READY, "", "ready to sunder", ""},
     { MB_EXPOSED, "exposed", "exposed", "exposed"},
-	{ MB_corporeal_GATEWAY, "mid-portalifying","mid-portalifying","mid-portalifying"},
+	{ MB_CORPOREAL_GATEWAY, "mid-portalifying","mid-portalifying","mid-portalifying"},
 };

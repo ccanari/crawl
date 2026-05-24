@@ -1871,7 +1871,7 @@ void monster::apply_enchantment(const mon_enchant &me)
         break;
     }
 
-    case ENCH_corporeal_GATEWAY:
+    case ENCH_CORPOREAL_GATEWAY:
         hurt(me.agent(), roll_dice(3, 2));
         if (alive())
             decay_enchantment(en);
