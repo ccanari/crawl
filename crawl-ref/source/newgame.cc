@@ -52,6 +52,7 @@ static bool _choose_weapon(newgame_def& ng, newgame_def& ng_choice,
                           const newgame_def& defaults);
 static void _mark_fully_random(newgame_def& ng, newgame_def& ng_choice,
                                bool viable);
+static bool _choose_drac(newgame_def& ng, newgame_def& ng_choice);
 
 #ifdef USE_TILE_LOCAL
 #  define STARTUP_HIGHLIGHT_NORMAL LIGHTGRAY
@@ -73,7 +74,7 @@ newgame_def::newgame_def()
     : name(), type(GAME_TYPE_NORMAL),
       seed(0), pregenerate(false),
       species(SP_UNKNOWN), job(JOB_UNKNOWN),
-      weapon(WPN_UNKNOWN),
+      weapon(WPN_UNKNOWN), drac(SP_BASE_DRACONIAN),
       fully_random(false)
 {
 }
@@ -83,6 +84,7 @@ void newgame_def::clear_character()
     species  = SP_UNKNOWN;
     job      = JOB_UNKNOWN;
     weapon   = WPN_UNKNOWN;
+	drac	 = SP_BASE_DRACONIAN;
 }
 
 enum MenuOptions
@@ -450,6 +452,7 @@ static void _choose_char(newgame_def& ng, newgame_def& choice,
             choice.species = SP_UNKNOWN;
             choice.job = JOB_UNKNOWN;
             choice.weapon = WPN_UNKNOWN;
+			choice.drac = SP_BASE_DRACONIAN;
             string combo =
                 choice.allowed_combos[random2(choice.allowed_combos.size())];
 
@@ -517,12 +520,14 @@ static void _choose_char(newgame_def& ng, newgame_def& choice,
             continue;
         }
 
-        if (_choose_weapon(ng, choice, defaults))
-        {
-            // We're done!
-            return;
-        }
-
+        if (_choose_drac(ng, choice))
+		{
+			if (_choose_weapon(ng, choice, defaults))
+			{
+				// We're done!
+				return;
+			}
+		}
         // Else choose again, name and type stays same.
         defaults = choice;
         ng = ng_reset;
@@ -2052,6 +2057,187 @@ static bool _choose_weapon(newgame_def& ng, newgame_def& ng_choice,
     }
 
     return true;
+}
+
+static bool _choose_drac(newgame_def& ng, newgame_def& ng_choice)
+{
+	if(ng.species != SP_BASE_DRACONIAN)
+		return true;
+	
+    auto title_hbox = make_shared<Box>(Widget::HORZ);
+#ifdef USE_TILE
+    dolls_data doll;
+    fill_doll_for_newgame(doll, ng);
+#ifdef USE_TILE_LOCAL
+    auto tile = make_shared<ui::PlayerDoll>(doll);
+    tile->set_margin_for_sdl(0, 10, 0, 0);
+    title_hbox->add_child(move(tile));
+#endif
+#endif
+    auto title = make_shared<Text>(formatted_string(_welcome(ng), BROWN));
+    title_hbox->add_child(title);
+    title_hbox->set_cross_alignment(Widget::CENTER);
+    title_hbox->set_margin_for_sdl(0, 0, 20, 0);
+    title_hbox->set_margin_for_crt(0, 0, 1, 0);
+
+    auto vbox = make_shared<Box>(Box::VERT);
+    vbox->set_cross_alignment(Widget::Align::STRETCH);
+    vbox->add_child(title_hbox);
+    auto prompt = make_shared<Text>(formatted_string("Choose draconian type.", CYAN));
+    vbox->add_child(prompt);
+
+	struct _custom_menu_item {
+		int type;
+		string label;
+		tileidx_t tile;
+	
+		_custom_menu_item(int _type, string _label, tileidx_t _tile)
+			: type(_type), label(move(_label)), tile(move(_tile)) {};
+		_custom_menu_item(int _type, string _label)
+			: type(_type), label(move(_label)), tile(0){};
+	};
+	
+    vector<_custom_menu_item> choices;
+    int drac_size = static_cast<int> (SP_LAST_NONBASE_DRACONIAN 
+									  - SP_FIRST_NONBASE_DRACONIAN + 1);
+	vector<string> drac_type = {"red", "white", "green", "yellow", "grey", "black",
+												"purple",
+#if TAG_MAJOR_VERSION == 34
+												"mottled",
+#endif
+												"pale", "blue", "hybrid"};
+    for (int i = 0; i < drac_size+1; ++i)
+	{
+		if(drac_type[i] == "mottled")
+			continue;
+		choices.emplace_back(i, drac_type[i]
+#ifdef USE_TILE
+			, tileidx_player_species(
+					static_cast<species_type>(SP_FIRST_NONBASE_DRACONIAN + i), false)
+#endif
+		);
+	}
+	
+    auto main_items = make_shared<OuterMenu>(true, 1, choices.size());
+    main_items->menu_id = "starting condition";
+    main_items->set_margin_for_sdl(15, 0);
+    main_items->set_margin_for_crt(1, 0);
+    vbox->add_child(main_items);
+
+    auto sub_items = make_shared<OuterMenu>(false, 2, 3);
+    sub_items->menu_id = "starting condition sub";
+    vbox->add_child(sub_items);
+
+    main_items->linked_menus[2] = sub_items;
+    sub_items->linked_menus[0] = main_items;
+
+    int max_text_width = 0;
+    for (const auto& choice : choices)
+        max_text_width = max(max_text_width, strwidth(choice.label));
+	
+
+    for (unsigned int i = 0; i < choices.size(); ++i)
+    {
+        const auto& choice = choices[i];
+
+        auto hbox = make_shared<Box>(Box::HORZ);
+        hbox->set_cross_alignment(Widget::Align::CENTER);
+        hbox->set_margin_for_sdl(2, 10, 2, 2);
+
+        
+#ifdef USE_TILE
+        auto tile_stack = make_shared<Stack>();
+        tile_stack->set_margin_for_sdl(0, 6, 0, 0);
+        tile_stack->flex_grow = 0;
+        hbox->add_child(tile_stack);
+
+        tile_stack->add_child(make_shared<Image>(
+            tile_def(choice.tile)));
+#endif
+
+        auto label = make_shared<Text>();
+        hbox->add_child(label);
+
+        const char letter = 'a' + i;
+
+        string text = make_stringf(" %c - %s", letter,
+            chop_string(choice.label, max_text_width, true).c_str()
+        );
+
+        label->set_text(formatted_string(text, WHITE));
+        hbox->set_main_alignment(Widget::Align::STRETCH);
+        auto btn = make_shared<MenuButton>();
+        btn->set_child(move(hbox));
+        btn->id = SP_FIRST_NONBASE_DRACONIAN + choice.type;
+        btn->hotkey = letter;
+        btn->highlight_colour = STARTUP_HIGHLIGHT_GOOD;
+
+        main_items->add_button(move(btn), 0, i);
+    }
+
+    _add_menu_sub_item(sub_items, 1, 0, "* - Random starting",
+        "Picks a random draconian type", '*', SP_BASE_DRACONIAN);
+    _add_menu_sub_item(sub_items, 1, 1, "Bksp - Return to character menu",
+        "Lets you return back to Character choice menu", CK_BKSP, M_ABORT);
+	
+    bool done = false, ret = false;
+
+    vbox->on_activate_event([&](const ActivateEvent& event) {
+        const auto button = static_pointer_cast<MenuButton>(event.target());
+        const auto id = button->id;
+        switch (id)
+        {
+        case M_ABORT:
+            ret = false;
+            return done = true;
+        case SP_BASE_DRACONIAN: // random choice; enum 0
+            ng.drac = ng_choice.drac = SP_BASE_DRACONIAN;
+            break;
+        default:
+            ng.drac = ng_choice.drac = static_cast<species_type> (id);
+            break;
+        }
+        return ret = done = true;
+        });
+
+    auto popup = make_shared<ui::Popup>(vbox);
+    popup->on_hotkey_event([&](const KeyEvent& ev) {
+        switch (ev.key())
+        {
+        case 'X':
+        case CONTROL('Q'):
+#ifdef USE_TILE_WEB
+            tiles.send_exit_reason("cancel");
+#endif
+            end(0);
+            break;
+        case ' ':
+            CASE_ESCAPE
+        case CK_MOUSE_CMD:
+            ret = false;
+            return done = true;
+        default:
+            break;
+        }
+
+        return false;
+        });
+
+#ifdef USE_TILE_WEB
+    tiles.json_open_object();
+    tiles.json_write_string("title", title->get_text().to_colour_string());
+    tiles.json_write_string("prompt", prompt->get_text().to_colour_string());
+    main_items->serialize("main-items");
+    sub_items->serialize("sub-items");
+    tiles.send_doll(doll, false, false);
+    tiles.push_ui_layout("newgame-choice", 1);
+#endif
+    ui::run_layout(move(popup), done);
+#ifdef USE_TILE_WEB
+    tiles.pop_ui_layout();
+#endif
+
+    return ret;
 }
 
 #ifdef USE_TILE

@@ -4835,6 +4835,24 @@ static tileidx_t _tileidx_player_species_base(const species_type species)
             return TILEG_SP_REVENANT;
         case SP_GALE_CENTAUR:
             return TILEG_SP_GALE_CENTAUR;
+        case SP_RED_DRACONIAN:
+            return TILEP_BASE_DRACONIAN_RED;
+        case SP_WHITE_DRACONIAN:
+            return TILEP_BASE_DRACONIAN_WHITE;
+        case SP_BLUE_DRACONIAN:
+            return TILEP_BASE_DRACONIAN_BLUE;
+        case SP_GREEN_DRACONIAN:
+            return TILEP_BASE_DRACONIAN_GREEN;
+        case SP_BLACK_DRACONIAN:
+            return TILEP_BASE_DRACONIAN_BLACK;
+        case SP_YELLOW_DRACONIAN:
+            return TILEP_BASE_DRACONIAN_YELLOW;
+        case SP_GREY_DRACONIAN:
+            return TILEP_BASE_DRACONIAN_GREY;
+        case SP_PURPLE_DRACONIAN:
+            return TILEP_BASE_DRACONIAN_PURPLE;
+        case SP_PALE_DRACONIAN:
+            return TILEP_BASE_DRACONIAN_PALE;
         default:
             return TILEP_ERROR;
     }

@@ -41,6 +41,7 @@ namespace species
     const char* scale_type(species_type species);
     ability_type draconian_breath(species_type species);
     species_type random_draconian_colour();
+    species_type ordered_draconian_colour(int colour);
 
     int mutation_level(species_type species, mutation_type mut, int mut_level=1);
     const vector<string>& fake_mutations(species_type species, bool terse);

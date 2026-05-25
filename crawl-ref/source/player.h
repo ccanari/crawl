@@ -462,6 +462,7 @@ public:
     FixedVector<bool, 4> wind_category_inc;
     int prevailing_wind;
     bool gave_wind_change_warning;
+	species_type draconian_colour;
 
     // ---------------------------
     // Volatile (same-turn) state:

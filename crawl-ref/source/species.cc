@@ -160,6 +160,16 @@ namespace species
         return species;
     }
 
+    species_type ordered_draconian_colour(int colour)
+    {
+        species_type species;
+        species = static_cast<species_type>(colour);
+		ASSERT(is_draconian(species));
+        ASSERT(!is_removed(species));
+
+        return species;
+    }
+
     /**
      * Where does a given species fall on the Undead Spectrum?
      *

@@ -60,6 +60,7 @@ struct newgame_def
     job_type job;
 
     weapon_type weapon;
+	species_type drac;
 
     // Only relevant for character choice, where the entire
     // character was randomly picked in one step.

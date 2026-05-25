@@ -537,6 +537,7 @@ static void _setup_generic(const newgame_def& ng,
     you.your_name  = ng.name;
     you.species    = ng.species;
     you.char_class = ng.job;
+	you.draconian_colour = ng.drac;
 
     you.chr_class_name = get_job_name(you.char_class);
 
