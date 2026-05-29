@@ -765,17 +765,6 @@ public:
     }
 
     /**
-     * The AC bonus of the form, multiplied by 100 to match
-     * player::armour_class().
-     */
-    int get_ac_bonus(int skill = -1) const override
-    {
-        const int normal = Form::get_ac_bonus(skill);
-        if (!species::is_draconian(you.species))
-            return normal;
-        return normal - 600;
-    }
-    /**
      * How many levels of resistance against fire does this form provide?
      */
     int res_fire() const override

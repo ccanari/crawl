@@ -6360,7 +6360,7 @@ int player::racial_ac(bool temp) const
 
     // drac scales suppressed in all serious forms, except dragon
     if (species::is_draconian(species) && (!suppress || form == transformation::dragon))
-        return 400 + 100 * experience_level / 3;  // max 13
+        return 100 * experience_level / 3;  // max 13
 
     if (species == SP_NAGA && !suppress)
         return 100 * experience_level / 3; // max 9
