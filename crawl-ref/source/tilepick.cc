@@ -958,7 +958,9 @@ static tileidx_t _tileidx_feature_no_overrides(const coord_def &gc)
     tileidx_t override = tile_env.remembered_flavour.feat_flavour(gc);
     // Door tile overrides get special handling in apply_variations
     if (override && !feat_is_door(feat)
-        && env.map_knowledge(gc).feat_known())
+        && env.map_knowledge(gc).feat_known()
+        // XXX: level generation creates floors with wall feat flavour
+        && feat != DNGN_FLOOR)
     {
         return override;
     }
@@ -2289,6 +2291,15 @@ static tileidx_t _tileidx_monster_no_props(const monster_info& mon)
                 return TILEP_MONS_REAPER;
             else
                 return TILEP_MONS_REAPER_SCYTHELESS;
+        }
+
+        case MONS_SPRIGGAN_DRUID:
+        {
+            const item_def * const weapon = mon.inv[MSLOT_WEAPON].get();
+            if (weapon && weapon->is_type(OBJ_WEAPONS, WPN_QUARTERSTAFF))
+                return TILEP_MONS_SPRIGGAN_DRUID;
+            else
+                return TILEP_MONS_SPRIGGAN_DRUID_STAFFLESS;
         }
 
         case MONS_CEREBOV:
@@ -3897,6 +3908,8 @@ tileidx_t vary_bolt_tile(tileidx_t tile, int dir, int dist)
     case TILE_BOLT_IGNITE_POISON_TERRAIN:
     case TILE_BOLT_MAGMA:
     case TILE_BOLT_ICEBLAST:
+    case TILE_BOLT_PERMAFROST_EARTH:
+    case TILE_BOLT_PERMAFROST_COLD:
     case TILE_BOLT_ALEMBIC_POTION:
     case TILE_BOLT_WEAK_AIR:
     case TILE_BOLT_MEDIUM_AIR:
@@ -4403,6 +4416,11 @@ tileidx_t tileidx_ability(const ability_type ability)
         return TILEG_ABILITY_SIF_MUNA_AMNESIA;
     case ABIL_SIF_MUNA_DIVINE_EXEGESIS:
         return TILEG_ABILITY_SIF_MUNA_EXEGESIS;
+    case ABIL_SIF_MUNA_REPEAT_EXEGESIS:
+        if (you.props.exists(EXEGESIS_SPELL))
+            return tileidx_spell(static_cast<spell_type>(you.props[EXEGESIS_SPELL].get_int()));
+        else
+            return TILEG_ABILITY_SIF_MUNA_EXEGESIS;
     // Trog
     case ABIL_TROG_BERSERK:
         return TILEG_ABILITY_TROG_BERSERK;
@@ -4577,8 +4595,8 @@ tileidx_t tileidx_ability(const ability_type ability)
         return TILEG_ABILITY_HEP_IDENTITY;
     case ABIL_HEPLIAKLQANA_TYPE_KNIGHT:
         return TILEG_ABILITY_HEP_KNIGHT;
-    case ABIL_HEPLIAKLQANA_TYPE_BATTLEMAGE:
-        return TILEG_ABILITY_HEP_BATTLEMAGE;
+    case ABIL_HEPLIAKLQANA_TYPE_ELEMENTALIST:
+        return TILEG_ABILITY_HEP_ELEMENTALIST;
     case ABIL_HEPLIAKLQANA_TYPE_HEXER:
         return TILEG_ABILITY_HEP_HEXER;
     // usk

@@ -54,8 +54,7 @@ will leaving the floor.
 Antimagic Gaze spell
 
 Causes the target's magic to leak into the air, as though they were hit by an
-antimagic weapon, and heals the caster for the amount of magic drained,
-with no direct line of fire required.
+antimagic weapon, with no direct line of fire required.
 %%%%
 Apportation spell
 
@@ -190,6 +189,11 @@ Bolt of Antimagic spell
 
 Fires a penetrating bolt of ontologically-paradoxical antimagic, draining its
 victims' reserves of magic.
+%%%%
+Bolster spell
+
+Enhances the caster's physical form, greatly increasing the damage they deal in
+melee as well as their resistance to all elements.
 %%%%
 Bolt of Cold spell
 

@@ -4413,7 +4413,7 @@ int monster::hurt(const actor *agent, int amount, beam_type flavour,
             {
                 if (you.has_mutation(MUT_SPARK_SWARM)
                     && !this->has_ench(ENCH_CORONA)
-                    && x_chance_in_y(you.get_mutation_level(MUT_SPARK_SWARM) * 3, 9))
+                    && x_chance_in_y(you.get_mutation_level(MUT_SPARK_SWARM) * 4, 10))
                 {
                     this->add_ench(mon_enchant(ENCH_CORONA, &you, random_range(90, 150)));
                 }
@@ -6723,7 +6723,11 @@ int monster::spell_hd(spell_type spell) const
     UNUSED(spell);
     int hd = get_hit_dice();
     if (mons_is_hepliaklqana_ancestor(type))
+    {
         hd = max(1, hd * 2 / 3);
+        if (type == MONS_ANCESTOR_ELEMENTALIST && get_experience_level() >= 13)
+            hd += 5;
+    }
     if (has_ench(ENCH_IDEALISED))
         hd *= 2;
     if (has_ench(ENCH_FIGMENT))
@@ -6852,7 +6856,7 @@ bool monster::is_peripheral() const
  */
 int monster::threat_range(bool include_lof_requiring, bool include_lof_ignoring) const
 {
-    if (include_lof_requiring && (launcher() || missiles()))
+    if (include_lof_requiring && (launcher() || missiles() || type == MONS_BATTLESPHERE))
         return LOS_RADIUS;
 
     if (include_lof_ignoring && mons_has_los_ability(type))

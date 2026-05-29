@@ -664,7 +664,6 @@ void map_lines::apply_grid_overlay(const coord_def &c, bool is_layout)
                 has_rock = true;
             }
 
-            bool has_tile = false;
             name = (*overlay)(x, y).tile;
             if (!name.empty() && name != "none")
             {
@@ -683,10 +682,7 @@ void map_lines::apply_grid_overlay(const coord_def &c, bool is_layout)
                     tile_env.flv(gc).wall = feat;
                 else
                     tile_env.flv(gc).feat = feat;
-                has_tile = true;
             }
-            if (has_floor || has_rock || has_tile)
-                tile_init_flavour(gc);
         }
 }
 
@@ -5772,13 +5768,6 @@ void item_list::parse_random_by_class(string c, item_spec &spec)
     {
         spec.base_type = OBJ_BOOKS;
         spec.sub_type  = BOOK_RANDART_THEME;
-        spec.plus      = -1;
-        return;
-    }
-    else if (c == "fixed level book")
-    {
-        spec.base_type = OBJ_BOOKS;
-        spec.sub_type  = BOOK_RANDART_LEVEL;
         spec.plus      = -1;
         return;
     }

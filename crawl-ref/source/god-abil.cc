@@ -90,6 +90,7 @@
 #include "spl-book.h"
 #include "spl-goditem.h"
 #include "spl-monench.h"
+#include "spl-summoning.h"
 #include "spl-transloc.h"
 #include "spl-util.h"
 #include "sprint.h"
@@ -166,8 +167,7 @@ bool bless_weapon(god_type god, brand_type brand, colour_t colour)
 
     int item_slot = prompt_invent_item("Brand which weapon?",
                                        menu_type::invlist,
-                                       OSEL_BLESSABLE_WEAPON, OPER_ANY,
-                                       invprompt_flag::escape_only);
+                                       OSEL_BLESSABLE_WEAPON, OPER_ANY);
 
     if (item_slot == PROMPT_NOTHING || item_slot == PROMPT_ABORT)
     {
@@ -1417,6 +1417,55 @@ void trog_remove_trogs_hand()
     you.duration[DUR_TROGS_HAND] = 0;
 }
 
+static const vector<random_pick_entry<monster_type>> _trog_brothers =
+{
+  { -3,  10,  150, PEAK, MONS_BLACK_BEAR },
+  { -1,  13,  150, PEAK, MONS_POLAR_BEAR },
+  {  3,  19,  250, PEAK, MONS_OGRE },
+  {  6,  19,  200, PEAK, MONS_TROLL },
+  {  8,  19,  150, PEAK, MONS_ELEPHANT },
+  {  10, 20,  100, PEAK, MONS_SKYSHARK },
+  {  12, 23,  200, PEAK, MONS_CYCLOPS },
+  {  13, 24,  125, PEAK, MONS_DEATH_YAK },
+  {  13, 27,  200, PEAK, MONS_TWO_HEADED_OGRE },
+  {  13, 27,  100, RISE, MONS_TWO_HEADED_OGRE },
+  {  15, 30,  200, PEAK, MONS_DEEP_TROLL },
+  {  18, 31,  150, PEAK, MONS_IRON_TROLL },
+  {  19, 35,  150, PEAK, MONS_STONE_GIANT },
+  {  20, 37,   90, PEAK, MONS_DIRE_ELEPHANT },
+  {  22, 38,   90, PEAK, MONS_ETTIN },
+};
+
+monster_type trog_get_brother_type(int power)
+{
+    monster_picker picker;
+    return picker.pick(_trog_brothers, power, MONS_OGRE);
+}
+
+spret trog_brothers_in_arms(bool fail)
+{
+    static const vector<monster_type> types = { MONS_BLACK_BEAR,
+                                                MONS_POLAR_BEAR,
+                                                MONS_OGRE,
+                                                MONS_TROLL,
+                                                MONS_ELEPHANT,
+                                                MONS_SKYSHARK,
+                                                MONS_CYCLOPS,
+                                                MONS_DEATH_YAK,
+                                                MONS_TWO_HEADED_OGRE,
+                                                MONS_DEEP_TROLL,
+                                                MONS_IRON_TROLL,
+                                                MONS_STONE_GIANT,
+                                                MONS_ETTIN };
+    if (!player_summon_check(types))
+        return spret::abort;
+
+    fail_check();
+
+    summon_berserker(&you, trog_get_brother_type(you.experience_level));
+    return spret::success;
+}
+
 // Return whether the player can light the torch on their current floor
 // (ie: it is a valid place to do so and it has never been lit here before)
 string yred_cannot_light_torch_reason()
@@ -2344,8 +2393,7 @@ bool ashenzari_curse_item()
     const string prompt_msg = make_stringf("Curse which item? (Esc to abort)");
     const int item_slot = prompt_invent_item(prompt_msg.c_str(),
                                              menu_type::invlist,
-                                             OSEL_CURSABLE, OPER_ANY,
-                                             invprompt_flag::escape_only);
+                                             OSEL_CURSABLE, OPER_ANY);
     if (prompt_failed(item_slot))
         return false;
 
@@ -2378,8 +2426,7 @@ bool ashenzari_uncurse_item()
 {
     int item_slot = prompt_invent_item("Uncurse and destroy which item?",
                                        menu_type::invlist,
-                                       OSEL_CURSED_WORN, OPER_ANY,
-                                       invprompt_flag::escape_only);
+                                       OSEL_CURSED_WORN, OPER_ANY);
     if (prompt_failed(item_slot))
         return false;
 
@@ -5966,7 +6013,7 @@ bool hepliaklqana_choose_ancestor_type(int ancestor_choice)
 
     static const map<int, monster_type> ancestor_types = {
         { ABIL_HEPLIAKLQANA_TYPE_KNIGHT, MONS_ANCESTOR_KNIGHT },
-        { ABIL_HEPLIAKLQANA_TYPE_BATTLEMAGE, MONS_ANCESTOR_BATTLEMAGE },
+        { ABIL_HEPLIAKLQANA_TYPE_ELEMENTALIST, MONS_ANCESTOR_ELEMENTALIST },
         { ABIL_HEPLIAKLQANA_TYPE_HEXER, MONS_ANCESTOR_HEXER },
     };
 

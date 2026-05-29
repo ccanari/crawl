@@ -1077,7 +1077,7 @@ static ai_action::goodness _fire_permafrost_at(const actor &agent, int pow,
 {
     const bool mon = agent.is_monster();
 
-    bolt beam;
+    bolt beam, visual;
     targeting_tracer tracer;
     beam.set_is_tracer(is_tracer);
     beam.set_agent(&agent);
@@ -1089,17 +1089,37 @@ static ai_action::goodness _fire_permafrost_at(const actor &agent, int pow,
     if (is_tracer)
         beam.fire(tracer);
     else
+    {
         beam.fire();
+        flash_tile(target, YELLOW, 0, TILE_BOLT_PERMAFROST_EARTH);
+    }
+
+    // To provide a different center graphic from the rest without changing
+    // effect messaging order, split the vfx off into BEAM_VISUAL explosions.
+    visual.flavour       = BEAM_VISUAL;
+    visual.colour        = WHITE;
+    visual.set_agent(&agent);
+    visual.tile_explode  = TILE_BOLT_PERMAFROST_COLD;
+    visual.glyph         = dchar_glyph(DCHAR_EXPLOSION);
+    visual.range         = 1;
+    visual.ex_size       = 1;
+    visual.is_explosion  = true;
+    visual.explode_delay = beam.explode_delay * 3 / 2;
+    visual.target        = target;
 
     zappy(ZAP_PERMAFROST_ERUPTION_COLD, pow, mon, beam);
     beam.ex_size       = 1;
     beam.ac_rule       = ac_type::none;
+    beam.animate       = false;
     beam.apply_beam_conducts();
     beam.refine_for_explosion();
     if (is_tracer)
         beam.explode(tracer);
     else
+    {
+        visual.explode(true, true);
         beam.explode();
+    }
 
     return tracer.good_to_fire(beam.foe_ratio);
 }
@@ -1429,7 +1449,9 @@ static bool _init_frag_grid(frag_effect &effect,
 static bool _init_frag_effect(frag_effect &effect, const actor &caster,
                               coord_def target, const char **what)
 {
-    if (target == you.pos() && _init_frag_player(effect))
+    if (target == you.pos()
+        && could_harm(&caster, &you)
+        && _init_frag_player(effect))
     {
         effect.direct = true;
         return true;
@@ -1438,6 +1460,7 @@ static bool _init_frag_effect(frag_effect &effect, const actor &caster,
     const actor* victim = actor_at(target);
     if (victim && victim->alive() && victim->is_monster()
         && caster.can_see(*victim)
+        && could_harm(&caster, victim)
         && _init_frag_monster(effect, *victim->as_monster()))
     {
         return true;
@@ -1453,7 +1476,7 @@ bool setup_fragmentation_beam(bolt &beam, int pow, const actor *caster,
     beam.glyph        = dchar_glyph(DCHAR_FIRED_BURST);
     beam.source_id    = caster->mid;
     beam.thrower      = caster->is_player() ? KILL_YOU : KILL_MON;
-    beam.source       = you.pos();
+    beam.source       = caster->pos();
     beam.origin_spell = SPELL_LRD;
     beam.hit          = AUTOMATIC_HIT;
 
@@ -3719,6 +3742,9 @@ string mons_inner_flame_immune_reason(const monster *mons)
         return make_stringf("%s has infinite will and cannot be affected.",
                             mons->name(DESC_THE).c_str());
     }
+
+    if (!could_harm(&you, mons))
+        return make_stringf("You cannot harm %s.", mons->name(DESC_THE).c_str());
 
     return "";
 }
