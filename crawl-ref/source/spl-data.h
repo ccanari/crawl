@@ -4605,7 +4605,7 @@ static const struct spell_desc spelldata[] =
 },
 
 {
-    SPELL_CORPOREAL_GATEWAY, "Cigotuvi's corporeal Gateway",
+    SPELL_CORPOREAL_GATEWAY, "Cigotuvi's Corporeal Gateway",
     spschool::translocation | spschool::necromancy,
     spflag::target | spflag::not_self | spflag::WL_check | spflag::destructive,
     4,
