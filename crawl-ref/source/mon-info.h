@@ -273,6 +273,7 @@ enum monster_info_flags
     MB_EXPOSED,
     MB_STAMPEDE,
 	MB_CORPOREAL_GATEWAY,
+	MB_CRYSTALLISED,
     NUM_MB_FLAGS
 };
 

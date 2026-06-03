@@ -48,6 +48,7 @@ enum beam_type                  // bolt::flavour
     BEAM_MERCURY,
     BEAM_BAT_CLOUD,
     BEAM_ANTIMAGIC,
+	BEAM_CRYSTAL_SPEAR,
 
     // Enchantments
     BEAM_SLOW,

@@ -4293,6 +4293,12 @@ int monster::hurt(const actor *agent, int amount, beam_type flavour,
         if (has_ench(ENCH_VITRIFIED))
             amount = amount * 150 / 100;
 
+        if (has_ench(ENCH_CRYSTALLISED))
+		{
+            amount = amount * 140 / 100;
+			del_ench(ENCH_CRYSTALLISED);
+		}
+
         if (!is_attack_damage && has_ench(ENCH_EXPOSED) && kill_type != KILLED_BY_POISON)
             amount = amount * 135 / 100;
 

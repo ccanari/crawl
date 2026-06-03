@@ -2166,7 +2166,7 @@ static const char *enchant_names[] =
     "phalanx_barrier", "figment", "paradox-touched", "warding",
     "diminished_spells", "orb_cooldown", "sunder_charge",
     "exposed", "briar_cooldown", "stampeding", "mid-portalifying",
-    "buggy", // NUM_ENCHANTMENTS
+    "partially crystallised", "buggy", // NUM_ENCHANTMENTS
 };
 
 static const char *_mons_enchantment_name(enchant_type ench)

@@ -1332,9 +1332,19 @@ bool monster_type_is_fraggable(monster_type mc)
 // Initializes the provided frag_effect with the appropriate Lee's Rapid
 // Deconstruction explosion for blowing up the given monster. Return true iff
 // that monster can be deconstructed.
-static bool _init_frag_monster(frag_effect &effect, const monster &mon)
+static bool _init_frag_monster(frag_effect &effect, monster &mon)
 {
     auto frag_f = fraggable_monsters.find(mon.type);
+	
+    // Crystallised monsters can be exploded. It is prioritised over all conditions.
+    if (mon.has_ench(ENCH_CRYSTALLISED))
+    {
+        effect.name       = "blast of crystal shards";
+        effect.colour     = WHITE;
+        effect.damage     = frag_damage_type::crystal;
+        return true;
+    }
+	
     if (frag_f != fraggable_monsters.end())
     {
         const monster_frag &frag = frag_f->second;
@@ -1457,7 +1467,7 @@ static bool _init_frag_effect(frag_effect &effect, const actor &caster,
         return true;
     }
 
-    const actor* victim = actor_at(target);
+    actor* victim = actor_at(target);
     if (victim && victim->alive() && victim->is_monster()
         && caster.can_see(*victim)
         && could_harm(&caster, victim)
@@ -1605,7 +1615,8 @@ static int _shatter_mon_dice(const monster *mon)
     if (mon->is_insubstantial())
         return 1;
     if (mon->petrifying() || mon->petrified()
-        || mon->is_skeletal() || mon->is_icy())
+        || mon->is_skeletal() || mon->is_icy()
+		|| mon->has_ench(ENCH_CRYSTALLISED))
     {
         return DEFAULT_SHATTER_DICE * 2;
     }
@@ -1636,6 +1647,11 @@ static int _shatter_monsters(coord_def where, int pow, actor *agent)
         _player_hurt_monster(*mon, damage, BEAM_MMISSILE);
     else if (damage)
         mon->hurt(agent, damage);
+	
+	if(mon->has_ench(ENCH_CRYSTALLISED))
+	{
+		mon->del_ench(ENCH_CRYSTALLISED);
+	}
 
     return damage;
 }

@@ -839,6 +839,7 @@ beam_type get_beam_resist_type(beam_type flavour)
         case BEAM_SEISMIC:
         case BEAM_BOLAS:
         case BEAM_AIR:
+		case BEAM_CRYSTAL_SPEAR:
             return BEAM_MISSILE;
 
         default:

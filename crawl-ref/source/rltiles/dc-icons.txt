@@ -125,6 +125,7 @@ mute MUTE
 exposed EXPOSED
 stampede STAMPEDE
 corporeal_gateway CORPOREAL_GATEWAY
+crystallised CRYSTALLISED
 
 something_under SOMETHING_UNDER
 new_stair NEW_STAIR

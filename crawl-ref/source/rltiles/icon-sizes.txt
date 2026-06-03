@@ -38,6 +38,7 @@ confused: 6
 sentinel_mark: 6
 dimmed: 6
 glowing: 6
+crystallised: 6
 
 laced_with_chaos: 7
 conc_venom: 7
@@ -93,4 +94,4 @@ vile_clutch: 11
 pain_bond: 11
 mute: 11
 stampede: 11
-corporeal_gateway: 11
+corporeal_gateway: 11

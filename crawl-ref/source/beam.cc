@@ -5203,6 +5203,13 @@ void bolt::monster_post_hit(monster* mon, int dmg)
     if (flavour == BEAM_CRYSTALLISING && !one_chance_in(4))
         mon->vitrify(agent(), random_range(8, 18));
 
+    if (flavour == BEAM_CRYSTAL_SPEAR && !mon->is_insubstantial())
+	{
+        mon->add_ench(mon_enchant(ENCH_CRYSTALLISED, agent(),
+                                         random_range(4, 8) * BASELINE_DELAY));
+        simple_monster_message(*mon, " is partially crystallised.");
+	}
+
     if (flavour == BEAM_ANTIMAGIC)
         mon->drain_magic(agent(), ench_power);
 
@@ -7578,6 +7585,7 @@ static string _beam_type_name(beam_type type)
     case BEAM_BAT_CLOUD:             return "cloud of bats";
     case BEAM_ILL_OMEN:              return "omen";
     case BEAM_WARP_BODY:             return "warp body";
+    case BEAM_CRYSTAL_SPEAR:         return "crystal spear";
 
     case NUM_BEAMS:                  die("invalid beam type");
     }
