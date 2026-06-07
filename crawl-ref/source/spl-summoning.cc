@@ -54,6 +54,7 @@
 #include "mon-pathfind.h"
 #include "mon-place.h"
 #include "mon-speak.h"
+#include "movement.h"
 #include "mutation.h"
 #include "place.h" // absdungeon_depth
 #include "player-equip.h"
@@ -3873,12 +3874,13 @@ spret cast_surprising_crocodile(actor& agent, const coord_def& targ, int pow, bo
             // crocodile in one_square_move. Check the crocodile position only
             // for traps, which it will trigger.
             if (!check_moveto_trap(one_square_move, verb)
-                || !check_moveto(one_square_move + drag_shift, verb))
+                || !check_moveto(one_square_move + drag_shift, verb,
+                                 true, false))
             {
                 return spret::abort;
             }
         }
-        else if (!check_moveto(one_square_move, verb))
+        else if (!check_moveto(one_square_move, verb, true, false))
             return spret::abort;
     }
 
@@ -3956,6 +3958,16 @@ spret cast_surprising_crocodile(actor& agent, const coord_def& targ, int pow, bo
              agent.pronoun(PRONOUN_POSSESSIVE).c_str());
     }
 
+    // We need to finalize the movement before making the temporary water, so
+    // because the temporary terrain change will clear deferred movement
+    // effects.
+    //
+    // This means that any existing terrain effects will be triggered, even if
+    // they would be suppressed by water. However, since we only create water
+    // on plain DNGN_FLOOR tiles, there should not be any such effects to worry
+    // about.
+    agent.finalise_movement();
+
     // Make the temporary water (after the movement, so we don't get slash
     // messages before the main part appears to happen).)
     for (int i = 0; i < 3; ++i)
@@ -3967,8 +3979,6 @@ spret cast_surprising_crocodile(actor& agent, const coord_def& targ, int pow, bo
                                 TERRAIN_CHANGE_FLOOD);
         }
     }
-
-    agent.finalise_movement();
 
     return spret::success;
 }

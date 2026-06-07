@@ -1983,6 +1983,20 @@ void game_options::remove_force_scroll_targeter(const string &s)
 static monster_type _mons_class_by_string(const string &name)
 {
     const string match = lowercase_string(name);
+
+    // These are cases of multiple enums sharing the same in-game name, and must
+    // be handled separately
+    if (match == "bai suzhen (dragon)")
+        return MONS_BAI_SUZHEN_DRAGON;
+    else if (match == "serpent of hell (geh)")
+        return MONS_SERPENT_OF_HELL;
+    else if (match == "serpent of hell (coc)")
+        return MONS_SERPENT_OF_HELL_COCYTUS;
+    else if (match == "serpent of hell (tar)")
+        return MONS_SERPENT_OF_HELL_TARTARUS;
+    else if (match == "serpent of hell (dis)")
+        return MONS_SERPENT_OF_HELL_DIS;
+
     for (monster_type i = MONS_0; i < NUM_MONSTERS; ++i)
     {
         const monsterentry *me = get_monster_data(i);
@@ -1995,7 +2009,7 @@ static monster_type _mons_class_by_string(const string &name)
     return MONS_0;
 }
 
-static set<monster_type> _mons_classes_by_glyph(const char letter)
+static set<monster_type> _mons_classes_by_glyph(const char32_t letter)
 {
     set<monster_type> matches;
     for (monster_type i = MONS_0; i < NUM_MONSTERS; ++i)
@@ -2017,7 +2031,7 @@ cglyph_t game_options::parse_mon_glyph(const string &s) const
     vector<string> phrases = split_string(" ", s);
     for (const string &p : phrases)
     {
-        const int col = str_to_colour(p, -1, false);
+        const int col = str_to_colour(p, -1, false, true);
         if (col != -1)
             md.col = col;
         else

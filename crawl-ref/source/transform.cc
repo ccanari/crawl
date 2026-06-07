@@ -172,6 +172,7 @@ Form::Form(const form_entry &fe)
       changes_anatomy(fe.changes_anatomy),
       changes_substance(fe.changes_substance),
       holiness(fe.holiness),
+      undead_state(fe.undead_state),
       is_badform(fe.is_badform),
       has_blood(fe.has_blood), has_hair(fe.has_hair),
       has_bones(fe.has_bones), has_feet(fe.has_feet),
@@ -1837,9 +1838,6 @@ string cant_transform_reason(transformation which_trans,
     if (you.transform_uncancellable && which_trans != transformation::slaughter)
         return "You are stuck in your current form!";
 
-    if (which_trans == transformation::death && you.duration[DUR_DEATHS_DOOR])
-        return "You cannot mock death while in death's door.";
-
     return "";
 }
 
@@ -1883,6 +1881,17 @@ bool check_transform_into(transformation which_trans, bool involuntary,
     {
         if (!yesno("This transformation would significantly lower your maximum hit points. "
                   "Transform anyway?", true, 'n'))
+        {
+            return false;
+        }
+    }
+
+    if (!involuntary && you.duration[DUR_DEATHS_DOOR]
+                     && (which_trans == transformation::vampire
+                        || which_trans == transformation::death))
+    {
+        if (!yesno("Becoming undead will pull you out of death's doorway! "
+                   "Transform anyway?", true, 'n'))
         {
             return false;
         }
@@ -1939,9 +1948,14 @@ static void _on_enter_form(transformation which_trans)
         break;
 
     case transformation::death:
+        you.duration[DUR_DEATHS_DOOR] = 0;
         you.redraw_status_lights = true;
         _print_death_brand_changes(you.weapon(), true);
         _print_death_brand_changes(you.offhand_weapon(), true);
+        break;
+
+    case transformation::vampire:
+        you.duration[DUR_DEATHS_DOOR] = 0;
         break;
 
     case transformation::maw:
@@ -2019,6 +2033,14 @@ static void _enter_form(int dur, transformation which_trans, bool using_talisman
     {
         mpr("Your mandibles meld away.");
         you.digging = false;
+    }
+
+    if ((you.is_nonliving() || you.is_lifeless_undead())
+        && you.duration[DUR_POISONING])
+    {
+        you.duration[DUR_POISONING] = 0;
+        mprf(MSGCH_RECOVERY, "You are no longer poisoned.");
+        you.redraw_hit_points = true;
     }
 
     _on_enter_form(which_trans);
