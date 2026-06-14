@@ -915,6 +915,14 @@ targeter_fragment::targeter_fragment(const actor* act, int power, int ran) :
 {
 }
 
+bool targeter_fragment::harmful_to_player()
+{
+    bolt tempbeam;
+	coord_def a; 
+    setup_fragmentation_beam(tempbeam, pow, agent, a, true, nullptr);
+    return !tempbeam.ignores_player();
+}
+
 bool targeter_fragment::valid_aim(coord_def a)
 {
     if (!targeter_smite::valid_aim(a))

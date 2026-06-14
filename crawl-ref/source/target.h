@@ -177,6 +177,7 @@ public:
     targeter_fragment(const actor *act, int power, int range = LOS_RADIUS);
     bool set_aim(coord_def a) override;
     bool valid_aim(coord_def a) override;
+	bool harmful_to_player() override;
 private:
     int pow;
 };

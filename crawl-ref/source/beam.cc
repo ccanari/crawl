@@ -4512,6 +4512,9 @@ bool bolt::ignores_player() const
     if (origin_spell == SPELL_MERCURY_ARROW && agent() && agent()->is_player())
         return true;
 
+    if (origin_spell == SPELL_LRD && agent() && agent()->is_player())
+        return true;
+
     if (origin_spell == SPELL_HOARFROST_BULLET && is_explosion
         && agent() && agent()->wont_attack())
     {
