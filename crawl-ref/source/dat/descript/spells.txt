@@ -1222,9 +1222,9 @@ Lehudib's Crystal Spear spell
 Hurls a lethally sharp shard of crystal.
 
 Unbeknownst to dungeon dwellers, progress of magical research in the world
-outside of the dungeon reveald that it is possible to partially crystallise
+outside of the dungeon revealed that it is possible to partially crystallise
 who are struck by the crystal spear. Only player knows and is able to utilise
-this knowlegde into their advantage, enabling them to strike the crystallised
+this knowledge into their advantage, enabling them to strike the crystallised
 foes more vulnerable to damage and possibly interact with embedded crystalline
 matter with some earth magics.
 %%%%

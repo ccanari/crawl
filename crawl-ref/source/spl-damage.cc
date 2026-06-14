@@ -1340,7 +1340,7 @@ static bool _init_frag_monster(frag_effect &effect, monster &mon)
     if (mon.has_ench(ENCH_CRYSTALLISED))
     {
         effect.name       = "blast of crystal shards";
-        effect.colour     = WHITE;
+        effect.colour     = GREEN;
         effect.damage     = frag_damage_type::crystal;
         return true;
     }
