@@ -1594,6 +1594,9 @@ spret cast_fragmentation(int pow, const actor *caster,
         }
         else if (dam)
             mon->hurt(caster, dam, BEAM_MINDBURST);
+		
+		if (mon->alive())
+			mon->del_ench(ENCH_CRYSTALLISED);
     }
 
     // The explosion has a hole if it was a monster or the player which
