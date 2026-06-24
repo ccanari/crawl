@@ -3049,7 +3049,6 @@ static bool _evoke_staff_of_olgreb(dist *target)
     {
         return false;
     }
-    did_god_conduct(DID_WIZARDLY_ITEM, 10);
     return true;
 }
 
@@ -3338,7 +3337,7 @@ static spret _do_ability(const ability_def& abil, bool fail, dist *target,
             if (success == OPER_NONE)
                 return spret::abort;
 
-            if (god_hates_item(*wpn))
+            if (god_forbids_item(*wpn))
             {
                 mprf(MSGCH_WARN, "%s forbids using such a weapon!",
                      god_name(you.religion).c_str());
@@ -3637,7 +3636,6 @@ static spret _do_ability(const ability_def& abil, bool fail, dist *target,
                               10 + random2avg(you.skill(SK_INVOCATIONS, 6), 2),
                               100);
 
-        did_god_conduct(DID_HASTY, 8); // Currently irrelevant.
         break;
 
     case ABIL_OKAWARU_DUEL:

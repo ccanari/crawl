@@ -226,10 +226,12 @@ static const mutation_conflict mut_conflicts[] =
     { MUT_COLD_RESISTANCE,     MUT_COLD_VULNERABILITY,      true},
     { MUT_SHOCK_RESISTANCE,    MUT_SHOCK_VULNERABILITY,     true},
     { MUT_STRONG_WILLED,       MUT_WEAK_WILLED,             true},
+    // It is slightly odd to have two inverses for devolution, but it makes
+    // sense as long as those inverses are themselves conflicting.
     { MUT_MUTATION_RESISTANCE, MUT_DEVOLUTION,              true},
     { MUT_EVOLUTION,           MUT_DEVOLUTION,              true},
-    { MUT_MUTATION_RESISTANCE, MUT_EVOLUTION,               true},
 
+    { MUT_MUTATION_RESISTANCE, MUT_EVOLUTION,              false},
     { MUT_FANGS,               MUT_BEAK,                   false},
     { MUT_ANTENNAE,            MUT_HORNS,                  false},
     { MUT_BEAK,                MUT_HORNS,                  false},
@@ -1266,9 +1268,8 @@ static bool _accept_mutation(mutation_type mutat, bool temp, bool catalyst)
     // Catalyst mutations avoid the boring pure stat mutation trio, and also
     // try to avoid providing any auxes that could disable equipment.
     if (catalyst
-        && (mutat == MUT_HORNS || mutat == MUT_ANTENNAE
-            || mutat == MUT_CLAWS || mutat == MUT_HOOVES || mutat == MUT_TALONS
-            || mutat == MUT_STRONG || mutat == MUT_CLEVER || mutat == MUT_AGILE))
+        && (is_body_facet(mutat) || mutat == MUT_STRONG
+            || mutat == MUT_CLEVER || mutat == MUT_AGILE))
     {
         return false;
     }
@@ -1456,7 +1457,7 @@ static int _handle_conflicting_mutations(mutation_type mutation,
         // We can never delete innate mutations this way, so if there are no
         // non-innate mutations (and we're not trying to apply to temporary
         // invertable mutation, which is allowed), immediately fail.
-        if (innate_only && !conflict.is_inverse && !temp)
+        if (innate_only && !(conflict.is_inverse && temp))
         {
             dprf("Delete mutation failed: %s conflicting with innate mutation %s.",
                     mutation_name(mutation), mutation_name(confl_mut));

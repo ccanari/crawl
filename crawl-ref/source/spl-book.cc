@@ -778,7 +778,7 @@ private:
                 continue;
             }
 
-            const bool spell_hidden = you.hidden_spells.get(spell.spell);
+            const bool spell_hidden = you.current_hidden_spells()->get(spell.spell);
 
             if (spell_hidden)
                 hidden_count++;
@@ -927,7 +927,8 @@ public:
                     return examine_by_key(item.hotkeys[0]);
             case action::hide:
             case action::unhide:
-                you.hidden_spells.set(spell, !you.hidden_spells.get(spell));
+                auto *hidden = you.current_hidden_spells();
+                hidden->set(spell, !hidden->get(spell));
                 update_entries();
                 update_menu(true);
                 update_more();
@@ -940,9 +941,6 @@ public:
 
 static spell_type _choose_mem_spell(spell_list &spells)
 {
-    // If we've gotten this far, we know that at least one spell here is
-    // memorisable, which is enough.
-
     SpellLibraryMenu spell_menu(spells, SpellLibraryMenu::action::memorise);
 
     const vector<MenuEntry*> sel = spell_menu.show();
@@ -979,7 +977,9 @@ bool can_learn_spell(bool silent)
 
 bool learn_spell()
 {
-    spell_list spells(_get_spell_list());
+    // Include spells we can't currently memorise (e.g. all of them, while
+    // worshipping Trog) so the library can still be browsed and described.
+    spell_list spells(_get_spell_list(false, false));
     if (spells.empty())
         return false;
 
@@ -1100,9 +1100,6 @@ bool learn_spell(spell_type specspell, bool wizard, bool interactive)
 
     string mem_spell_warning_string = "";
 
-    if (!wizard)
-        mem_spell_warning_string = god_spell_warn_string(specspell, you.religion);
-
     if (interactive)
     {
         const string prompt = make_stringf(
@@ -1132,8 +1129,6 @@ bool learn_spell(spell_type specspell, bool wizard, bool interactive)
         if (!already_learning_spell(specspell))
             start_delay<MemoriseDelay>(spell_difficulty(specspell), specspell);
         you.turn_is_over = true;
-
-        did_god_conduct(DID_SPELL_MEMORISE, 2 + random2(5));
     }
 
     quiver::on_actions_changed();

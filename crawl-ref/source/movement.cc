@@ -265,60 +265,36 @@ bool apply_cloud_trail(const coord_def old_pos)
     return false;
 }
 
-bool cancel_confused_move(bool stationary)
+static bool _check_confused_attack(bool stationary)
 {
-    dungeon_feature_type dangerous = DNGN_FLOOR;
     monster *bad_mons = 0;
     string bad_suff, bad_adj;
     bool penance = false;
-    bool flight = false;
     for (adjacent_iterator ai(you.pos(), false); ai; ++ai)
     {
-        if (!stationary
-            && is_feat_dangerous(env.grid(*ai), true)
-            && need_expiration_warning(env.grid(*ai))
-            && (dangerous == DNGN_FLOOR || env.grid(*ai) == DNGN_LAVA))
+        string suffix, adj;
+        monster *mons = monster_at(*ai);
+        if (mons && bad_attack(mons, adj, suffix, penance))
         {
-            dangerous = env.grid(*ai);
-            if (need_expiration_warning(DUR_FLIGHT, env.grid(*ai)))
-                flight = true;
-            break;
-        }
-        else
-        {
-            string suffix, adj;
-            monster *mons = monster_at(*ai);
-            if (mons && bad_attack(mons, adj, suffix, penance))
-            {
-                bad_mons = mons;
-                bad_suff = suffix;
-                bad_adj = adj;
-                if (penance)
-                    break;
-            }
+            bad_mons = mons;
+            bad_suff = suffix;
+            bad_adj = adj;
+            if (penance)
+                break;
         }
     }
 
-    if (dangerous != DNGN_FLOOR || bad_mons)
+    if (bad_mons)
     {
         string prompt = "";
         prompt += "Are you sure you want to ";
         prompt += !stationary ? "stumble around" : "swing wildly";
         prompt += " while confused and next to ";
 
-        if (dangerous != DNGN_FLOOR)
-        {
-            prompt += (dangerous == DNGN_LAVA ? "lava" : "deep water");
-            prompt += flight ? " while you are losing your buoyancy"
-                             : " while your transformation is expiring";
-        }
-        else
-        {
-            string name = remove_prepended_the(bad_mons->name(DESC_PLAIN));
-            if (!starts_with(bad_adj, "your"))
-               bad_adj = "the " + bad_adj;
-            prompt += bad_adj + name + bad_suff;
-        }
+        string name = remove_prepended_the(bad_mons->name(DESC_PLAIN));
+        if (!starts_with(bad_adj, "your"))
+            bad_adj = "the " + bad_adj;
+        prompt += bad_adj + name + bad_suff;
         prompt += "?";
 
         if (penance)
@@ -328,11 +304,39 @@ bool cancel_confused_move(bool stationary)
             && !yesno(prompt.c_str(), false, 'n'))
         {
             canned_msg(MSG_OK);
-            return true;
+            return false;
         }
     }
 
-    return false;
+    return true;
+}
+
+/**
+ * Confirm that the player really wants to stumble around near danger
+ * May give many prompts, or no prompts if there is nothing bad to stumble into
+ *
+ * @param stationary  Whether the player is moving rather than attacking
+ * @return            If true, continue with the move, otherwise cancel it
+ */
+bool check_confused_move(bool stationary)
+{
+    if (!_check_confused_attack(stationary))
+        return false;
+
+    if (stationary)
+        return true;
+
+    // While confused we might stumble into any adjacent square, so run them all
+    // through the destination checks and prompt if any look dangerous.
+    vector<coord_def> areas;
+    for (adjacent_iterator ai(you.pos()); ai; ++ai)
+        areas.push_back(*ai);
+
+    const string verb = "stumble";
+    return check_terrain_warnings(areas, verb)
+        && check_moveto_cloud(areas, verb)
+        && check_moveto_trap(areas, verb)
+        && check_moveto_exclusions(areas, verb);
 }
 
 // Opens doors.
@@ -680,12 +684,15 @@ static bool _adjust_confused_movement(coord_def& move)
         return false;
     }
 
-    if (cancel_confused_move(false))
-        return false;
-
+    // First check general things that make movement unwise (e.g barbs).
     if (cancel_harmful_move())
         return false;
 
+    // Now check the squares we might reach for warnings.
+    if (!check_confused_move(false))
+        return false;
+
+    // Randomise the move destination.
     if (!one_chance_in(3))
     {
         move.x = random2(3) - 1;
@@ -892,7 +899,8 @@ static bool _try_stampede(const coord_def& target)
 
 // Handles the player trying to move/attack/swap into a given location.
 // Returns true if handling of further steps should continue after this.
-static bool _handle_player_step(const coord_def& targ, int& delay, bool rampaging,
+static bool _handle_player_step(const coord_def& targ, int& delay, const int delay_scale,
+                                bool rampaging,
                                 bool first_step,
                                 bool& did_stampede,
                                 bool& did_move, bool& did_attack, bool& did_open_door)
@@ -936,11 +944,11 @@ static bool _handle_player_step(const coord_def& targ, int& delay, bool rampagin
                     did_attack |= wu_jian_post_move_effects(false, initial_pos, false);
 
                 // Accumulate cost of moving across terrain, then average it.
-                int stampede_delay = player_movement_speed();
+                int stampede_delay = player_movement_speed(true, true, delay_scale);
                 // Move a second time (assuming we ended up where we expected to).
                 if (you.pos() == targ && _try_stampede(you.pos() + (targ - initial_pos)))
                 {
-                    stampede_delay = div_rand_round(stampede_delay + player_movement_speed(), 2);
+                    stampede_delay = div_rand_round(stampede_delay + player_movement_speed(true, true, delay_scale), 2);
                     if (you_worship(GOD_WU_JIAN))
                         did_attack |= wu_jian_post_move_effects(false, initial_pos, false);
                 }
@@ -1048,7 +1056,7 @@ static bool _handle_player_step(const coord_def& targ, int& delay, bool rampagin
         {
             // Moving over plants is slow. We will print a message about it but
             // only when moving from open space->plant.
-            delay += 5;
+            delay += 5 * delay_scale;
 
             const monster* current = monster_at(you.pos());
             if (!current || !fedhas_passthrough(current))
@@ -1078,7 +1086,7 @@ static bool _handle_player_step(const coord_def& targ, int& delay, bool rampagin
 
     // Calculate delay based on the tile we moved *into* (before any traps trigger
     // and potentially move us somewhere else).
-    delay += player_movement_speed();
+    delay += player_movement_speed(true, true, delay_scale);
     did_move = true;
 
     if (mon && !fedhas_move)
@@ -1151,7 +1159,8 @@ void move_player_action(coord_def move)
     // additional normal steps.
     for (int i = 0; i < max(num_steps, stampede_steps); ++i)
     {
-        if (you.cannot_move())
+        // Do not warn for the final (randomised) movement when confused.
+        if (you.cannot_move() || you.confused())
             break;
 
         targ += move;
@@ -1208,6 +1217,7 @@ void move_player_action(coord_def move)
     const coord_def initial_pos = you.pos();
     targ = you.pos();
     int delay = 0;
+    int delay_scale = 60;
     int steps_taken = 0;
     bool did_move = false;
     bool did_attack = false;
@@ -1230,8 +1240,8 @@ void move_player_action(coord_def move)
             break;
         }
 
-        if (!_handle_player_step(targ, delay, num_steps > 1, steps_taken == 0,
-                                 did_stampede,
+        if (!_handle_player_step(targ, delay, delay_scale,
+                                 num_steps > 1, steps_taken == 0, did_stampede,
                                  did_move, did_attack, did_open_door))
         {
             // Need to mark another step here so that move delay will avoid a div-by-0
@@ -1246,8 +1256,8 @@ void move_player_action(coord_def move)
     // player_fight())
     if (did_move)
     {
-        delay = div_rand_round(delay, steps_taken);
-        you.time_taken = div_rand_round(player_speed() * delay, BASELINE_DELAY);
+        you.time_taken = div_rand_round(player_speed(delay_scale) * delay,
+                                        BASELINE_DELAY * delay_scale * delay_scale * steps_taken);
         you.turn_is_over = true;
     }
 
@@ -1266,12 +1276,6 @@ void move_player_action(coord_def move)
             you.duration[DUR_NO_HOP] += you.time_taken;
         if (you.duration[DUR_MESMERISM_COOLDOWN])
             you.duration[DUR_MESMERISM_COOLDOWN] += you.time_taken;
-
-        if (you.unrand_equipped(UNRAND_LIGHTNING_SCALES)
-            || num_steps > 1 && !you.has_mutation(MUT_STAMPEDE))
-        {
-            did_god_conduct(DID_HASTY, 1, true);
-        }
 
         if (!did_attack && (num_steps > 1 || did_stampede) && you.has_mutation(MUT_STAMPEDE))
             did_attack |= do_west_wind_shot();

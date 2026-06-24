@@ -1530,8 +1530,8 @@ void tag_read(reader &inf, tag_type tag_id)
 
         // If somebody SIGHUP'ed out of the skill menu with every skill
         // disabled. Doing this here rather in _tag_read_you() because
-        // you.can_currently_train() requires the player's equipment be loaded.
-        init_can_currently_train();
+        // we want the player's equipment to be loaded.
+        reset_training();
 
 #if TAG_MAJOR_VERSION == 34
         // Set up Marks and major destruction mutation for current worshippers.
@@ -1766,6 +1766,7 @@ static void _tag_construct_you(writer &th)
 
     _marshallFixedBitVector<NUM_SPELLS>(th, you.spell_library);
     _marshallFixedBitVector<NUM_SPELLS>(th, you.hidden_spells);
+    _marshallFixedBitVector<NUM_SPELLS>(th, you.hidden_exegesis_spells);
 
     // how many spells?
     marshallUByte(th, MAX_KNOWN_SPELLS);
@@ -2113,6 +2114,7 @@ static void marshallRankPietyInfo(writer &th, RankPietyInfo r)
     marshallInt(th, r.piety_on_penance);
     marshallInt(th, r.piety_on_gifts);
     marshallInt(th, r.piety_on_stepdowns);
+    marshallInt(th, r.piety_at_max);
 }
 
 static void marshallConductInfo(writer &th, const ConductPietyInfo &cp_info)
@@ -2152,6 +2154,11 @@ static RankPietyInfo unmarshallRankPietyInfo(reader &th)
     r.piety_on_penance = unmarshallInt(th);
     r.piety_on_gifts = unmarshallInt(th);
     r.piety_on_stepdowns = unmarshallInt(th);
+#if TAG_MAJOR_VERSION == 34
+    if (th.getMinorVersion() >= TAG_MINOR_MAX_PIETY_LOGGING)
+#endif
+        r.piety_at_max = unmarshallInt(th);
+
     return r;
 }
 
@@ -3270,8 +3277,19 @@ static void _tag_read_you(reader &th)
     }
 #endif
 
+#if TAG_MAJOR_VERSION == 34
+    if (th.getMinorVersion() >= TAG_MINOR_EXEGESIS_HIDDEN)
+    {
+#endif
+        _unmarshallFixedBitVector<NUM_SPELLS>(th, you.hidden_exegesis_spells);
+#if TAG_MAJOR_VERSION == 34
+        _fixup_library_spells(you.hidden_exegesis_spells);
+    }
+#endif
+
     remove_removed_library_spells(you.spell_library);
     remove_removed_library_spells(you.hidden_spells);
+    remove_removed_library_spells(you.hidden_exegesis_spells);
 
     you.spells = unmarshall_player_spells(th);
     you.spell_letter_table = unmarshall_player_spell_letter_table(th);
@@ -3575,6 +3593,16 @@ static void _tag_read_you(reader &th)
         // Fix bugged negative charges.
         if (you.duration[DUR_DIVINE_SHIELD] < 0)
             you.duration[DUR_DIVINE_SHIELD] = 0;
+    }
+
+    if (th.getMinorVersion() < TAG_MINOR_SWIFTNESS_REFACTOR
+        && you.attribute[ATTR_SWIFTNESS] < 0)
+    {
+        // Swiftness's backlash used to be tracked as DUR_SWIFTNESS with a
+        // negative ATTR_SWIFTNESS; it now has its own duration.
+        you.duration[DUR_ANTISWIFT] = you.duration[DUR_SWIFTNESS];
+        you.duration[DUR_SWIFTNESS] = 0;
+        you.attribute[ATTR_SWIFTNESS] = 0;
     }
 
     if (th.getMinorVersion() < TAG_MINOR_SIMPLIFY_STAT_ZERO)
@@ -7227,6 +7255,20 @@ static void _fixup_tree_positions(MapKnowledge& map_knowledge)
         }
     }
 }
+
+static void _fixup_door_connect_knowledge(MapKnowledge& map_knowledge)
+{
+    for (rectangle_iterator ri(0); ri; ++ri)
+    {
+        if (feat_is_door(map_knowledge(*ri).feat()))
+            continue;
+
+        unsigned short door_connect = 0;
+        if (feat_is_door(map_knowledge(*ri).feat()))
+            door_connect = tile_door_connect(*ri);
+        map_knowledge(*ri).set_door_connect(door_connect);
+    }
+}
 #endif
 
 static void _tag_read_level(reader &th)
@@ -7293,6 +7335,8 @@ static void _tag_read_level(reader &th)
         _fixup_cloud_varieties(env.map_knowledge);
     if (th.getMinorVersion() < TAG_MINOR_TREE_POSITIONS)
         _fixup_tree_positions(env.map_knowledge);
+    if (th.getMinorVersion() < TAG_MINOR_FIX_DOOR_INFO_LEAK)
+        _fixup_door_connect_knowledge(env.map_knowledge);
 #endif
 
 #if TAG_MAJOR_VERSION == 34
@@ -7312,6 +7356,8 @@ static void _tag_read_level(reader &th)
             _fixup_blood_knowledge(*f);
         if (th.getMinorVersion() <= TAG_MINOR_FIX_POLAR_VORTEX_INFO_LEAK)
             _fixup_cloud_varieties(*f);
+        if (th.getMinorVersion() < TAG_MINOR_FIX_DOOR_INFO_LEAK)
+            _fixup_door_connect_knowledge(*f);
 #endif
         env.map_forgotten.reset(f);
     }
@@ -8221,23 +8267,7 @@ static void _tag_read_level_monsters(reader &th)
         }
 #endif
 
-        // companion_is_elsewhere checks the mid cache
         env.mid_cache[m.mid] = i;
-        if (m.is_divine_companion() && companion_is_elsewhere(m.mid))
-        {
-            dprf("Killed elsewhere companion %s(%d) on %s",
-                    m.name(DESC_PLAIN, true).c_str(), m.mid,
-                    level_id::current().describe(false, true).c_str());
-            monster_die(m, KILL_RESET, -1, true);
-            // avoid "mid cache bogosity" if there's an unhandled clone bug
-            if (dup_m && dup_m->alive())
-            {
-                mprf(MSGCH_ERROR, "elsewhere companion has duplicate mid %d: %s",
-                    dup_m->mid, dup_m->full_name(DESC_PLAIN).c_str());
-                env.mid_cache[dup_m->mid] = dup_m->mindex();
-            }
-            continue;
-        }
 
 #if defined(DEBUG) || defined(DEBUG_MONS_SCAN)
         if (invalid_monster_type(m.type))
@@ -8263,6 +8293,33 @@ static void _tag_read_level_monsters(reader &th)
 #endif
         env.mgrid(m.pos()) = i;
     }
+
+    // Kill any divine companions that have since moved elsewhere (e.g. via
+    // recall while the player was off-level). This must happen only after
+    // every monster has been unmarshalled and entered into the mid cache,
+    // so that we clear constriction properly for constricted monsters.
+    for (monster_iterator mi; mi; ++mi)
+    {
+        if (!mi->is_divine_companion() || !companion_is_elsewhere(mi->mid))
+            continue;
+
+        const mid_t mid = mi->mid;
+        dprf("Killed elsewhere companion %s(%d) on %s",
+                mi->name(DESC_PLAIN, true).c_str(), mid,
+                level_id::current().describe(false, true).c_str());
+        monster_die(**mi, KILL_RESET, -1, true);
+        // avoid "mid cache bogosity" if there's an unhandled clone bug
+        for (monster_iterator mi2; mi2; ++mi2)
+        {
+            if (mi2->mid == mid)
+            {
+                mprf(MSGCH_ERROR, "elsewhere companion has duplicate mid %d: %s",
+                    mi2->mid, mi2->full_name(DESC_PLAIN).c_str());
+                env.mid_cache[mid] = mi2->mindex();
+            }
+        }
+    }
+
 #if TAG_MAJOR_VERSION == 34
     // This relies on TAG_YOU (including lost monsters) being unmarshalled
     // on game load before the initial level.
@@ -8270,6 +8327,15 @@ static void _tag_read_level_monsters(reader &th)
         && th.getMinorVersion() >= TAG_MINOR_OPTIONAL_PARTS)
     {
         _fix_missing_constrictions();
+    }
+    // Saves written while elsewhere companions were still killed mid-load
+    // (before the fix above) can contain monsters constricted by a monster
+    // that no longer exists.
+    if (th.getMinorVersion() < TAG_MINOR_DANGLING_CONSTRICTION)
+    {
+        for (monster_iterator mi; mi; ++mi)
+            if (mi->is_constricted() && !actor_by_mid(mi->constricted_by))
+                mi->clear_constricted();
     }
     if (th.getMinorVersion() < TAG_MINOR_TENTACLE_MID)
     {

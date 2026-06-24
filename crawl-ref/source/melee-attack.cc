@@ -143,9 +143,8 @@ bool melee_attack::would_prompt_player()
 
     item_def* w1 = primary_weapon();
     item_def* w2 = offhand_weapon();
-    bool penance;
-    return w1 && needs_handle_warning(*w1, OPER_ATTACK, penance, false)
-           || w2 && needs_handle_warning(*w2, OPER_ATTACK, penance, false)
+    return w1 && needs_handle_warning(*w1, OPER_ATTACK, false)
+           || w2 && needs_handle_warning(*w2, OPER_ATTACK, false)
            || player_unrand_bad_attempt(true);
 }
 
@@ -1898,7 +1897,7 @@ bool melee_attack::attack()
 
     // Calculate various ev values and begin to check them to determine the
     // correct handle_phase_ handler.
-    const int ev = defender->evasion(false, attacker);
+    const int ev = defender->evasion(true, attacker);
     ev_margin = test_hit(to_hit, ev, !attacker->is_player());
     bool shield_blocked = attack_shield_blocked();
 
@@ -2512,7 +2511,7 @@ void melee_attack::player_aux_setup(unarmed_attack_type atk)
 
 bool melee_attack::player_aux_test_hit()
 {
-    const int evasion = defender->evasion(false, attacker);
+    const int evasion = defender->evasion(true, attacker);
 
     bool auto_hit = one_chance_in(30);
 
@@ -3088,21 +3087,6 @@ void melee_attack::player_exercise_combat_skills()
         practise_hitting(weapon);
 }
 
-/*
- * Applies god conduct for weapon ego
- *
- * Using speed brand as a chei worshipper, or holy/unholy/wizardly weapons etc
- */
-void melee_attack::player_weapon_upsets_god()
-{
-    if (weapon
-        && (weapon->base_type == OBJ_WEAPONS || weapon->base_type == OBJ_STAVES)
-        && god_hates_item_handling(*weapon))
-    {
-        did_god_conduct(god_hates_item_handling(*weapon), 2);
-    }
-}
-
 void melee_attack::sear_defender()
 {
     bool visible_effect = false;
@@ -3137,8 +3121,6 @@ void melee_attack::sear_defender()
  */
 bool melee_attack::player_monattk_hit_effects()
 {
-    player_weapon_upsets_god();
-
     // Don't even check effects if the monster has already been reset (for
     // example, a spectral weapon who noticed in player_stab_check that it
     // shouldn't exist anymore).
@@ -3468,9 +3450,7 @@ bool melee_attack::apply_staff_damage()
         dam /= 3;
     if (dam > 0)
     {
-        if (staff == STAFF_NECROMANCY)
-            attacker->god_conduct(DID_EVIL, 4);
-        else if (staff == STAFF_FIRE && defender->is_player())
+        if (staff == STAFF_FIRE && defender->is_player())
             maybe_melt_player_enchantments(flavour, dam);
 
         if (needs_message)

@@ -812,7 +812,6 @@ static void _handle_energy_orb(int cost, spret cast_result)
         mpr("Magical energy flows into your mind!");
         inc_mp(cost, true);
     }
-    did_god_conduct(DID_WIZARDLY_ITEM, 10);
 }
 
 /**
@@ -1008,10 +1007,11 @@ spret cast_a_spell(bool check_range, spell_type spell, dist *_target,
     }
 
     // MP, confusion, Ru sacs
-    const auto reason = casting_uselessness_reason(spell, true);
+    bool god_forbids = false;
+    const auto reason = casting_uselessness_reason(spell, true, &god_forbids);
     if (!reason.empty())
     {
-        mpr(reason);
+        mprf(god_forbids ? MSGCH_GOD : MSGCH_PLAIN, "%s", reason.c_str());
         crawl_state.zero_turns_taken();
         return spret::abort;
     }
@@ -1031,19 +1031,6 @@ spret cast_a_spell(bool check_range, spell_type spell, dist *_target,
         }
         crawl_state.zero_turns_taken();
         return spret::abort;
-    }
-
-    if (god_punishes_spell(spell, you.religion)
-        && !crawl_state.disables[DIS_CONFIRMATIONS])
-    {
-        // None currently dock just piety, right?
-        if (!yesno("Casting this spell will place you under penance. "
-                   "Really cast?", true, 'n'))
-        {
-            canned_msg(MSG_OK);
-            crawl_state.zero_turns_taken();
-            return spret::abort;
-        }
     }
 
     you.last_cast_spell = spell;
@@ -1082,7 +1069,6 @@ spret cast_a_spell(bool check_range, spell_type spell, dist *_target,
         stardust_orb_trigger(cost);
         if (you.unrand_equipped(UNRAND_MAJIN) && one_chance_in(500))
             _majin_speak(spell);
-        did_god_conduct(DID_SPELL_CASTING, 1 + random2(5));
         count_action(CACT_CAST, spell);
     }
 
@@ -1100,34 +1086,6 @@ spret cast_a_spell(bool check_range, spell_type spell, dist *_target,
 }
 
 /**
- * Handles divine response to spellcasting.
- *
- * @param spell         The type of spell just cast.
- */
-static void _spellcasting_god_conduct(spell_type spell)
-{
-    // If you are casting while a god is acting, then don't do conducts.
-    // (Presumably Xom is forcing you to cast a spell.)
-    if (crawl_state.is_god_acting())
-        return;
-
-    const int conduct_level = 10 + spell_difficulty(spell);
-
-    if (is_evil_spell(spell) || you.spellcasting_unholy())
-        did_god_conduct(DID_EVIL, conduct_level);
-
-    if (is_unclean_spell(spell))
-        did_god_conduct(DID_UNCLEAN, conduct_level);
-
-    if (is_chaotic_spell(spell))
-        did_god_conduct(DID_CHAOS, conduct_level);
-
-    // not is_hasty_spell since the other ones handle the conduct themselves.
-    if (spell == SPELL_SWIFTNESS)
-        did_god_conduct(DID_HASTY, conduct_level);
-}
-
-/**
  * Handles side effects of successfully casting a spell.
  *
  * Spell noise, magic 'sap' effects, and god conducts.
@@ -1140,8 +1098,6 @@ static void _spellcasting_god_conduct(spell_type spell)
 static void _spellcasting_side_effects(spell_type spell, god_type god,
                                        bool fake_spell)
 {
-    _spellcasting_god_conduct(spell);
-
     if (god == GOD_NO_GOD)
     {
         if (you.duration[DUR_SAP_MAGIC] && !fake_spell)
@@ -1656,7 +1612,7 @@ int hex_success_chance(const int wl, int powc, int scale, bool round_up)
         return 0;
     if (target <= 100)
         return (scale * (denom - _triangular_number(target)) + adjust) / denom;
-    return (scale * _triangular_number(201 - target) + adjust) / denom;
+    return (scale * _triangular_number(200 - target) + adjust) / denom;
 }
 
 // approximates _test_beam_hit in a deterministic fashion.
