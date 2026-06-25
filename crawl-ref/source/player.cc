@@ -6516,12 +6516,13 @@ int player::base_ac_from(const item_def &armour, int scale, bool include_form) c
 {
     const int base = property(armour, PARM_AC) * scale;
 
-    // [ds] effectively: ac_value * (22 + Arm) / 22, where Arm = Armour Skill.
-    const int AC = base * (440 + skill(SK_ARMOUR, 20)) / 440;
-
     // Only body armour can have additional penalties from mutations or forms.
     if (get_armour_slot(armour) != SLOT_BODY_ARMOUR)
-        return AC;
+        return base;
+
+    // Non-body armour shall not get bonus ac from armour skill.
+	// [ds] effectively: ac_value * (15 + Arm) / 15, where Arm = Armour Skill.
+    const int AC = base * (300 + skill(SK_ARMOUR, 20)) / 300;
 
     int mult = include_form ? get_form()->get_body_ac_mult() : 0;
     if (get_mutation_level(MUT_DEFORMED) || get_mutation_level(MUT_PSEUDOPODS))
